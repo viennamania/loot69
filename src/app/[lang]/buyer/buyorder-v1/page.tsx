@@ -4270,7 +4270,7 @@ const fetchBuyOrders = async () => {
               {user?.seller && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/seller-settings');
+                    router.push('/' + params.lang + '/loot/seller-settings');
                   }}
                   className="flex bg-[#0047ab] text-sm text-[#f3f4f6] px-4 py-2 rounded-lg hover:bg-[#0047ab]/80"
                 >

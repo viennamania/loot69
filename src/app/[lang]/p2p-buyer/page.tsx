@@ -774,7 +774,7 @@ export default function P2PBuyerPage() {
                   </div>
                 </div>
                 <a
-                  href="https://www.loot.menu/ko/p2p"
+                  href="https://www.loot.menu/ko/loot"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-12 shrink-0 items-center justify-center rounded-2xl bg-[#ff7a1a] px-4 text-xs font-semibold text-white shadow-[0_10px_24px_-16px_rgba(249,115,22,0.9)]"

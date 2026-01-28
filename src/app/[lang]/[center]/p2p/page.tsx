@@ -4171,7 +4171,7 @@ const fetchBuyOrders = async () => {
 
                         <button
                           onClick={() => {
-                            router.push('/' + params.lang + '/p2p/seller-settings');
+                            router.push('/' + params.lang + '/loot/seller-settings');
                           }}
                           className="text-xs text-zinc-700 underline"
                         >

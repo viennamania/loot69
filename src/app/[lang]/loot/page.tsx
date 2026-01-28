@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
-import { Manrope, Playfair_Display } from 'next/font/google';
+import { Rajdhani, Space_Grotesk } from 'next/font/google';
 import SendbirdProvider from '@sendbird/uikit-react/SendbirdProvider';
 import GroupChannel from '@sendbird/uikit-react/GroupChannel';
 import { AutoConnect, useActiveAccount } from 'thirdweb/react';
@@ -12,13 +12,13 @@ import { useClientWallets } from '@/lib/useClientWallets';
 import { client } from '@/app/client';
 
 
-const displayFont = Playfair_Display({
+const displayFont = Rajdhani({
     subsets: ['latin'],
     weight: ['600', '700'],
     variable: '--font-display',
 });
 
-const bodyFont = Manrope({
+const bodyFont = Space_Grotesk({
     subsets: ['latin'],
     weight: ['400', '500', '600', '700'],
     variable: '--font-body',
@@ -159,14 +159,14 @@ const STABLECOIN_NEWS: StablecoinNewsItem[] = [
 
 const STAT_CARD_STYLES = [
     {
-        base: 'bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(255,237,213,0.88))]',
-        orb: 'bg-[radial-gradient(circle_at_center,var(--sun)_0%,transparent_70%)]',
-        value: 'text-amber-700',
+        base: 'bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(2,6,23,0.98))] border border-slate-800/70',
+        orb: 'bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.25)_0%,transparent_70%)]',
+        value: 'text-emerald-200',
     },
     {
-        base: 'bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(219,234,254,0.88))]',
-        orb: 'bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)]',
-        value: 'text-sky-700',
+        base: 'bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(2,6,23,0.98))] border border-slate-800/70',
+        orb: 'bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.22)_0%,transparent_70%)]',
+        value: 'text-cyan-200',
     },
 ];
 
@@ -233,21 +233,21 @@ const TRADE_STYLES: Record<
 > = {
     buy: {
         label: '구매',
-        badge: 'border-emerald-200/80 bg-emerald-500/10 text-emerald-700',
+        badge: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
         accent: 'bg-[linear-gradient(180deg,#10b981,#14b8a6)]',
-        glow: 'bg-emerald-400/25',
+        glow: 'bg-emerald-400/20',
     },
     sell: {
         label: '취소',
-        badge: 'border-orange-200/80 bg-orange-500/10 text-orange-700',
+        badge: 'border-orange-400/40 bg-orange-500/10 text-orange-200',
         accent: 'bg-[linear-gradient(180deg,#f97316,#f59e0b)]',
-        glow: 'bg-orange-400/25',
+        glow: 'bg-orange-400/20',
     },
     pending: {
         label: '진행',
-        badge: 'border-sky-200/80 bg-sky-500/10 text-sky-700',
+        badge: 'border-sky-400/40 bg-sky-500/10 text-sky-200',
         accent: 'bg-[linear-gradient(180deg,#38bdf8,#0ea5e9)]',
-        glow: 'bg-sky-400/25',
+        glow: 'bg-sky-400/20',
     },
 };
 
@@ -259,33 +259,33 @@ const getBalanceTone = (balance: number, totalBalance: number) => {
     const ratio = totalBalance > 0 ? balance / totalBalance : 0;
     if (ratio >= 0.15) {
         return {
-            card: 'border-amber-200/80 bg-amber-50 shadow-[0_22px_60px_-38px_rgba(251,191,36,0.65)]',
-            glow: 'bg-amber-300/55',
-            amount: 'text-amber-700',
-            pill: 'border-amber-200/80 bg-amber-100/80 text-amber-700',
+            card: 'border-amber-400/40 bg-amber-500/10 shadow-[0_22px_60px_-38px_rgba(251,191,36,0.35)]',
+            glow: 'bg-amber-400/30',
+            amount: 'text-amber-200',
+            pill: 'border-amber-400/40 bg-amber-500/10 text-amber-200',
         };
     }
     if (ratio >= 0.07) {
         return {
-            card: 'border-sky-200/80 bg-sky-50 shadow-[0_22px_60px_-38px_rgba(56,189,248,0.55)]',
-            glow: 'bg-sky-300/45',
-            amount: 'text-sky-700',
-            pill: 'border-sky-200/80 bg-sky-100/80 text-sky-700',
+            card: 'border-sky-400/40 bg-sky-500/10 shadow-[0_22px_60px_-38px_rgba(56,189,248,0.35)]',
+            glow: 'bg-sky-400/30',
+            amount: 'text-sky-200',
+            pill: 'border-sky-400/40 bg-sky-500/10 text-sky-200',
         };
     }
     if (ratio >= 0.03) {
         return {
-            card: 'border-emerald-200/80 bg-emerald-50 shadow-[0_22px_60px_-38px_rgba(16,185,129,0.55)]',
-            glow: 'bg-emerald-300/45',
-            amount: 'text-emerald-700',
-            pill: 'border-emerald-200/80 bg-emerald-100/80 text-emerald-700',
+            card: 'border-emerald-400/40 bg-emerald-500/10 shadow-[0_22px_60px_-38px_rgba(16,185,129,0.35)]',
+            glow: 'bg-emerald-400/30',
+            amount: 'text-emerald-200',
+            pill: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
         };
     }
     return {
-        card: 'border-slate-200/70 bg-white shadow-[0_18px_45px_-34px_rgba(15,23,42,0.6)]',
-        glow: 'bg-amber-200/40',
-        amount: 'text-slate-900',
-        pill: 'border-slate-200/70 bg-white/80 text-slate-600',
+        card: 'border-slate-700/70 bg-slate-950/70 shadow-[0_18px_45px_-34px_rgba(2,6,23,0.7)]',
+        glow: 'bg-slate-400/20',
+        amount: 'text-slate-100',
+        pill: 'border-slate-700/70 bg-slate-900/70 text-slate-300',
     };
 };
 
@@ -334,7 +334,7 @@ export default function Loot69Page() {
     const walletAddress = activeAccount?.address ?? '';
     const { smartAccountEnabled, wallet } = useClientWallets();
     const hasWallet = Boolean(walletAddress);
-    const buyPageHref = `/${lang}/p2p/buy`;
+    const buyPageHref = `/${lang}/loot/buy`;
     const [sellerEscrowWalletAddress, setSellerEscrowWalletAddress] = useState<string | null>(null);
     const [sellerEscrowLoading, setSellerEscrowLoading] = useState(false);
     const [profileAvatarUrl, setProfileAvatarUrl] = useState('');
@@ -344,7 +344,7 @@ export default function Loot69Page() {
         hasWallet && sellerEscrowWalletAddress
             ? `/${lang}/escrow/${sellerEscrowWalletAddress}`
             : '';
-    const sellerSetupHref = `/${lang}/p2p/seller-settings`;
+    const sellerSetupHref = `/${lang}/loot/seller-settings`;
     const canStartSeller = Boolean(hasWallet && sellerEscrowWalletAddress);
     const sellerCtaLabel = !hasWallet
         ? '로그인 후 판매 시작'
@@ -355,8 +355,8 @@ export default function Loot69Page() {
         : '판매자 설정하기';
     const needsSellerSetup = Boolean(hasWallet && !sellerEscrowLoading && !sellerEscrowWalletAddress);
     const sellerCtaTone = !hasWallet
-        ? 'border-orange-200/90 bg-[linear-gradient(135deg,rgba(255,247,237,0.98),rgba(255,237,213,0.98))] text-orange-800 ring-1 ring-orange-200/70 shadow-[0_18px_40px_-24px_rgba(249,115,22,0.65)]'
-        : 'border-slate-200/80 bg-white/80 text-slate-600 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.2)]';
+        ? 'border-orange-400/40 bg-orange-500/10 text-orange-200 ring-1 ring-orange-400/30 shadow-[0_18px_40px_-24px_rgba(249,115,22,0.35)]'
+        : 'border-slate-700/70 bg-slate-900/70 text-slate-200 shadow-[0_14px_30px_-24px_rgba(2,6,23,0.6)]';
     const isSupportEligible = Boolean(walletAddress);
     const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
     const [animatedStats, setAnimatedStats] = useState(() => STAT_ITEMS.map(() => 0));
@@ -1503,27 +1503,26 @@ export default function Loot69Page() {
     return (
         <div
             ref={pageRef}
-            className={`${bodyFont.variable} ${displayFont.variable} relative min-h-screen overflow-hidden bg-[linear-gradient(160deg,var(--paper),#f0f9ff_45%,#fff1f2_85%)] text-[color:var(--ink)] font-[var(--font-body)]`}
+            className={`${bodyFont.variable} ${displayFont.variable} loot-shell relative min-h-screen overflow-hidden bg-[radial-gradient(120%_120%_at_0%_0%,var(--paper)_0%,#0b1020_45%,#04070d_100%)] text-[color:var(--ink)] font-[var(--font-body)]`}
             style={{
-                '--paper': '#fff4ea',
-                '--ink': '#1c1917',
-                '--accent': '#ff7a1a',
-                '--accent-deep': '#ea580c',
-                '--sea': '#0ea5e9',
-                '--mist': '#f5efe5',
-                '--rose': '#fb7185',
-                '--sun': '#fbbf24',
+                '--paper': '#0b1220',
+                '--ink': '#e2e8f0',
+                '--accent': '#22d3ee',
+                '--accent-deep': '#0891b2',
+                '--sea': '#10b981',
+                '--mist': '#0b1020',
+                '--rose': '#f97316',
+                '--sun': '#38bdf8',
                 '--scroll-progress': '0',
                 '--scroll-y': '0px',
             } as React.CSSProperties}
         >
-            <div className="pointer-events-none absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-35 blur-3xl float-slow" />
-            <div className="pointer-events-none absolute -bottom-32 left-[-10%] h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-30 blur-3xl float-slower" />
-            <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,var(--rose)_0%,transparent_70%)] opacity-25 blur-3xl float-slow" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(255,255,255,0))]" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.4)_1px,transparent_1px)] [background-size:18px_18px] opacity-20" />
-            <div className="pointer-events-none absolute left-[6%] top-[12%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.35),transparent_70%)] opacity-40 blur-3xl scroll-aurora" />
-            <div className="pointer-events-none absolute right-[8%] top-[42%] h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.35),transparent_70%)] opacity-30 blur-3xl scroll-aurora-alt" />
+            <div className="pointer-events-none absolute -top-32 right-[-10%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-20 blur-3xl float-slow" />
+            <div className="pointer-events-none absolute -bottom-32 left-[-10%] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-18 blur-3xl float-slower" />
+            <div className="pointer-events-none absolute left-[10%] top-[18%] h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.25),transparent_70%)] opacity-20 blur-3xl float-slow" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(15,23,42,0.9),rgba(15,23,42,0))]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:22px_22px] opacity-25" />
+            <div className="pointer-events-none absolute inset-0 scanline" />
             {bannerAds.length > 0 && (
                 <>
                     {/* PC 좌측 광고 배너 */}
@@ -1566,25 +1565,27 @@ export default function Loot69Page() {
 
             <AutoConnect client={client} wallets={[wallet]} />
             {/* 메인 컨텐츠 */}
-            <main className="container relative z-10 mx-auto max-w-5xl overflow-x-hidden px-4 pb-16 lg:px-8 lg:pb-12">
+            <main className="container relative z-10 mx-auto max-w-[900px] overflow-x-hidden px-4 pb-16 lg:px-6 lg:pb-12">
                 {/* 히어로 섹션 */}
-                <div className="hero-fade relative mt-10 mb-14 overflow-hidden rounded-[28px] border border-white/70 bg-white/70 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.6)] backdrop-blur">
-                    <div className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-30" />
-                    <div className="absolute -bottom-24 left-[-10%] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-25" />
-                    <div className="relative grid gap-10 p-8 md:grid-cols-[1.1fr_0.9fr] md:p-12">
+                <div className="hero-fade relative mt-10 mb-14 overflow-hidden rounded-[24px] border border-slate-800/70 bg-slate-950/70 shadow-[0_30px_90px_-60px_rgba(2,6,23,0.9)] backdrop-blur-sm">
+                    <div className="absolute -right-16 -top-24 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-25" />
+                    <div className="absolute -bottom-24 left-[-10%] h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-20" />
+                    <div className="relative grid gap-10 p-7 md:grid-cols-[1.1fr_0.9fr] md:p-10">
                         <div className="space-y-6">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-rose-200/70 bg-[linear-gradient(135deg,#fff1f2,#ffedd5)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-rose-700">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
                                 USDT · P2P · Escrow
                             </div>
                             <div className="flex items-center gap-4">
-                                <Image
-                                    src="/logo-loot.png"
-                                    alt="Loot69"
-                                    width={180}
-                                    height={56}
-                                    className="h-12 w-auto"
-                                    priority
-                                />
+                                <div className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-4 shadow-[0_16px_40px_-24px_rgba(2,6,23,0.85)]">
+                                    <Image
+                                        src="/logo-loot.png"
+                                        alt="Loot69"
+                                        width={320}
+                                        height={96}
+                                        className="h-16 w-auto drop-shadow-lg brightness-110 sm:h-20 md:h-24"
+                                        priority
+                                    />
+                                </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
                                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.6)] md:h-10 md:w-10">
@@ -1600,14 +1601,14 @@ export default function Loot69Page() {
                                     안전한 테더 구매·판매
                                 </h1>
                             </div>
-                            <p className="text-lg text-slate-700 md:text-xl">
+                            <p className="text-lg text-slate-300 md:text-xl">
                                 신원확인(KYC)·에스크로·분쟁조정으로 결제를 보호합니다.
                             </p>
 
                             <div className="flex flex-col gap-4 sm:flex-row">
                                 <Link
                                     href={buyPageHref}
-                                    className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-white shadow-[0_18px_45px_-20px_rgba(249,115,22,0.9)] transition hover:bg-[color:var(--accent-deep)] sm:w-auto sm:min-w-[220px]"
+                                    className="accent-cta inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:bg-[color:var(--accent-deep)] sm:w-auto sm:min-w-[220px]"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
                                         <path d="M6 6h15l-1.5 9h-13L6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1619,7 +1620,7 @@ export default function Loot69Page() {
                                 {canStartSeller ? (
                                     <Link
                                         href={sellerPageHref}
-                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-300/80 bg-white/80 px-8 py-4 text-base font-semibold text-slate-900 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.7)] transition hover:bg-white sm:w-auto sm:min-w-[240px]"
+                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-700/70 bg-slate-900/70 px-8 py-4 text-base font-semibold text-slate-200 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.6)] transition hover:border-emerald-400/40 sm:w-auto sm:min-w-[240px]"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
                                             <path d="M12 2l7 7-7 7-7-7 7-7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1632,7 +1633,7 @@ export default function Loot69Page() {
                                         {needsSellerSetup ? (
                                             <Link
                                                 href={sellerSetupHref}
-                                                className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-white shadow-[0_18px_45px_-22px_rgba(249,115,22,0.9)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
+                                                className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
                                             >
                                                 판매자 설정하기
                                             </Link>
@@ -1651,12 +1652,12 @@ export default function Loot69Page() {
                             </div>
 
                             <div className="grid gap-4 lg:grid-cols-2">
-                                <div className="group relative overflow-hidden rounded-[28px] border border-emerald-200/60 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(236,253,245,0.85))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(15,23,42,0.45)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_30px_70px_-50px_rgba(15,23,42,0.5)]">
-                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-emerald-400/70" />
-                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-emerald-300/30 blur-3xl" />
+                                <div className="group relative overflow-hidden rounded-[24px] border border-emerald-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)] backdrop-blur transition hover:-translate-y-0.5">
+                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-emerald-400/60" />
+                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-emerald-400/20 blur-3xl" />
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-700 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.25)]">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.25)]">
                                                 <Image
                                                     src="/icon-buyer.png"
                                                     alt="Buyer Guide"
@@ -1666,31 +1667,31 @@ export default function Loot69Page() {
                                                 />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Buyer Guide</p>
-                                                <p className="text-base font-semibold text-slate-900 sm:text-lg">구매 시작 전에 확인하세요</p>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">Buyer Guide</p>
+                                                <p className="text-base font-semibold text-slate-100 sm:text-lg">구매 시작 전에 확인하세요</p>
                                             </div>
                                         </div>
                                         <Link
                                             href={`/${lang}/buyerGuide`}
-                                            className="inline-flex items-center justify-center rounded-full border border-emerald-200/80 bg-white/90 px-5 py-2.5 text-xs font-semibold text-emerald-800 shadow-[0_12px_28px_-18px_rgba(16,185,129,0.35)] transition hover:border-emerald-300 hover:bg-white whitespace-nowrap"
+                                            className="inline-flex items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-5 py-2.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300/60 whitespace-nowrap"
                                         >
                                             구매자 메뉴얼 보기
                                         </Link>
                                     </div>
-                                    <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                                    <p className="mt-4 text-sm leading-relaxed text-slate-300">
                                         구매자 메뉴얼에서 안전한 구매 흐름과 주의사항을 확인해 보세요.
                                     </p>
-                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-emerald-700/80">
-                                        <span className="rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1">안전 흐름</span>
-                                        <span className="rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1">주의사항</span>
+                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-emerald-200/80">
+                                        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1">안전 흐름</span>
+                                        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1">주의사항</span>
                                     </div>
                                 </div>
-                                <div className="group relative overflow-hidden rounded-[28px] border border-orange-200/60 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(255,237,213,0.85))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(15,23,42,0.45)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_30px_70px_-50px_rgba(15,23,42,0.5)]">
-                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-orange-400/70" />
-                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-orange-300/30 blur-3xl" />
+                                <div className="group relative overflow-hidden rounded-[24px] border border-orange-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)] backdrop-blur transition hover:-translate-y-0.5">
+                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-orange-400/60" />
+                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-orange-400/20 blur-3xl" />
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-700 shadow-[inset_0_0_0_1px_rgba(249,115,22,0.25)]">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-200 shadow-[inset_0_0_0_1px_rgba(249,115,22,0.25)]">
                                                 <Image
                                                     src="/icon-seller.png"
                                                     alt="Seller Guide"
@@ -1700,291 +1701,58 @@ export default function Loot69Page() {
                                                 />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600">Seller Guide</p>
-                                                <p className="text-base font-semibold text-slate-900 sm:text-lg">판매 시작 전에 확인하세요</p>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-200">Seller Guide</p>
+                                                <p className="text-base font-semibold text-slate-100 sm:text-lg">판매 시작 전에 확인하세요</p>
                                             </div>
                                         </div>
                                         <Link
                                             href={`/${lang}/sellerGuide`}
-                                            className="inline-flex items-center justify-center rounded-full border border-orange-200/80 bg-white/90 px-5 py-2.5 text-xs font-semibold text-orange-800 shadow-[0_12px_28px_-18px_rgba(249,115,22,0.35)] transition hover:border-orange-300 hover:bg-white whitespace-nowrap"
+                                            className="inline-flex items-center justify-center rounded-full border border-orange-400/40 bg-orange-500/10 px-5 py-2.5 text-xs font-semibold text-orange-200 transition hover:border-orange-300/60 whitespace-nowrap"
                                         >
                                             판매자 메뉴얼 보기
                                         </Link>
                                     </div>
-                                    <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                                    <p className="mt-4 text-sm leading-relaxed text-slate-300">
                                         판매자 메뉴얼에서 에스크로 운영과 입금 확인 절차를 확인해 보세요.
                                     </p>
-                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-orange-700/80">
-                                        <span className="rounded-full border border-orange-200/70 bg-orange-50 px-3 py-1">에스크로 운영</span>
-                                        <span className="rounded-full border border-orange-200/70 bg-orange-50 px-3 py-1">입금 확인</span>
+                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-orange-200/80">
+                                        <span className="rounded-full border border-orange-400/40 bg-orange-500/10 px-3 py-1">에스크로 운영</span>
+                                        <span className="rounded-full border border-orange-400/40 bg-orange-500/10 px-3 py-1">입금 확인</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-[linear-gradient(145deg,#ffffff,#f1f5f9_60%,#e2e8f0)] px-5 py-4 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.45)]">
-                                <span className="pointer-events-none absolute left-0 top-0 h-full w-1 bg-[linear-gradient(180deg,#0f172a,#0ea5e9)]" />
-                                <div className="pointer-events-none absolute -right-14 -top-14 h-28 w-28 rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.14),transparent_70%)] blur-3xl" />
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                                        Secure Web3 Login
-                                    </span>
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 shadow-sm">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                        보안 인증됨
-                                    </span>
-                                </div>
-                                <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                                    <div className="flex items-start gap-3 md:flex-1">
-                                        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-900 text-white shadow-[0_16px_32px_-18px_rgba(15,23,42,0.6)] ring-1 ring-slate-200/80">
-                                            {walletAddress ? (
-                                                profileAvatarUrl ? (
-                                                    <Image
-                                                        src={profileAvatarUrl}
-                                                        alt="Member Avatar"
-                                                        fill
-                                                        sizes="48px"
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm font-semibold tracking-[0.12em]">
-                                                        {profileInitial || 'NA'}
-                                                    </span>
-                                                )
-                                            ) : (
-                                                <Image
-                                                    src="/icon-vault.png"
-                                                    alt="Secure Wallet"
-                                                    width={24}
-                                                    height={24}
-                                                    className="h-6 w-6"
-                                                />
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col gap-1.5">
-                                            <span className="text-base font-semibold text-slate-900 sm:text-lg">
-                                                {walletAddress ? '로그인 완료 상태입니다' : '지갑을 연결하고 보호된 결제를 시작하세요'}
-                                            </span>
-                                            <span className="text-xs text-slate-600">
-                                                {walletAddress ? (
-                                                    <span className="inline-flex flex-wrap items-center gap-1.5">
-                                                        <span className="rounded-full border border-slate-200/80 bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
-                                                            회원 아이디: {profileNickname || '미등록'}
-                                                        </span>
-                                                        <span className="rounded-full border border-slate-200/80 bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
-                                                            지갑: {walletAddress.substring(0, 6)}...{walletAddress.substring(walletAddress.length - 4)}
-                                                        </span>
-                                                        {smartAccountEnabled && (
-                                                            <span className="inline-flex items-center rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                                                                스마트 어카운트
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                ) : (
-                                                    '금융권 수준 보안 · 비수탁 로그인 · 실시간 모니터링'
-                                                )}
-                                            </span>
-                                            <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-600">
-                                                <span className="rounded-full border border-slate-200/80 bg-white/90 px-2.5 py-0.5">서명 기반 인증</span>
-                                                <span className="rounded-full border border-slate-200/80 bg-white/90 px-2.5 py-0.5">실시간 보안 모니터링</span>
-                                                <span className="rounded-full border border-slate-200/80 bg-white/90 px-2.5 py-0.5">에스크로 보호</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <Link
-                                        href={`/${lang}/web3login`}
-                                        className="inline-flex min-w-[140px] items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-xs font-semibold text-white shadow-[0_18px_40px_-22px_rgba(15,23,42,0.55)] transition hover:bg-slate-800 hover:shadow-[0_22px_48px_-24px_rgba(15,23,42,0.6)] whitespace-nowrap"
-                                    >
-                                        {walletAddress ? '내 지갑 보기' : '웹3 로그인'}
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-3 text-xs font-semibold text-slate-500">
-                                <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2">에스크로 보호</span>
-                                <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2">실시간 매칭</span>
-                                <span className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-2">자동 정산</span>
-                            </div>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(15,23,42,0.7)]">
+                        <div className="rounded-2xl border border-emerald-400/30 bg-slate-950/70 p-6 shadow-[0_25px_70px_-45px_rgba(2,6,23,0.8)]">
                             <div className="flex items-center justify-between">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">정산 절차</p>
-                                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">보호됨</span>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/70">정산 절차</p>
+                                <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">보호됨</span>
                             </div>
                             <div className="mt-6 space-y-4">
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--ink)] text-xs font-semibold text-white">1</div>
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">1</div>
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-900">구매 요청 생성</p>
-                                        <p className="text-xs text-slate-600">구매 요청이 등록됩니다.</p>
+                                        <p className="text-sm font-semibold text-emerald-100">구매 요청 생성</p>
+                                        <p className="text-xs text-emerald-100/70">구매 요청이 등록됩니다.</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--ink)] text-xs font-semibold text-white">2</div>
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">2</div>
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-900">에스크로 보관</p>
-                                        <p className="text-xs text-slate-600">판매자가 테더를 에스크로에 보관합니다.</p>
+                                        <p className="text-sm font-semibold text-emerald-100">에스크로 보관</p>
+                                        <p className="text-xs text-emerald-100/70">판매자가 테더를 에스크로에 보관합니다.</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--ink)] text-xs font-semibold text-white">3</div>
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">3</div>
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-900">입금 확인 & 정산</p>
-                                        <p className="text-xs text-slate-600">입금 확인 후 자동 정산됩니다.</p>
+                                        <p className="text-sm font-semibold text-emerald-100">입금 확인 & 정산</p>
+                                        <p className="text-xs text-emerald-100/70">입금 확인 후 자동 정산됩니다.</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-6 hidden lg:block">
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    <div className="rounded-xl border border-slate-200/70 bg-white/90 px-4 py-3 shadow-sm">
-                                        <div className="flex items-center gap-2">
-                                            <Image
-                                                src="/icon-approved.png"
-                                                alt="Approved"
-                                                width={20}
-                                                height={20}
-                                                className="h-5 w-5"
-                                            />
-                                            <span className="text-[11px] font-semibold text-slate-700 whitespace-nowrap tracking-tight">보호된 정산 체계</span>
-                                        </div>
-                                        <p className="mt-2 text-xs text-slate-600">
-                                            KYC · 에스크로 잠금 · 분쟁 중재 절차를 함께 운영합니다.
-                                        </p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-200/70 bg-white/90 px-4 py-3 shadow-sm">
-                                        <div className="flex items-center gap-2">
-                                            <Image
-                                                src="/icon-escrow.png"
-                                                alt="Escrow"
-                                                width={20}
-                                                height={20}
-                                                className="h-5 w-5"
-                                            />
-                                            <span className="text-[11px] font-semibold text-slate-700 whitespace-nowrap tracking-tight">에스크로 보관</span>
-                                        </div>
-                                        <p className="mt-2 text-xs text-slate-600">
-                                            거래가 완료될 때까지 자금이 안전하게 보호됩니다.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                                    <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-600">
-                                        <div className="flex flex-col items-start gap-2">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                                                <Image
-                                                    src="/icon-today.png"
-                                                    alt="Monitoring"
-                                                    width={16}
-                                                    height={16}
-                                                    className="h-5 w-5"
-                                                />
-                                            </div>
-                                            <span className="text-[11px] leading-tight tracking-tight">
-                                                실시간<br />모니터링
-                                            </span>
-                                        </div>
-                                        <p className="mt-2 text-sm font-semibold text-slate-900 whitespace-nowrap">24/7</p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-600">
-                                        <div className="flex flex-col items-start gap-2">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                                                <Image
-                                                    src="/icon-bank-check.png"
-                                                    alt="Deposit Check"
-                                                    width={16}
-                                                    height={16}
-                                                    className="h-5 w-5"
-                                                />
-                                            </div>
-                                            <span className="text-[11px] leading-tight tracking-tight whitespace-nowrap">입금 확인</span>
-                                        </div>
-                                        <p className="mt-2 text-sm font-semibold text-slate-900 leading-tight tracking-tight">
-                                            <span className="whitespace-nowrap">자동/수동</span>
-                                            <br />
-                                            검증
-                                        </p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-600">
-                                        <div className="flex flex-col items-start gap-2">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                                                <Image
-                                                    src="/icon-settlement.png"
-                                                    alt="Settlement"
-                                                    width={16}
-                                                    height={16}
-                                                    className="h-5 w-5"
-                                                />
-                                            </div>
-                                            <span className="text-[11px] leading-tight tracking-tight whitespace-nowrap">정산 처리</span>
-                                        </div>
-                                        <p className="mt-2 text-sm font-semibold text-slate-900 whitespace-nowrap tracking-tight">자동 전송</p>
-                                    </div>
-                                </div>
-                                <div className="mt-5 rounded-2xl border border-slate-200/70 bg-white/90 px-4 py-4 shadow-sm">
-                                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                                        <span className="h-2 w-2 rounded-full bg-slate-400" />
-                                        구매·판매 절차
-                                    </div>
-                                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-slate-700">
-                                        <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50 px-3 py-2">
-                                            <Image
-                                                src="/icon-buyer.png"
-                                                alt="Buyer"
-                                                width={16}
-                                                height={16}
-                                                className="h-4 w-4"
-                                            />
-                                            구매자 주문
-                                            <span className="rounded-full border border-slate-200 bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                                                구매자
-                                            </span>
-                                        </div>
-                                        <span className="text-slate-400">→</span>
-                                        <div className="flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50 px-3 py-2 text-amber-700">
-                                            <Image
-                                                src="/icon-escrow.png"
-                                                alt="Escrow"
-                                                width={16}
-                                                height={16}
-                                                className="h-4 w-4"
-                                            />
-                                            에스크로 보관
-                                            <span className="rounded-full border border-amber-200/80 bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                                                판매자
-                                            </span>
-                                        </div>
-                                        <span className="text-slate-400">→</span>
-                                        <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50 px-3 py-2">
-                                            <Image
-                                                src="/icon-bank-check.png"
-                                                alt="Deposit Check"
-                                                width={16}
-                                                height={16}
-                                                className="h-4 w-4"
-                                            />
-                                            입금 확인
-                                            <span className="rounded-full border border-slate-200 bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                                                판매자
-                                            </span>
-                                        </div>
-                                        <span className="text-slate-400">→</span>
-                                        <div className="flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-2 text-emerald-700">
-                                            <Image
-                                                src="/icon-transfer.png"
-                                                alt="Settlement"
-                                                width={16}
-                                                height={16}
-                                                className="h-4 w-4"
-                                            />
-                                            USDT 전송·정산
-                                            <span className="rounded-full border border-emerald-200/80 bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                                                플랫폼
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-6 rounded-xl border border-orange-200/60 bg-orange-50/80 px-4 py-3 text-sm text-orange-800">
+                            <div className="mt-6 rounded-xl border border-orange-400/40 bg-orange-500/10 px-4 py-3 text-sm text-orange-200">
                                 평균 처리 10-30분, 판매자 입금 확인 후 자동 USDT 전송 및 정산
                             </div>
                         </div>
@@ -1997,7 +1765,7 @@ export default function Loot69Page() {
                     <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-25" />
                     <div className="absolute -bottom-10 left-[-6%] h-32 w-32 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-20" />
                     <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="max-w-xl space-y-4">
+                        <div className="max-w-[576px] space-y-4">
                             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
                                 VASP 등록 에스크로
                             </span>
@@ -2135,11 +1903,11 @@ export default function Loot69Page() {
                 </div>
                 <section
                     data-reveal
-                    className="mb-12 rounded-[28px] border border-slate-200/70 bg-white/80 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
+                    className="mb-12 rounded-[22px] border border-slate-800/50 bg-slate-950/60 p-6 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.7)]"
                 >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-start gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/70 text-slate-300">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path
                                         d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z"
@@ -2151,52 +1919,52 @@ export default function Loot69Page() {
                             </div>
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-                                    Notice
+                                    Updates
                                 </p>
-                                <h2 className="font-[var(--font-display)] text-2xl text-slate-900">
-                                    공지사항
+                                <h2 className="font-[var(--font-display)] text-2xl text-slate-100">
+                                    공지
                                 </h2>
-                                <p className="mt-1 text-sm text-slate-600">
-                                    서비스 업데이트와 주요 안내를 확인하세요.
+                                <p className="mt-1 text-sm text-slate-500">
+                                    중요한 변경만 빠르게 안내합니다.
                                 </p>
                             </div>
                         </div>
                         <Link
                             href={`/${lang}/notice`}
-                            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/90 px-5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-white sm:text-sm"
+                            className="inline-flex items-center justify-center rounded-full border border-slate-700/60 bg-slate-900/70 px-5 py-2 text-xs font-semibold text-slate-300 sm:text-sm"
                         >
-                            공지사항 전체보기
+                            전체 보기
                         </Link>
                     </div>
 
                     <div className="mt-5 grid gap-3 md:grid-cols-3">
                         {noticeLoading ? (
-                            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                                공지사항을 불러오는 중입니다.
+                            <div className="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/50 px-4 py-6 text-sm text-slate-500">
+                                공지 로딩 중.
                             </div>
                         ) : noticeError ? (
-                            <div className="rounded-2xl border border-amber-200/70 bg-amber-50 px-4 py-6 text-sm text-amber-700">
+                            <div className="rounded-xl border border-slate-700/60 bg-slate-900/70 px-4 py-6 text-sm text-slate-400">
                                 {noticeError}
                             </div>
                         ) : noticeItems.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                                등록된 공지사항이 없습니다.
+                            <div className="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/50 px-4 py-6 text-sm text-slate-500">
+                                등록된 공지 없음.
                             </div>
                         ) : (
                             noticeItems.map((notice) => (
                                 <Link
                                     key={notice.id}
                                     href={`/${lang}/notice/${notice.id}`}
-                                    className="group rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.4)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-36px_rgba(15,23,42,0.45)]"
+                                    className="group rounded-xl border border-slate-800/60 bg-slate-950/60 p-4"
                                 >
                                     <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                                        <span className="inline-flex h-2 w-2 rounded-full bg-amber-500" />
+                                        <span className="inline-flex h-2 w-2 rounded-full bg-slate-500" />
                                         {notice.date}
                                     </div>
-                                    <p className="mt-2 text-base font-semibold text-slate-900 group-hover:text-orange-600">
+                                    <p className="mt-2 text-base font-semibold text-slate-100">
                                         {notice.title}
                                     </p>
-                                    <p className="mt-2 text-sm text-slate-600">{notice.summary}</p>
+                                    <p className="mt-2 text-sm text-slate-400">{notice.summary}</p>
                                 </Link>
                             ))
                         )}
@@ -2222,7 +1990,7 @@ export default function Loot69Page() {
                                         <h2 className="font-[var(--font-display)] text-2xl text-slate-900">제휴 배너</h2>
                                         <a
                                             href="mailto:support@loot.menu"
-                                            className="group inline-flex w-full flex-wrap items-center gap-2 rounded-full border border-rose-200/70 bg-[linear-gradient(120deg,rgba(255,255,255,0.95),rgba(254,242,242,0.95))] px-3 py-2 text-xs font-semibold text-rose-600 shadow-[0_14px_32px_-20px_rgba(244,63,94,0.65)] ring-1 ring-rose-200/60 transition hover:-translate-y-0.5 hover:text-rose-700 hover:shadow-[0_20px_45px_-20px_rgba(244,63,94,0.75)] sm:w-auto sm:flex-nowrap sm:py-1 sm:text-sm"
+                                            className="group inline-flex w-full flex-wrap items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200 ring-1 ring-rose-400/30 transition hover:-translate-y-0.5 hover:text-rose-100 sm:w-auto sm:flex-nowrap sm:py-1 sm:text-sm"
                                             aria-label="제휴 신청 이메일 보내기"
                                         >
                                             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-rose-200/70 bg-rose-100 text-rose-600">
@@ -2261,8 +2029,8 @@ export default function Loot69Page() {
                             className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-2 scrollbar-hide relative"
                             aria-label="제휴 배너 스크롤"
                         >
-                            <div className="absolute left-0 top-0 h-full w-16 bg-[linear-gradient(90deg,rgba(255,255,255,1),rgba(255,255,255,0))]" />
-                            <div className="absolute right-0 top-0 h-full w-16 bg-[linear-gradient(270deg,rgba(255,255,255,1),rgba(255,255,255,0))]" />
+                            <div className="absolute left-0 top-0 h-full w-16 bg-[linear-gradient(90deg,rgba(15,23,42,1),rgba(15,23,42,0))]" />
+                            <div className="absolute right-0 top-0 h-full w-16 bg-[linear-gradient(270deg,rgba(15,23,42,1),rgba(15,23,42,0))]" />
 
                             {bannerAds.map((ad) => (
                                 <a
@@ -2324,55 +2092,30 @@ export default function Loot69Page() {
                 
                 <div
                     data-reveal
-                    className="glam-card rounded-[28px] border border-slate-200/70 bg-white/80 p-6 mb-12 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur overflow-x-hidden"
+                    className="glam-card rounded-[24px] border border-slate-800/60 bg-slate-950/70 p-6 mb-12 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)] overflow-x-hidden"
                 >
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
                         <div>
-                            <div className="flex items-center gap-3">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="inline-block">
-                                    <path
-                                        d="M4 4h13a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V4z"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <path
-                                        d="M8 8h8M8 12h8M8 16h6"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                                <h2 className="font-[var(--font-display)] text-2xl text-slate-900 sm:text-3xl">스테이블코인 뉴스 피드</h2>
-                            </div>
-                            <p className="text-sm text-slate-600">핵심 이슈를 빠르게 확인하세요</p>
+                            <h2 className="font-[var(--font-display)] text-2xl text-slate-100 sm:text-3xl">뉴스</h2>
+                            <p className="text-sm text-slate-400">핵심 업데이트만 모았습니다.</p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500 sm:flex-nowrap">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-slate-50/80 px-3 py-1 text-slate-600">
-                                <span className="h-2 w-2 rounded-full bg-slate-400" />
-                                STABLECOIN
-                            </span>
-                            <span>
-                                업데이트{' '}
-                                {newsUpdatedAt
-                                    ? new Date(newsUpdatedAt).toLocaleTimeString('ko-KR', { hour12: false })
-                                    : '--:--:--'}
-                            </span>
-                            <span>좌측 자동 스크롤</span>
+                        <div className="text-[10px] font-semibold text-slate-500">
+                            업데이트{' '}
+                            {newsUpdatedAt
+                                ? new Date(newsUpdatedAt).toLocaleTimeString('ko-KR', { hour12: false })
+                                : '--:--:--'}
                         </div>
                     </div>
 
-                    {newsError && <p className="mb-4 text-xs font-semibold text-orange-600">{newsError}</p>}
+                    {newsError && <p className="mb-4 text-xs font-semibold text-orange-300">{newsError}</p>}
 
                     <div
                         ref={newsTickerRef}
                         className="news-ticker relative overflow-x-auto min-w-0 snap-x snap-mandatory"
                         aria-label="스테이블코인 뉴스 피드"
                     >
-                        <div className="pointer-events-none absolute left-0 top-0 h-full w-20 bg-gradient-to-r from-white/95 to-transparent" />
-                        <div className="pointer-events-none absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-white/95 to-transparent" />
+                        <div className="pointer-events-none absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-[#0b1220] to-transparent" />
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-[#0b1220] to-transparent" />
                         <div className="news-ticker-track">
                             {[0, 1].map((loopIndex) => (
                                 <div
@@ -2390,41 +2133,22 @@ export default function Loot69Page() {
                                                 target="_blank"
                                                 rel="noreferrer noopener"
                                                 tabIndex={loopIndex === 1 ? -1 : undefined}
-                                                className="news-card group flex flex-col rounded-2xl border border-slate-200/70 bg-white/85 p-4 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.7)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_-38px_rgba(15,23,42,0.7)] snap-start"
+                                                className="news-card group flex flex-col gap-2 rounded-lg border border-slate-800/60 bg-slate-950/60 p-3 transition duration-300 hover:-translate-y-1 snap-start"
                                             >
-                                                <div className="relative h-28 w-full overflow-hidden rounded-xl border border-slate-200/70 bg-gradient-to-br from-slate-100 via-white to-slate-200/70">
-                                                    <Image
-                                                        src={imageSrc}
-                                                        alt={news.title}
-                                                        fill
-                                                        sizes="(min-width: 1024px) 280px, (min-width: 640px) 240px, 70vw"
-                                                        loader={({ src }) => src}
-                                                        unoptimized
-                                                        className={`${
-                                                            isLocalImage ? 'object-contain p-6' : 'object-cover'
-                                                        }`}
-                                                        onError={(event) => {
-                                                            const target = event.currentTarget as HTMLImageElement;
-                                                            target.onerror = null;
-                                                            target.src = '/icon-market.png';
-                                                            target.className = 'object-contain p-6';
-                                                        }}
-                                                    />
-                                                </div>
                                                 <div className="flex items-center justify-between text-[11px] text-slate-500">
-                                                    <span className="inline-flex items-center rounded-full border border-slate-200/80 bg-white px-2 py-1 font-semibold text-slate-600">
+                                                    <span className="inline-flex items-center rounded-full border border-slate-800/60 bg-slate-900/70 px-2 py-1 font-semibold text-slate-300">
                                                         {news.tag}
                                                     </span>
                                                     <span>{formatRelativeTime(news.publishedAt)}</span>
                                                 </div>
-                                                <p className="mt-3 text-sm font-semibold leading-snug text-slate-900">
+                                                <p className="text-sm font-semibold leading-snug text-slate-100">
                                                     {news.title}
                                                 </p>
-                                                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-                                                    <span className="font-semibold text-slate-700">{news.source}</span>
-                                                    <span className="text-slate-300">•</span>
-                                                    <span className="font-semibold text-slate-600 group-hover:text-slate-900">
-                                                        자세히 보기
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <span className="font-semibold text-slate-300">{news.source}</span>
+                                                    <span className="text-slate-500">•</span>
+                                                    <span className="font-semibold text-slate-400 group-hover:text-slate-200">
+                                                        보기
                                                     </span>
                                                 </div>
                                             </a>
@@ -2438,248 +2162,32 @@ export default function Loot69Page() {
                 
                 
 
-                <div
-                    data-reveal
-                    className="glam-card rounded-[28px] border border-slate-200/70 bg-white/80 p-8 mb-12 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
-                >
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                        <div>
-                            <div className="flex items-center gap-3">
-                                {/* best seller icon */}
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="inline-block">
-                                    <path
-                                        d="M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.5L12 15.8 7.2 18l.9-5.5L4.2 8.7l5.4-.8L12 3z"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                                <h2 className="font-[var(--font-display)] text-2xl text-slate-900 sm:text-3xl">베스트 셀러</h2>
-                            </div>
-                            <p className="text-sm text-slate-600">최근 정산 완료량 기준 상위 판매자</p>
-                        </div>
-                        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-amber-200/70 bg-amber-50/80 px-3 py-1 text-amber-700">
-                                <span className="h-2 w-2 rounded-full bg-amber-500" />
-                                TOP
-                            </span>
-                            <span>
-                                업데이트{' '}
-                                {sellersBalanceUpdatedAt
-                                    ? new Date(sellersBalanceUpdatedAt).toLocaleTimeString('ko-KR', {
-                                          hour12: false,
-                                      })
-                                    : '--:--:--'}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* 베스트 셀러 티커 */}
-                    
-                    {bestSellers.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-5 py-6 text-sm text-slate-600">
-                            베스트 셀러를 불러오는 중입니다.
-                        </div>
-                    ) : (
-                        <div
-                            ref={sellerTickerRef}
-                            className="seller-ticker relative overflow-x-auto min-w-0"
-                            aria-label="베스트 셀러 목록"
-                        >
-                            <div className="seller-ticker-track">
-                                <div className="seller-ticker-group">
-                                    {bestSellers.map((seller, index) => {
-                                        const displayName = maskName(
-                                            seller?.nickname ||
-                                                seller?.store?.storeName ||
-                                                seller?.walletAddress ||
-                                                '판매자'
-                                        );
-                                        const totalConfirmed = seller?.seller?.totalPaymentConfirmedUsdtAmount || 0;
-                                        const currentBalanceRaw = Number(seller?.currentUsdtBalance ?? 0);
-                                        const currentBalance = Number.isFinite(currentBalanceRaw)
-                                            ? currentBalanceRaw
-                                            : 0;
-                                        const rate = seller?.seller?.usdtToKrwRate;
-                                        //const sellerWalletAddress = seller?.walletAddress;
-                                        const sellerWalletAddress = seller?.seller?.escrowWalletAddress;
-                                        const promotionText = seller?.seller?.promotionText || seller?.promotionText;
-                                        const priceSettingMethod = seller?.seller?.priceSettingMethod;
-                                        const market = seller?.seller?.market;
-                                        const balanceTone = getBalanceTone(currentBalance, totalSellerBalance);
-                                        return (
-                                            <div
-                                                key={`${seller?.walletAddress || index}`}
-                                                className={`seller-card relative flex flex-col gap-4 rounded-2xl border p-4 ${balanceTone.card}`}
-                                            >
-                                                <span
-                                                    className={`pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full blur-2xl ${balanceTone.glow}`}
-                                                />
-                                                <div className="flex items-center gap-3">
-                                                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white">
-                                                        <Image
-                                                            src={
-                                                                seller?.avatar ||
-                                                                seller?.store?.storeLogo ||
-                                                                '/icon-seller.png'
-                                                            }
-                                                            alt="Seller"
-                                                            fill
-                                                            sizes="44px"
-                                                            className="object-cover object-center"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-slate-900">{displayName}</p>
-                                                        <p className="text-xs text-slate-500">
-                                                            완료 {numberFormatter.format(totalConfirmed)} USDT
-                                                        </p>
-                                                        {promotionText && (
-                                                            <p className="promo-text text-xs text-slate-600">
-                                                                <span className="promo-text-content">
-                                                                    <span className="promo-text-message">
-                                                                        {promotionText}
-                                                                    </span>
-                                                                </span>
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-end justify-between gap-4">
-                                                    <div>
-                                                        <p className="text-xs text-slate-500">보유 잔액</p>
-                                                        <p className={`text-base font-semibold ${balanceTone.amount}`}>
-                                                            {numberFormatter.format(currentBalance)} USDT
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <div className="flex flex-col items-end gap-1">
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                <span className="text-[11px] font-semibold text-slate-500">
-                                                                    판매가격
-                                                                </span>
-                                                                {priceSettingMethod === 'market' ? (
-                                                                    <div className="flex items-center gap-1">
-                                                                        {market === 'upbit' && (
-                                                                            <Image
-                                                                                src="/icon-market-upbit.png"
-                                                                                alt="Upbit"
-                                                                                width={18}
-                                                                                height={18}
-                                                                                className="h-4 w-4"
-                                                                            />
-                                                                        )}
-                                                                        {market === 'bithumb' && (
-                                                                            <Image
-                                                                                src="/icon-market-bithumb.png"
-                                                                                alt="Bithumb"
-                                                                                width={18}
-                                                                                height={18}
-                                                                                className="h-4 w-4"
-                                                                            />
-                                                                        )}
-                                                                        {market === 'korbit' && (
-                                                                            <Image
-                                                                                src="/icon-market-korbit.png"
-                                                                                alt="Korbit"
-                                                                                width={18}
-                                                                                height={18}
-                                                                                className="h-4 w-4"
-                                                                            />
-                                                                        )}
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-[11px] font-semibold text-slate-500">
-                                                                        고정가격
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <span
-                                                                className={`rounded-full border px-4 py-2 text-sm font-semibold ${balanceTone.pill}`}
-                                                            >
-                                                                {typeof rate === 'number'
-                                                                    ? `${numberFormatter.format(rate)} KRW`
-                                                                    : '시세 준비중'}
-                                                            </span>
-                                                        </div>
-                                                        {sellerWalletAddress && (
-                                                            <a
-                                                                href={`/${lang}/escrow/${sellerWalletAddress}`}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="inline-flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-3 py-1 text-xs font-semibold text-white shadow-[0_10px_25px_-12px_rgba(249,115,22,0.8)] transition hover:bg-[color:var(--accent-deep)]"
-                                                            >
-                                                                <svg
-                                                                    width="14"
-                                                                    height="14"
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    className="inline-block"
-                                                                    aria-hidden="true"
-                                                                >
-                                                                    <path
-                                                                        d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                    />
-                                                                    <path
-                                                                        d="M8 10h8M8 14h5"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                    />
-                                                                </svg>
-                                                                문의하기
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[color:var(--paper)] to-transparent" />
-                            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[color:var(--paper)] to-transparent" />
-                        </div>
-                    )}
-                    
-                </div>
 
                 <div
                     data-reveal
-                    className="glam-card rounded-[28px] border border-slate-200/70 bg-white/80 p-8 mb-12 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
+                    className="glam-card rounded-[24px] border border-slate-800/60 bg-slate-950/70 p-7 mb-12 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)]"
                 >
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
                         <div>
                             <div className="flex items-center gap-3">
-                                {/* trade icon */}
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="inline-block">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7 10l5-5 5 5M12 5v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                <h2 className="font-[var(--font-display)] text-2xl text-slate-900 sm:text-3xl">최근 정산 내역</h2>
+                                <h2 className="font-[var(--font-display)] text-2xl text-slate-100 sm:text-3xl">최근 정산</h2>
                             </div>
-                            <p className="text-sm text-slate-600">최근 10건이 순환 표시됩니다.</p>
+                            <p className="text-sm text-slate-400">최근 10건이 순환 표시됩니다.</p>
                         </div>
-                        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
-                            <span className="inline-flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <div className="flex flex-wrap items-center justify-end gap-2 text-[10px] font-semibold text-slate-400">
+                            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-200">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                                 구매
                             </span>
-                            <span className="inline-flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-sky-500" />
+                            <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/30 bg-sky-500/10 px-2 py-0.5 text-sky-200">
+                                <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
                                 진행
                             </span>
-                            <span className="inline-flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-orange-500" />
+                            <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/30 bg-orange-500/10 px-2 py-0.5 text-orange-200">
+                                <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
                                 취소
                             </span>
-                            <span>
+                            <span className="text-slate-500">
                                 업데이트{' '}
                                 {recentTradesUpdatedAt
                                     ? new Date(recentTradesUpdatedAt).toLocaleTimeString('ko-KR', {
@@ -2691,11 +2199,11 @@ export default function Loot69Page() {
                     </div>
 
                     {recentTradesError && (
-                        <p className="mb-4 text-xs font-semibold text-orange-600">{recentTradesError}</p>
+                        <p className="mb-4 text-xs font-semibold text-orange-300">{recentTradesError}</p>
                     )}
 
                     {recentTrades.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-5 py-6 text-sm text-slate-600">
+                        <div className="rounded-xl border border-slate-800/70 bg-slate-900/70 px-5 py-6 text-sm text-slate-400">
                             정산 내역을 불러오는 중입니다.
                         </div>
                     ) : (
@@ -2708,21 +2216,21 @@ export default function Loot69Page() {
                                             return (
                                                 <div
                                                     key={`${loopIndex}-${trade.id}`}
-                                                    className="relative flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200/70 bg-white/70 px-5 py-4 shadow-[0_20px_50px_-35px_rgba(15,23,42,0.7)] backdrop-blur"
+                                                    className="relative flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-800/60 bg-slate-950/60 px-5 py-4"
                                                 >
                                                     <span className={`absolute left-0 top-0 h-full w-1.5 ${style.accent}`} />
                                                     <span className={`pointer-events-none absolute right-4 top-3 h-12 w-12 rounded-full ${style.glow} blur-2xl`} />
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-xs font-semibold text-white">
+                                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-xs font-semibold text-slate-100">
                                                             {style.label}
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-semibold text-slate-900">{trade.user}</p>
+                                                            <p className="text-sm font-semibold text-slate-100">{trade.user}</p>
                                                             <p className="text-xs text-slate-500">{trade.time}</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-base font-semibold text-slate-900">{trade.amount}</p>
+                                                        <p className="text-base font-semibold text-slate-100">{trade.amount}</p>
                                                         <p className="text-xs text-slate-500">{trade.price}</p>
                                                     </div>
                                                     <span
@@ -2736,8 +2244,8 @@ export default function Loot69Page() {
                                     </div>
                                 ))}
                             </div>
-                            <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[color:var(--paper)] to-transparent" />
-                            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[color:var(--paper)] to-transparent" />
+                            <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#0b1220] to-transparent" />
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#0b1220] to-transparent" />
                         </div>
                     )}
                 </div>
@@ -2747,50 +2255,50 @@ export default function Loot69Page() {
                 <div
                     data-reveal
                     style={{ '--reveal-delay': '0s' } as React.CSSProperties}
-                    className="glam-card group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/75 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur transition hover:-translate-y-1 hover:shadow-[0_40px_90px_-60px_rgba(15,23,42,0.8)]"
+                    className="glam-card group relative overflow-hidden rounded-2xl border border-emerald-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] p-6 text-slate-100 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.9)] transition hover:-translate-y-1 hover:border-emerald-300/50"
                 >
-                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--sea)] text-white shadow-[0_12px_30px_-18px_rgba(15,118,110,0.8)]">
+                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30 shadow-[0_12px_30px_-18px_rgba(16,185,129,0.45)]">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </div>
-                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-slate-900">보호된 결제</h3>
-                        <p className="text-center text-sm text-slate-700">
-                            에스크로 시스템으로 결제 금액을 안전하게 보호합니다.
+                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-emerald-100">즉시 잠금</h3>
+                        <p className="text-center text-sm text-emerald-100/70">
+                            요청 즉시 자금 잠금.
                         </p>
                     </div>
 
                 <div
                     data-reveal
                     style={{ '--reveal-delay': '0.08s' } as React.CSSProperties}
-                    className="glam-card group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/75 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur transition hover:-translate-y-1 hover:shadow-[0_40px_90px_-60px_rgba(15,23,42,0.8)]"
+                    className="glam-card group relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] p-6 text-slate-100 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.9)] transition hover:-translate-y-1 hover:border-cyan-300/50"
                 >
-                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--accent)] text-white shadow-[0_12px_30px_-18px_rgba(249,115,22,0.8)]">
+                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-200 ring-1 ring-cyan-400/30 shadow-[0_12px_30px_-18px_rgba(34,211,238,0.45)]">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </div>
-                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-slate-900">빠른 처리</h3>
-                        <p className="text-center text-sm text-slate-700">
-                            실시간 매칭과 정상 정산 시스템
+                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-cyan-100">즉시 정산</h3>
+                        <p className="text-center text-sm text-cyan-100/70">
+                            확인 끝나면 즉시 전송.
                         </p>
                     </div>
 
                 <div
                     data-reveal
                     style={{ '--reveal-delay': '0.16s' } as React.CSSProperties}
-                    className="glam-card group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/75 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur transition hover:-translate-y-1 hover:shadow-[0_40px_90px_-60px_rgba(15,23,42,0.8)]"
+                    className="glam-card group relative overflow-hidden rounded-2xl border border-indigo-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] p-6 text-slate-100 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.9)] transition hover:-translate-y-1 hover:border-indigo-300/50"
                 >
-                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-[0_12px_30px_-18px_rgba(15,23,42,0.8)]">
+                        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-200 ring-1 ring-indigo-400/30 shadow-[0_12px_30px_-18px_rgba(99,102,241,0.45)]">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </div>
-                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-slate-900">P2P 구매·판매</h3>
-                        <p className="text-center text-sm text-slate-700">
-                            개인 간 직접 구매·판매로 가격을 비교할 수 있습니다
+                        <h3 className="mb-3 text-center font-[var(--font-display)] text-xl text-indigo-100">직거래 체결</h3>
+                        <p className="text-center text-sm text-indigo-100/70">
+                            가격 선택, 즉시 체결.
                         </p>
                     </div>
                 </div>
@@ -2798,51 +2306,67 @@ export default function Loot69Page() {
                 {/* 에스크로 시스템 설명 */}
                 <div
                     data-reveal="pop"
-                    className="glam-card relative overflow-hidden rounded-[28px] border border-slate-800/70 bg-[linear-gradient(140deg,#0f172a,#134e4a)] p-8 md:p-12 mb-12 text-white shadow-[0_40px_120px_-60px_rgba(2,6,23,0.9)]"
+                    className="glam-card relative overflow-hidden rounded-[26px] border border-emerald-400/30 bg-[radial-gradient(120%_120%_at_0%_0%,#0b1220_0%,#0b1c22_55%,#071018_100%)] p-8 md:p-10 mb-12 text-slate-100 shadow-[0_36px_100px_-60px_rgba(2,6,23,0.9)]"
                 >
-                    <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.5),transparent_70%)] opacity-40 blur-3xl" />
-                    <h2 className="font-[var(--font-display)] text-2xl sm:text-3xl md:text-4xl text-center mb-8">
-                        🔒 에스크로 보호란?
-                    </h2>
-                    
-                    <div className="max-w-4xl mx-auto">
-                        <div className="grid md:grid-cols-2 gap-8 mb-8">
-                            <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                <div className="text-3xl sm:text-4xl mb-4">1️⃣</div>
-                                <h3 className="text-xl font-bold mb-3">구매 요청 생성</h3>
-                                <p className="text-slate-100">
-                                    구매 요청이 등록되면 결제가 보호됩니다.
+                    <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.25),transparent_70%)] opacity-50 blur-3xl" />
+                    <div className="flex flex-col items-center gap-2 text-center">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">
+                            Escrow Flow
+                        </span>
+                        <h2 className="font-[var(--font-display)] text-2xl sm:text-3xl md:text-4xl">
+                            에스크로 보호 플로우
+                        </h2>
+                        <p className="text-sm text-emerald-100/70">
+                            결제부터 정산까지, 보호된 순서로 처리됩니다.
+                        </p>
+                    </div>
+
+                    <div className="max-w-[768px] mx-auto mt-8">
+                        <div className="grid gap-5 md:grid-cols-2">
+                            <div className="rounded-2xl border border-emerald-400/25 bg-slate-950/70 p-5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">
+                                    STEP 01
+                                </span>
+                                <h3 className="mt-3 text-lg font-semibold text-emerald-100">요청 생성</h3>
+                                <p className="mt-2 text-sm text-emerald-100/70">
+                                    거래 조건이 확정되면 보호가 시작됩니다.
                                 </p>
                             </div>
-                            
-                            <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                <div className="text-3xl sm:text-4xl mb-4">2️⃣</div>
-                                <h3 className="text-xl font-bold mb-3">에스크로 보관</h3>
-                                <p className="text-slate-100">
-                                    판매자가 테더를 에스크로 지갑에 안전하게 보관합니다.
+
+                            <div className="rounded-2xl border border-emerald-400/25 bg-slate-950/70 p-5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">
+                                    STEP 02
+                                </span>
+                                <h3 className="mt-3 text-lg font-semibold text-emerald-100">테더 보관</h3>
+                                <p className="mt-2 text-sm text-emerald-100/70">
+                                    판매자가 테더를 에스크로 지갑에 잠급니다.
                                 </p>
                             </div>
-                            
-                            <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                <div className="text-3xl sm:text-4xl mb-4">3️⃣</div>
-                                <h3 className="text-xl font-bold mb-3">입금 완료 알림</h3>
-                                <p className="text-slate-100">
-                                    구매자가 입금 후 완료 알림을 보냅니다
+
+                            <div className="rounded-2xl border border-emerald-400/25 bg-slate-950/70 p-5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">
+                                    STEP 03
+                                </span>
+                                <h3 className="mt-3 text-lg font-semibold text-emerald-100">입금 알림</h3>
+                                <p className="mt-2 text-sm text-emerald-100/70">
+                                    구매자가 입금 완료 알림을 전달합니다.
                                 </p>
                             </div>
-                            
-                            <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                                <div className="text-3xl sm:text-4xl mb-4">4️⃣</div>
-                                <h3 className="text-xl font-bold mb-3">확인 후 자동 정산</h3>
-                                <p className="text-slate-100">
-                                    판매자가 입금을 확인하면 에스크로에서 자동 정산됩니다.
+
+                            <div className="rounded-2xl border border-emerald-400/25 bg-slate-950/70 p-5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">
+                                    STEP 04
+                                </span>
+                                <h3 className="mt-3 text-lg font-semibold text-emerald-100">자동 정산</h3>
+                                <p className="mt-2 text-sm text-emerald-100/70">
+                                    확인 후 테더가 자동으로 전송됩니다.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-orange-200/40 bg-orange-500/15 p-6 text-center">
-                            <p className="text-lg text-white">
-                                ✨ <strong>에스크로로 결제를 보호</strong>하여 안전한 정산을 보장합니다!
+                        <div className="mt-6 rounded-2xl border border-cyan-300/30 bg-cyan-500/10 p-5 text-center">
+                            <p className="text-sm text-cyan-100">
+                                에스크로가 결제 리스크를 줄이고 안전한 정산을 보장합니다.
                             </p>
                         </div>
                     </div>
@@ -2854,43 +2378,43 @@ export default function Loot69Page() {
                     <div
                         data-reveal
                         style={{ '--reveal-delay': '0s' } as React.CSSProperties}
-                        className="glam-card rounded-2xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
+                        className="glam-card rounded-2xl border border-emerald-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))] p-8 text-slate-100 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.9)]"
                     >
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--sea)] text-white font-bold text-xl">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200 font-bold text-lg ring-1 ring-emerald-400/30">
                                 구매
                             </div>
-                            <h3 className="font-[var(--font-display)] text-2xl text-slate-900">테더 구매 방법</h3>
+                            <h3 className="font-[var(--font-display)] text-2xl text-emerald-100">구매 플로우</h3>
                         </div>
                         
-                        <ol className="space-y-4 text-slate-700">
+                        <ol className="space-y-4 text-emerald-100/80">
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--sea)]">1.</span>
-                                <span>원하는 금액과 가격의 판매 주문을 선택합니다.</span>
+                                <span className="font-bold text-emerald-300">1.</span>
+                                <span>조건 선택 → 거래 시작.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--sea)]">2.</span>
-                                <span>판매자가 에스크로에 테더를 예치할 때까지 대기합니다.</span>
+                                <span className="font-bold text-emerald-300">2.</span>
+                                <span>판매자 에스크로 잠금.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--sea)]">3.</span>
-                                <span>판매자 계좌로 원화를 송금합니다.</span>
+                                <span className="font-bold text-emerald-300">3.</span>
+                                <span>계좌 입금 완료.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--sea)]">4.</span>
-                                <span>입금 완료 알림을 보냅니다</span>
+                                <span className="font-bold text-emerald-300">4.</span>
+                                <span>입금 알림 전송.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--sea)]">5.</span>
-                                <span>판매자 확인 후 자동 정산됩니다.</span>
+                                <span className="font-bold text-emerald-300">5.</span>
+                                <span>확인 즉시 정산.</span>
                             </li>
                         </ol>
 
                         <Link 
                             href={buyPageHref}
-                            className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--sea)] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_40px_-20px_rgba(15,118,110,0.8)] transition hover:brightness-110"
+                            className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-emerald-400 px-6 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_40px_-20px_rgba(16,185,129,0.6)] transition hover:brightness-110"
                         >
-                            안전 구매 진행하기 →
+                            구매 바로 시작 →
                         </Link>
                     </div>
 
@@ -2898,53 +2422,53 @@ export default function Loot69Page() {
                     <div
                         data-reveal
                         style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}
-                        className="glam-card rounded-2xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
+                        className="glam-card rounded-2xl border border-cyan-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))] p-8 text-slate-100 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.9)]"
                     >
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--accent)] text-white font-bold text-xl">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-200 font-bold text-lg ring-1 ring-cyan-400/30">
                                 판매
                             </div>
-                            <h3 className="font-[var(--font-display)] text-2xl text-slate-900">테더 판매 방법</h3>
+                            <h3 className="font-[var(--font-display)] text-2xl text-cyan-100">판매 플로우</h3>
                         </div>
                         
-                        <ol className="space-y-4 text-slate-700">
+                        <ol className="space-y-4 text-cyan-100/80">
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--accent)]">1.</span>
-                                <span>판매 수량과 가격을 등록합니다.</span>
+                                <span className="font-bold text-cyan-300">1.</span>
+                                <span>판매 조건 등록.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--accent)]">2.</span>
-                                <span>구매 요청이 수락되면 알림을 받습니다.</span>
+                                <span className="font-bold text-cyan-300">2.</span>
+                                <span>구매 요청 수락.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--accent)]">3.</span>
-                                <span>에스크로 지갑으로 테더를 전송합니다.</span>
+                                <span className="font-bold text-cyan-300">3.</span>
+                                <span>에스크로 지갑 전송.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--accent)]">4.</span>
-                                <span>구매자의 입금을 확인합니다.</span>
+                                <span className="font-bold text-cyan-300">4.</span>
+                                <span>입금 확인.</span>
                             </li>
                             <li className="flex gap-3">
-                                <span className="font-bold text-[color:var(--accent)]">5.</span>
-                                <span>입금 확인 버튼을 누르면 정산이 완료됩니다.</span>
+                                <span className="font-bold text-cyan-300">5.</span>
+                                <span>확인 즉시 정산.</span>
                             </li>
                         </ol>
 
                         {canStartSeller ? (
                             <Link 
                                 href={sellerPageHref}
-                                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--accent)] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_40px_-20px_rgba(249,115,22,0.8)] transition hover:brightness-110"
+                                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_40px_-20px_rgba(34,211,238,0.55)] transition hover:brightness-110"
                             >
-                                보호된 판매 시작하기 →
+                                판매 바로 시작 →
                             </Link>
                         ) : (
                             <div className="mt-8 flex items-center justify-center">
                                 {needsSellerSetup ? (
                                     <Link
                                         href={sellerSetupHref}
-                                        className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-full bg-[color:var(--accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-24px_rgba(249,115,22,0.9)] transition hover:brightness-110 sm:w-auto"
+                                        className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-900 shadow-[0_16px_40px_-24px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto"
                                     >
-                                        판매자 설정하기
+                                        판매 시작 설정 →
                                     </Link>
                                 ) : (
                                     <span
@@ -2964,66 +2488,53 @@ export default function Loot69Page() {
                 {/* FAQ */}
                 <div
                     data-reveal
-                    className="glam-card rounded-2xl border border-slate-200/70 bg-white/80 p-8 mb-12 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.7)] backdrop-blur"
+                    className="glam-card rounded-2xl border border-slate-800/60 bg-slate-950/70 p-8 mb-12 shadow-[0_30px_70px_-50px_rgba(2,6,23,0.85)]"
                 >
-                    <h2 className="font-[var(--font-display)] text-2xl text-center mb-8 text-slate-900 sm:text-3xl">자주 묻는 질문</h2>
+                    <h2 className="font-[var(--font-display)] text-2xl text-center mb-8 text-slate-100 sm:text-3xl">FAQ</h2>
                     
-                    <div className="space-y-6 max-w-3xl mx-auto">
-                        <div className="border-b border-slate-200/70 pb-4">
-                            <h4 className="text-lg font-semibold mb-2 text-slate-900">❓ 결제는 안전한가요?</h4>
-                            <p className="text-slate-700">
-                                네, 에스크로로 결제 금액을 보호하고 입금 확인 후 정산됩니다.
-                                KYC/AML 기준을 준수하며 이상 거래는 즉시 제한됩니다.
-                            </p>
-                        </div>
-                        
-                        <div className="border-b border-slate-200/70 pb-4">
-                            <h4 className="text-lg font-semibold mb-2 text-slate-900">❓ 수수료는 얼마인가요?</h4>
-                            <p className="text-slate-700">
-                                수수료와 환율은 결제 전 명확히 고지됩니다.
-                                자세한 수수료 정보는 결제 진행 화면에서 확인할 수 있습니다.
-                            </p>
-                        </div>
-                        
-                        <div className="border-b border-slate-200/70 pb-4">
-                            <h4 className="text-lg font-semibold mb-2 text-slate-900">❓ 정산은 얼마나 걸리나요?</h4>
-                            <p className="text-slate-700">
-                                일반적으로 입금부터 확인까지 10-30분 정도 소요됩니다.
-                                은행 송금 시간에 따라 다소 차이가 있을 수 있습니다.
-                            </p>
-                        </div>
-                        
-                        <div>
-                            <h4 className="text-lg font-semibold mb-2 text-slate-900">❓ 분쟁이 발생하면 어떻게 하나요?</h4>
-                            <p className="text-slate-700">
-                                결제 중 문제가 발생하면 고객센터로 연락해 주세요.
-                                에스크로 기록과 로그 기반의 분쟁조정 절차를 제공합니다.
-                            </p>
-                        </div>
-                    </div>
+                    <ul className="space-y-3 max-w-[672px] mx-auto text-sm text-slate-300">
+                        <li className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-3">
+                            <span className="font-semibold text-slate-100">안전성</span>
+                            <span className="text-slate-300">에스크로 보호 + 확인 후 정산</span>
+                        </li>
+                        <li className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-3">
+                            <span className="font-semibold text-slate-100">수수료</span>
+                            <span className="text-slate-300">거래 시작 전 투명 고지</span>
+                        </li>
+                        <li className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-3">
+                            <span className="font-semibold text-slate-100">정산 시간</span>
+                            <span className="text-slate-300">평균 10–30분 내 확인</span>
+                        </li>
+                        <li className="flex items-center justify-between gap-4">
+                            <span className="font-semibold text-slate-100">분쟁</span>
+                            <span className="text-slate-300">고객센터 즉시 대응</span>
+                        </li>
+                    </ul>
                 </div>
 
                 {/* 최종 CTA */}
                 <div
                     data-reveal="pop"
-                    className="glam-card relative overflow-hidden rounded-[28px] bg-[linear-gradient(120deg,var(--sea),var(--accent),var(--rose))] p-8 text-center text-white shadow-[0_40px_120px_-60px_rgba(15,23,42,0.8)]"
+                    className="glam-card relative overflow-hidden rounded-[28px] bg-[linear-gradient(120deg,#0b1220_0%,#0f172a_55%,#1f2937_100%)] p-8 text-center text-white shadow-[0_40px_120px_-60px_rgba(2,6,23,0.9)]"
                 >
-                    <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_70%)] opacity-60 blur-3xl" />
-                    <h2 className="font-[var(--font-display)] text-2xl mb-4 sm:text-3xl">안심하고 판매와 구매를 하십시오.</h2>
-                    <p className="text-lg text-white/90 mb-8">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_55%)]" />
+                    <h2 className="font-[var(--font-display)] text-2xl mb-4 sm:text-3xl text-white">
+                        안심 거래, 지금 시작하세요.
+                    </h2>
+                    <p className="text-lg text-slate-300 mb-8">
                         KYC·에스크로·분쟁조정으로 결제를 보호합니다.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link 
                             href={buyPageHref}
-                            className="w-full sm:w-auto rounded-full bg-white px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-25px_rgba(15,23,42,0.8)] transition hover:bg-white/90"
+                            className="w-full sm:w-auto rounded-full bg-[#f8fafc] px-8 py-5 text-lg font-bold text-slate-900 shadow-[0_18px_45px_-25px_rgba(2,6,23,0.8)] transition hover:bg-[#eef2f7]"
                         >
                             안전 구매 시작 →
                         </Link>
                         <a 
                             href="#settlement-guide"
-                            className="w-full sm:w-auto rounded-full border border-white/70 px-8 py-4 text-base font-semibold text-white transition hover:bg-white/10"
+                            className="w-full sm:w-auto rounded-full border border-slate-500/70 px-8 py-5 text-lg font-bold text-slate-200 transition hover:bg-white/5"
                         >
                             절차 보기 →
                         </a>
@@ -3032,14 +2543,16 @@ export default function Loot69Page() {
             </main>
 
             <footer className="relative z-10 border-t border-white/10 bg-[#1f1f1f] px-6 py-14 text-center text-slate-200">
-                <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
-                    <Image
-                        src="/logo-loot.png"
-                        alt="Loot69"
-                        width={180}
-                        height={56}
-                        className="h-10 w-auto"
-                    />
+                <div className="mx-auto flex max-w-[672px] flex-col items-center gap-6">
+                    <div className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-4 shadow-[0_16px_40px_-28px_rgba(2,6,23,0.9)]">
+                        <Image
+                            src="/logo-loot.png"
+                            alt="Loot69"
+                            width={260}
+                            height={80}
+                            className="h-12 w-auto drop-shadow-lg brightness-110 sm:h-14"
+                        />
+                    </div>
                     <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-300">
                         <Link href={`/${lang}/terms-of-service`} className="hover:text-white">
                             이용약관
@@ -3053,13 +2566,16 @@ export default function Loot69Page() {
                             환불·분쟁 정책
                         </Link>
                     </div>
-                    <p className="max-w-2xl text-xs leading-relaxed text-slate-400">
-                        리스크 고지: 가상자산 결제에는 가격 변동 및 네트워크 지연 등 위험이 수반될 수 있습니다.
-                        결제 전에 수수료·환율·정산 조건을 확인해 주세요.
-                    </p>
+                    <div className="mt-2 w-full max-w-[640px] rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-left text-xs leading-relaxed text-amber-100 shadow-[0_12px_35px_-28px_rgba(245,158,11,0.7)]">
+                        <span className="mr-2 inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">
+                            경고
+                        </span>
+                        가상자산 결제는 가격 변동·네트워크 지연 등으로 손실 위험이 있습니다.
+                        결제 전에 수수료·환율·정산 조건을 반드시 확인하세요.
+                    </div>
                     <div className="text-sm text-slate-400">
                         <p>이메일 : help@loot.menu</p>
-                        <p>주소 : 14F, Corner St. Paul &amp; Tombs of the Kings, 8046 Pafos, Cyprus</p>
+                        <p>주소 : 14F, Corner of St. Paul &amp; Tombs of the Kings, 8046 Paphos, Cyprus</p>
                     </div>
                     <p className="text-sm text-slate-500">Copyright © Loot69 All Rights Reserved</p>
                 </div>
@@ -3095,6 +2611,21 @@ export default function Loot69Page() {
             <style jsx>{`
                 .hero-fade {
                     animation: heroFade 0.9s ease-out both;
+                }
+
+                .loot-shell {
+                    color: var(--ink);
+                }
+
+                .scanline {
+                    background: linear-gradient(
+                        180deg,
+                        transparent 0%,
+                        rgba(56, 189, 248, 0.08) 50%,
+                        transparent 100%
+                    );
+                    animation: scanlineMove 10s linear infinite;
+                    opacity: 0.6;
                 }
 
                 .float-slow {
@@ -3147,10 +2678,10 @@ export default function Loot69Page() {
                     border-radius: inherit;
                     background: linear-gradient(
                         135deg,
-                        rgba(255, 255, 255, 0.55),
-                        rgba(255, 122, 26, 0.25),
-                        rgba(14, 165, 233, 0.25),
-                        rgba(251, 113, 133, 0.2)
+                        rgba(56, 189, 248, 0.28),
+                        rgba(16, 185, 129, 0.22),
+                        rgba(249, 115, 22, 0.18),
+                        rgba(15, 23, 42, 0.12)
                     );
                     opacity: 0;
                     mix-blend-mode: screen;
@@ -3168,7 +2699,7 @@ export default function Loot69Page() {
                     background: linear-gradient(
                         90deg,
                         transparent,
-                        rgba(255, 255, 255, 0.45),
+                        rgba(226, 232, 240, 0.25),
                         transparent
                     );
                     opacity: 0;
@@ -3286,7 +2817,7 @@ export default function Loot69Page() {
                 }
 
                 .chat-preview-list::-webkit-scrollbar-thumb {
-                    background: rgba(15, 23, 42, 0.18);
+                    background: rgba(148, 163, 184, 0.4);
                     border-radius: 999px;
                 }
 
@@ -3306,9 +2837,9 @@ export default function Loot69Page() {
                     margin-top: 6px;
                     padding: 6px 10px;
                     border-radius: 12px;
-                    background: rgba(255, 255, 255, 0.92);
-                    border: 1px solid rgba(148, 163, 184, 0.35);
-                    box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.4);
+                    background: rgba(15, 23, 42, 0.85);
+                    border: 1px solid rgba(51, 65, 85, 0.6);
+                    box-shadow: 0 10px 24px -18px rgba(2, 6, 23, 0.6);
                 }
 
                 .promo-text::before {
@@ -3318,7 +2849,7 @@ export default function Loot69Page() {
                     top: 6px;
                     border-width: 8px 8px 8px 0;
                     border-style: solid;
-                    border-color: transparent rgba(148, 163, 184, 0.35) transparent transparent;
+                    border-color: transparent rgba(51, 65, 85, 0.6) transparent transparent;
                 }
 
                 .promo-text::after {
@@ -3328,7 +2859,7 @@ export default function Loot69Page() {
                     top: 7px;
                     border-width: 6px 6px 6px 0;
                     border-style: solid;
-                    border-color: transparent rgba(255, 255, 255, 0.92) transparent transparent;
+                    border-color: transparent rgba(15, 23, 42, 0.85) transparent transparent;
                 }
 
                 .promo-text-content {
@@ -3341,12 +2872,12 @@ export default function Loot69Page() {
 
                 .promo-text-label {
                     font-weight: 600;
-                    color: #475569;
+                    color: #94a3b8;
                 }
 
                 .promo-text-message {
                     font-weight: 600;
-                    color: #1e293b;
+                    color: #e2e8f0;
                 }
 
                 .banner-scroll::-webkit-scrollbar {
@@ -3354,7 +2885,7 @@ export default function Loot69Page() {
                 }
 
                 .banner-scroll::-webkit-scrollbar-thumb {
-                    background: rgba(15, 23, 42, 0.2);
+                    background: rgba(148, 163, 184, 0.35);
                     border-radius: 999px;
                 }
 
@@ -3394,6 +2925,15 @@ export default function Loot69Page() {
                     }
                     50% {
                         transform: translateY(16px);
+                    }
+                }
+
+                @keyframes scanlineMove {
+                    0% {
+                        transform: translateY(-35%);
+                    }
+                    100% {
+                        transform: translateY(35%);
                     }
                 }
 
@@ -3519,6 +3059,9 @@ export default function Loot69Page() {
                     .hero-fade {
                         animation: none;
                     }
+                    .scanline {
+                        animation: none;
+                    }
                     .web3-cta,
                     .web3-cta::before,
                     .web3-cta::after {
@@ -3540,6 +3083,46 @@ export default function Loot69Page() {
                         transform: none;
                         transition: none;
                     }
+                }
+            `}</style>
+            <style jsx global>{`
+                .loot-shell .bg-white,
+                .loot-shell .bg-white\\/70,
+                .loot-shell .bg-white\\/80,
+                .loot-shell .bg-white\\/85,
+                .loot-shell .bg-white\\/90,
+                .loot-shell .bg-white\\/95,
+                .loot-shell .bg-slate-50,
+                .loot-shell .bg-slate-100 {
+                    background-color: rgba(15, 23, 42, 0.75) !important;
+                }
+
+                .loot-shell .border-slate-200,
+                .loot-shell .border-slate-200\\/70,
+                .loot-shell .border-slate-200\\/80,
+                .loot-shell .border-slate-200\\/90,
+                .loot-shell .border-slate-300\\/70,
+                .loot-shell .border-slate-300\\/80,
+                .loot-shell .border-slate-300\\/90 {
+                    border-color: rgba(51, 65, 85, 0.7) !important;
+                }
+
+                .loot-shell .text-slate-900,
+                .loot-shell .text-slate-800 {
+                    color: #e2e8f0 !important;
+                }
+
+                .loot-shell .accent-cta {
+                    color: #0f172a !important;
+                }
+
+                .loot-shell .text-slate-700 {
+                    color: #cbd5e1 !important;
+                }
+
+                .loot-shell .text-slate-600,
+                .loot-shell .text-slate-500 {
+                    color: #94a3b8 !important;
                 }
             `}</style>
         </div>

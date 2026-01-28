@@ -44,7 +44,7 @@ const nextConfig = {
       {
         source: '/',
         //destination: '/ko/administration/homepage',
-        destination: '/ko/p2p',
+        destination: '/ko/loot',
         permanent: true,
       },
     ]

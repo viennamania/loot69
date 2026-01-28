@@ -4414,7 +4414,7 @@ const fetchBuyOrders = async () => {
               {user?.buyer && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/buyer-settings');
+                    router.push('/' + params.lang + '/loot/buyer-settings');
                   }}
                   className="flex bg-slate-700 text-sm text-slate-100 px-4 py-2 rounded-lg hover:bg-slate-600 border border-slate-600 shadow-md"
                 >
@@ -4437,7 +4437,7 @@ const fetchBuyOrders = async () => {
               {user?.seller && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/seller-settings');
+                    router.push('/' + params.lang + '/loot/seller-settings');
                   }}
                   className="flex bg-slate-700 text-sm text-slate-100 px-4 py-2 rounded-lg hover:bg-slate-600 border border-slate-600 shadow-md"
                 >
@@ -5614,7 +5614,7 @@ const fetchBuyOrders = async () => {
                             <button
                               title="나의 판매자계정으로 이동"
                               onClick={() => {
-                                router.push('/' + params.lang + '/p2p/seller-settings');
+                                router.push('/' + params.lang + '/loot/seller-settings');
                               }}
                               className="flex flex-row items-center justify-center gap-1
                               bg-slate-800 hover:bg-slate-700 text-slate-200

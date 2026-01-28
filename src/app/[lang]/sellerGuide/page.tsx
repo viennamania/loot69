@@ -183,7 +183,7 @@ export default async function SellerGuidePage({ params }: { params: { lang?: str
                             </p>
                             <div className="flex flex-wrap gap-3">
                                 <Link
-                                    href={`/${lang}/p2p/seller-settings`}
+                                    href={`/${lang}/loot/seller-settings`}
                                     className="inline-flex items-center justify-center rounded-full bg-[color:var(--accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_45px_-22px_rgba(249,115,22,0.85)] transition hover:bg-[color:var(--accent-deep)]"
                                 >
                                     판매자 설정 바로가기
@@ -450,7 +450,7 @@ export default async function SellerGuidePage({ params }: { params: { lang?: str
                                 </p>
                             </div>
                             <Link
-                                href={`/${lang}/p2p/seller-settings`}
+                                href={`/${lang}/loot/seller-settings`}
                                 className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-[0_20px_45px_-25px_rgba(15,23,42,0.5)] transition hover:-translate-y-0.5"
                             >
                                 판매자 설정 열기

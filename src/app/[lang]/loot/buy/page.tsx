@@ -4525,7 +4525,7 @@ const fetchBuyOrders = async () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
-                      router.push('/' + params.lang + '/p2p/profile-settings');
+                      router.push('/' + params.lang + '/loot/profile-settings');
                     }}
                     className="group inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70
                     px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md sm:px-4 sm:text-sm"
@@ -4590,7 +4590,7 @@ const fetchBuyOrders = async () => {
               {user?.buyer && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/buyer-settings');
+                    router.push('/' + params.lang + '/loot/buyer-settings');
                   }}
                   className="group inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md sm:px-4 sm:text-sm"
                 >
@@ -4753,7 +4753,7 @@ const fetchBuyOrders = async () => {
                 </div>
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/profile-settings');
+                    router.push('/' + params.lang + '/loot/profile-settings');
                   }}
                   className="inline-flex w-full items-center justify-center rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_40px_-24px_rgba(2,132,199,0.55)] transition hover:bg-sky-700 sm:w-auto sm:self-start"
                 >
@@ -4780,7 +4780,7 @@ const fetchBuyOrders = async () => {
                 </div>
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/buyer-settings');
+                    router.push('/' + params.lang + '/loot/buyer-settings');
                   }}
                   className="inline-flex w-full items-center justify-center rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_40px_-24px_rgba(249,115,22,0.9)] transition hover:bg-orange-600 sm:w-auto sm:self-start"
                 >

@@ -1334,7 +1334,7 @@ export default function SettingsPage({ params }: any) {
 
                                 <button
                                     onClick={() => {
-                                        router.push('/' + params.lang + '/p2p/profile-settings');
+                                        router.push('/' + params.lang + '/loot/profile-settings');
                                     }}
                                     className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
                                 >

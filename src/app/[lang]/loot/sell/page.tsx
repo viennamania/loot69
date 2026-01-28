@@ -4383,7 +4383,7 @@ const fetchBuyOrders = async () => {
               
               <button
                 onClick={() => {
-                  router.push('/' + params.lang + '/p2p/profile-settings');
+                  router.push('/' + params.lang + '/loot/profile-settings');
                 }}
                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900
                 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_40px_-26px_rgba(15,23,42,0.7)]
@@ -4415,7 +4415,7 @@ const fetchBuyOrders = async () => {
               {user?.buyer && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/buyer-settings');
+                    router.push('/' + params.lang + '/loot/buyer-settings');
                   }}
                   className="group inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90
                   px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
@@ -4439,7 +4439,7 @@ const fetchBuyOrders = async () => {
               {user?.seller && (
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/seller-settings');
+                    router.push('/' + params.lang + '/loot/seller-settings');
                   }}
                   className="group inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90
                   px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
@@ -4603,7 +4603,7 @@ const fetchBuyOrders = async () => {
                 {/* 구매하기 버튼 */}
                 <button
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p/buy');
+                    router.push('/' + params.lang + '/loot/buy');
                   }}
                   className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-white/90 px-2 py-2 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white hover:shadow-md"
                 >
@@ -5619,7 +5619,7 @@ const fetchBuyOrders = async () => {
                             <button
                               title="나의 판매자계정으로 이동"
                               onClick={() => {
-                                router.push('/' + params.lang + '/p2p/seller-settings');
+                                router.push('/' + params.lang + '/loot/seller-settings');
                               }}
                               className="flex flex-row items-center justify-center gap-1
                               bg-white hover:bg-slate-50 text-slate-700
@@ -7304,7 +7304,7 @@ const fetchBuyOrders = async () => {
 
                       // storecode parameter is passed to fetchBuyOrders
                       onChange={(e) => {
-                        router.push('/' + params.lang + '/p2p/sell?storecode=' + e.target.value);
+                        router.push('/' + params.lang + '/loot/sell?storecode=' + e.target.value);
                       }}
 
 
@@ -11739,7 +11739,7 @@ const fetchBuyOrders = async () => {
             <select
               value={limitValue}
               onChange={(e) =>
-                router.push(`/${params.lang}/p2p/sell?storecode=${searchStorecode}&limit=${Number(e.target.value)}&page=${pageValue}`)
+                router.push(`/${params.lang}/loot/sell?storecode=${searchStorecode}&limit=${Number(e.target.value)}&page=${pageValue}`)
               }
 
               className="text-sm bg-zinc-800 text-zinc-200 px-2 py-1 rounded-md"
@@ -11756,7 +11756,7 @@ const fetchBuyOrders = async () => {
             disabled={Number(pageValue) <= 1}
             className={`text-sm text-white px-4 py-2 rounded-md ${Number(pageValue) <= 1 ? 'bg-gray-500' : 'bg-green-500 hover:bg-green-600'}`}
             onClick={() => {
-              router.push(`/${params.lang}/p2p/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=1`)
+              router.push(`/${params.lang}/loot/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=1`)
             }}
           >
             처음으로
@@ -11768,7 +11768,7 @@ const fetchBuyOrders = async () => {
             className={`text-sm text-white px-4 py-2 rounded-md ${Number(pageValue) <= 1 ? 'bg-gray-500' : 'bg-green-500 hover:bg-green-600'}`}
             onClick={() => {
 
-              router.push(`/${params.lang}/p2p/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Number(pageValue) - 1}`)
+              router.push(`/${params.lang}/loot/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Number(pageValue) - 1}`)
 
 
             }}
@@ -11787,7 +11787,7 @@ const fetchBuyOrders = async () => {
             className={`text-sm text-white px-4 py-2 rounded-md ${Number(pageValue) >= Math.ceil(Number(buyOrderStats.totalCount) / Number(limitValue)) ? 'bg-gray-500' : 'bg-green-500 hover:bg-green-600'}`}
             onClick={() => {
 
-              router.push(`/${params.lang}/p2p/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Number(pageValue) + 1}`)
+              router.push(`/${params.lang}/loot/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Number(pageValue) + 1}`)
 
             }}
           >
@@ -11800,7 +11800,7 @@ const fetchBuyOrders = async () => {
             className={`text-sm text-white px-4 py-2 rounded-md ${Number(pageValue) >= Math.ceil(Number(buyOrderStats.totalCount) / Number(limitValue)) ? 'bg-gray-500' : 'bg-green-500 hover:bg-green-600'}`}
             onClick={() => {
 
-              router.push(`/${params.lang}/p2p/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Math.ceil(Number(buyOrderStats.totalCount) / Number(limitValue))}`)
+              router.push(`/${params.lang}/loot/sell?storecode=${searchStorecode}&limit=${Number(limitValue)}&page=${Math.ceil(Number(buyOrderStats.totalCount) / Number(limitValue))}`)
 
             }}
           >
