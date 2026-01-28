@@ -4360,7 +4360,7 @@ const fetchBuyOrders = async () => {
             
           <div className="w-full flex flex-row items-center justify-start gap-2">
             <button
-              onClick={() => router.push('/' + params.lang + '/p2p')}
+              onClick={() => router.push('/' + params.lang + '/loot')}
               className="group inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/70
               bg-white/90 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
 
@@ -4557,7 +4557,7 @@ const fetchBuyOrders = async () => {
                 <button
                   className="group flex flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-white/90 px-2 py-2 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white hover:shadow-md"
                   onClick={() => {
-                    router.push('/' + params.lang + '/p2p');
+                    router.push('/' + params.lang + '/loot');
                   }}
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-slate-200">

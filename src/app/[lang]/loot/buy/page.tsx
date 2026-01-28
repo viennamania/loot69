@@ -4462,7 +4462,7 @@ const fetchBuyOrders = async () => {
             </div>
             <button
               type="button"
-              onClick={() => router.push('/' + params.lang + '/p2p')}
+              onClick={() => router.push('/' + params.lang + '/loot')}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md sm:w-auto"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -4496,7 +4496,7 @@ const fetchBuyOrders = async () => {
                 
               <div className="relative w-full flex flex-row items-center justify-start gap-3">
                 <button
-                  onClick={() => router.push('/' + params.lang + '/p2p')}
+                  onClick={() => router.push('/' + params.lang + '/loot')}
                   className="group inline-flex items-center justify-center gap-3 rounded-full border border-orange-200/70
                   bg-orange-50/80 px-4 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-100/80 hover:shadow-md"
                 >
