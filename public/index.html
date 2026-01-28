@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Loot69 • Menu</title>
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --card2:#f1f5f9;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --accent:#ff7a00;
+      --accent-soft:#fff1e6;
+      --shadow: 0 6px 18px rgba(15,23,42,.08);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      color:var(--text);
+      font: 14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;
+    }
+    a{color:inherit;text-decoration:none}
+    .app{
+      max-width:460px;
+      margin:0 auto;
+      min-height:100dvh;
+      padding:18px 16px 92px;
+    }
+
+    /* Top */
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:114px;height:38px;border-radius:8px;
+      background-image:url('/logo.png');
+      background-size:contain;
+      background-position:center;
+      background-repeat:no-repeat;
+      box-shadow:0 0 0 6px var(--accent-soft);
+    }
+    .title h1{margin:0;font-size:17px}
+    .title small{color:var(--muted);font-size:12px}
+
+    .later{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      padding:9px 12px;
+      border-radius:999px;
+      cursor:pointer;
+    }
+
+    /* Card */
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .list{padding:10px;display:flex;flex-direction:column;gap:8px}
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px;
+      border-radius:14px;
+      background:var(--card2);
+      cursor:pointer;
+    }
+    .item .left{display:flex;align-items:center;gap:10px}
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--accent);
+      box-shadow:0 0 0 4px var(--accent-soft);
+    }
+    .label{font-size:14px}
+    .chev{color:var(--muted)}
+
+    /* CTA */
+    .cta{margin-top:16px;display:grid;gap:12px}
+    .btn{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,#ff7a00,#ffb703);
+      color:#1f1307;
+      border:0;
+    }
+    .btn .sub{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+    .btn.primary .sub{color:#3b220f}
+    .arrow{font-size:18px}
+
+    /* Tab bar */
+    .tabbar{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:10px;
+      width:min(460px, calc(100% - 24px));
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:10px 8px;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:6px;
+    }
+    .tab{
+      border-radius:14px;
+      padding:10px 8px;
+      text-align:center;
+      color:var(--muted);
+      cursor:pointer;
+    }
+    .tab.active{
+      background:var(--accent-soft);
+      color:var(--accent);
+      font-weight:600;
+    }
+    .tab small{display:block;font-size:11px;margin-top:3px}
+    .foot{margin-top:10px;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="top">
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="title">
+          <small>loot.menu • 빠른 메뉴</small>
+        </div>
+      </div>
+      <button class="later">나중에</button>
+    </div>
+
+    <section class="card">
+      <div class="hd"><h2>제안 사항</h2></div>
+      <div class="list">
+        <div class="item"><div class="left"><span class="dot"></span><span class="label">지출 디톡스</span></div><span class="chev">›</span></div>
+        <div class="item"><div class="left"><span class="dot"></span><span class="label">예약</span></div><span class="chev">›</span></div>
+        <div class="item"><div class="left"><span class="dot"></span><span class="label">시니어</span></div><span class="chev">›</span></div>
+      </div>
+    </section>
+
+    <div class="cta">
+      <a class="btn primary" href="https://loot.menu/ko/buyer/buyorder">
+        <div>
+          <div style="font-weight:700;font-size:16px">테더 구매하러 가기</div>
+          <span class="sub">KRW → USDT</span>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="btn" href="https://loot.menu/ko/seller/buyorder">
+        <div>
+          <div style="font-weight:700;font-size:16px">테더 판매하러 가기</div>
+          <span class="sub">USDT → KRW</span>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <div class="foot">
+        메뉴 선택 후 거래는 loot.menu에서 진행됩니다.
+      </div>
+    </div>
+  </main>
+
+  <nav class="tabbar">
+    <div class="tab active">홈<small>메뉴</small></div>
+    <div class="tab">서비스<small>상품</small></div>
+    <div class="tab">활동<small>내역</small></div>
+    <div class="tab">계정<small>설정</small></div>
+  </nav>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>돈벼락 · loot.menu</title>
+  <meta name="description" content="Uber 스타일 UI로 만든 돈벼락 웹앱 홈" />
+
+  <style>
+    :root{
+      --bg:#fff;
+      --text:#111;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --soft:#f3f4f6;
+
+      /* Uber-like: subtle shadow + crisp borders */
+      --shadow: 0 10px 24px rgba(0,0,0,.10);
+      --shadow2: 0 6px 16px rgba(0,0,0,.08);
+
+      --r-pill: 999px;
+      --r-card: 18px;
+      --r-tile: 18px;
+
+      --max: 430px; /* phone canvas */
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo","Noto Sans KR", Segoe UI, Roboto, sans-serif;
+    }
+
+    .app{
+      max-width: var(--max);
+      margin:0 auto;
+      min-height:100vh;
+      position:relative;
+      padding-bottom: 84px; /* for tab bar */
+    }
+
+    /* ===== Top ===== */
+    .top{
+      padding: 10px 16px 0;
+    }
+
+    .brand{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height: 56px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+    }
+
+    .logo-img{
+    height: 36px;          /* Uber 로고와 유사한 크기 */
+    width: auto;
+    object-fit: contain;
+    }
+
+
+    /* Uber-like search row */
+    .searchRow{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .searchPill{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 14px;
+      border-radius: var(--r-pill);
+      background:#fff;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.06);
+    }
+
+    .searchPill input{
+      border:0; outline:0;
+      width:100%;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -.2px;
+    }
+    .searchPill input::placeholder{
+      color:#111;
+      opacity:.65;
+      font-weight: 800;
+    }
+
+    .laterPill{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: var(--r-pill);
+      background:#fff;
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .laterPill:active{ transform: translateY(1px); }
+
+    /* ===== Content ===== */
+    .content{
+      padding: 14px 16px 0;
+    }
+
+    .titleRow{
+      margin-top: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .titleRow h2{
+      margin:0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -.6px;
+    }
+    .moreBtn{
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-pill);
+      border: 0;
+      background: #f5f5f5;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+    }
+    .moreBtn:active{ transform: translateY(1px); }
+
+    /* Uber suggestion tiles */
+    .tiles{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .tile{
+      background:#fff;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: var(--r-tile);
+      padding: 12px 8px;
+      text-align:center;
+      cursor:pointer;
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease;
+    }
+    .tile:hover{ transform: translateY(-2px); }
+    .tile:active{ transform: translateY(0px); }
+
+    .icon{
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      background: var(--soft);
+      margin: 0 auto 10px;
+      display:grid;
+      place-items:center;
+    }
+
+    .tile .label{
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -.2px;
+    }
+
+    /* Optional: spacing like Uber (lots of white) */
+    .spacer{
+      height: 360px; /* mimic empty area in screenshot */
+    }
+
+    /* ===== Bottom Tab Bar ===== */
+    .tabbar{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: min(var(--max), 100%);
+      background:#fff;
+      border-top: 1px solid rgba(0,0,0,.10);
+      padding: 8px 8px 10px;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .tab{
+      padding: 8px 6px;
+      border-radius: 14px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab svg{ display:block; margin:0 auto 6px; }
+    .tab.active{
+      color:#111;
+    }
+
+    /* Small devices */
+    @media (max-width: 380px){
+      :root{ --max: 360px; }
+      .brand{ font-size: 30px; }
+      .icon{ width: 52px; height: 52px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="top">
+        <!-- logo-loot.png -->
+        <!-- flow row -->
+        <div class="header-logo" style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+
+            <!-- image size large -->
+            <img
+                src="/logo-loot.png"
+                alt="돈벼락 로고"
+                class="logo-img"
+                width="200"
+            />
+            <div class="brand">돈벼락</div>
+    
+        </div>
+
+      <div class="searchRow">
+        <div class="searchPill" role="search">
+          <!-- magnifier -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#111" stroke-width="2"/>
+            <path d="M16.5 16.5 21 21" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input id="q" placeholder="돈 벌러 갈까요?" />
+        </div>
+
+        <div class="laterPill" id="laterBtn" aria-label="나중에">
+          <!-- calendar -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 2v3M17 2v3" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3.5 9h17" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 6h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="#111" stroke-width="2"/>
+          </svg>
+          나중에
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="titleRow">
+        <h2>제안 사항</h2>
+        <button class="moreBtn" id="moreBtn" aria-label="더보기">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <section class="tiles" aria-label="돈벼락 제안 타일">
+        <div class="tile" data-title="지출 디톡스" data-desc="이번 주 새는 지출 TOP3를 찾아 제한 룰을 만들어요.">
+          <div class="icon">
+            <!-- simple car-like icon -->
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 13.5 5.5 8.8A2 2 0 0 1 7.3 7.7h9.4a2 2 0 0 1 1.8 1.1L21 13.5" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 13.5h16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4Z" stroke="#111" stroke-width="2"/>
+              <path d="M7 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="#111"/>
+              <path d="M17 19.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="#111"/>
+            </svg>
+          </div>
+          <div class="label">지출 디톡스</div>
+        </div>
+
+        <div class="tile" data-title="자동 저축" data-desc="월급날/매주 자동 저축 루틴을 만들고 실행해요.">
+          <div class="icon">
+            <!-- calendar+clock -->
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 2v3M17 2v3" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 6h14a2 2 0 0 1 2 2v3H3V8a2 2 0 0 1 2-2Z" stroke="#111" stroke-width="2"/>
+              <path d="M6 22h12a2 2 0 0 0 2-2v-9H4v9a2 2 0 0 0 2 2Z" stroke="#111" stroke-width="2"/>
+              <path d="M12 14v3l2 1" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="label">예약</div>
+        </div>
+
+        <div class="tile" data-title="투자 리밸런싱" data-desc="목표 비중을 설정하고 편차가 커지면 알림을 줘요.">
+          <div class="icon">
+            <!-- chart -->
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 19V5" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 19h16" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 15l3-3 3 2 5-6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18 8h2v2" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="label">Uber 틴즈</div>
+        </div>
+
+        <div class="tile" data-title="시니어 모드" data-desc="큰 글씨/단순 화면으로 가족도 쉽게 쓰게 해요.">
+          <div class="icon">
+            <!-- accessibility -->
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" fill="#111"/>
+              <path d="M4 8h16" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 8v12" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 21l2-7M17 21l-2-7" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="label">시니어</div>
+        </div>
+      </section>
+
+      <!-- margin top -->
+       <div style="margin-top: 24px;"></div>
+
+
+        <!-- https://youtu.be/ktzAq7wjJgs?si=vEMK2izzprsH3A5C -->
+        <!-- embedd youtube -->
+         <iframe width="100%" height="215" src="https://www.youtube.com/embed/ktzAq7wjJgs?si=vEMK2izzprsH3A5C" title="돈벼락 Uber 스타일 UI 데모" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+        <!-- 테더 구매하고 시작하기 -->
+        <!-- button for goto /ko/seller/buyorder -->
+        <!-- svg icon -->
+        <div style="margin-top: 24px; text-align: center;">
+          <a href="https://loot.menu/ko/buyer/buyorder" style="display: inline-block; padding: 14px 24px; background-color: #111; color: #fff; border-radius: 999px; font-weight: 800; text-decoration: none; font-size: 16px;">
+            <!-- shopping cart icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="vertical-align: middle; margin-right: 8px;">
+              <path d="M6 6h15l-1.5 9h-13L6 6Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="#fff"/>
+              <path d="M18 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="#fff"/>
+              <path d="M4 4h2l3 9h11" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            테더 구매하러 가기
+          </a>
+        </div>
+
+        <!-- 테더 판매하러 가기 -->
+        <div style="margin-top: 16px; text-align: center;">
+          <a href="https://loot.menu/ko/seller/buyorder" style="display: inline-block; padding: 14px 24px; background-color: #fff; color: #111; border: 2px solid #111; border-radius: 999px; font-weight: 800; text-decoration: none; font-size: 16px;">
+            <!-- sell icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="vertical-align: middle; margin-right: 8px;">
+              <path d="M12 2l7 7-7 7-7-7 7-7Z" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            테더 판매하러 가기
+          </a>
+        </div>
+          
+
+
+      <div class="spacer"></div>
+    </main>
+  </div>
+
+
+
+
+  <nav class="tabbar" aria-label="하단 탭">
+    <div class="tabs">
+      <div class="tab active" data-tab="home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 10.5 12 4l8 6.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9.5Z" stroke="#111" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        홈
+      </div>
+
+      <div class="tab" data-tab="services">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h7v7H4V6Zm9 0h7v7h-7V6ZM4 15h7v7H4v-7Zm9 0h7v7h-7v-7Z" stroke="#111" stroke-width="2"/>
+        </svg>
+        서비스
+      </div>
+
+      <div class="tab" data-tab="activity">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 4h12a2 2 0 0 1 2 2v14l-4-2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="#111" stroke-width="2"/>
+        </svg>
+        활동
+      </div>
+
+      <div class="tab" data-tab="account">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="#111" stroke-width="2"/>
+          <path d="M4 21a8 8 0 0 1 16 0" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        계정
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    const alertUI = (title, desc) => {
+      // Uber는 토스트/바텀시트를 쓰지만, 데모는 alert로 단순 처리
+      window.alert(`${title}\n\n${desc}`);
+    };
+
+    document.querySelectorAll(".tile").forEach(t => {
+      t.addEventListener("click", () => alertUI(t.dataset.title, t.dataset.desc));
+    });
+
+    document.getElementById("laterBtn").addEventListener("click", () => {
+      alertUI("나중에", "예약/리마인드(스케줄 실행)로 연결하면 됩니다.");
+    });
+
+    document.getElementById("moreBtn").addEventListener("click", () => {
+      alertUI("더보기", "제안 사항 전체 목록 화면으로 연결하면 됩니다.");
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+        tab.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>

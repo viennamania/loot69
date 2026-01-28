@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="USDT accepted - Bitrefill">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="1" stop-color="#e2e8f0" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="300" rx="24" fill="url(#g)" />
+  <rect x="24" y="24" width="552" height="252" rx="20" fill="#ffffff" stroke="#e2e8f0" />
+  <rect x="40" y="40" width="520" height="64" rx="16" fill="#0f766e" />
+  <text x="70" y="82" font-family="Arial, sans-serif" font-size="28" fill="#ffffff" font-weight="700">USDT Accepted</text>
+  <circle cx="120" cy="180" r="70" fill="#16a34a" />
+  <text x="120" y="195" font-family="Arial, sans-serif" font-size="44" text-anchor="middle" fill="#ffffff">USDT</text>
+  <text x="230" y="170" font-family="Arial, sans-serif" font-size="36" fill="#0f172a" font-weight="700">Bitrefill</text>
+  <text x="230" y="210" font-family="Arial, sans-serif" font-size="20" fill="#334155">Gift cards & top-ups with Tether</text>
+  <rect x="430" y="210" width="130" height="44" rx="22" fill="#22c55e" />
+  <text x="495" y="238" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#0f172a" font-weight="700">Pay with USDT</text>
+</svg>

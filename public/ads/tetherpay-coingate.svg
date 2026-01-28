@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="USDT accepted - CoinGate">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827" />
+      <stop offset="1" stop-color="#ea580c" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="300" rx="24" fill="url(#g)" />
+  <circle cx="120" cy="150" r="70" fill="#f59e0b" />
+  <text x="120" y="162" font-family="Arial, sans-serif" font-size="44" text-anchor="middle" fill="#111827">₮</text>
+  <text x="220" y="130" font-family="Arial, sans-serif" font-size="34" fill="#ffffff" font-weight="700">CoinGate</text>
+  <text x="220" y="175" font-family="Arial, sans-serif" font-size="20" fill="#fff7ed">Pay merchants with Tether</text>
+  <rect x="430" y="210" width="130" height="44" rx="22" fill="#fdba74" />
+  <text x="495" y="238" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#7c2d12" font-weight="700">Checkout USDT</text>
+</svg>

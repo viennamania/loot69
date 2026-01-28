@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="USDT accepted - Travala">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1320" />
+      <stop offset="1" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="300" rx="24" fill="url(#g)" />
+  <path d="M80 220 L140 80 L200 220 Z" fill="#38bdf8" />
+  <text x="230" y="130" font-family="Arial, sans-serif" font-size="34" fill="#ffffff" font-weight="700">Travala</text>
+  <text x="230" y="175" font-family="Arial, sans-serif" font-size="20" fill="#dbeafe">Hotels & flights paid in USDT</text>
+  <rect x="430" y="210" width="130" height="44" rx="22" fill="#0ea5e9" />
+  <text x="495" y="238" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#0b1320" font-weight="700">Book with USDT</text>
+</svg>

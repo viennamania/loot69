@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="36" viewBox="0 0 140 36" role="img" aria-label="Partner">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7ed" />
+      <stop offset="1" stop-color="#fde68a" />
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="138" height="34" rx="999" fill="url(#g)" stroke="#f59e0b" stroke-opacity="0.35" />
+  <circle cx="18" cy="18" r="4" fill="#f59e0b" />
+  <text x="36" y="23" font-family="Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#0f172a">PARTNER</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="USDT Gift Cards">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="300" rx="26" fill="url(#g)" />
+  <rect x="26" y="26" width="548" height="248" rx="22" fill="rgba(15,23,42,0.18)" />
+  <circle cx="110" cy="150" r="68" fill="rgba(255,255,255,0.28)" />
+  <text x="110" y="162" font-family="Arial, sans-serif" font-size="42" text-anchor="middle" fill="#ffffff" font-weight="700">USDT</text>
+  <text x="210" y="135" font-family="Arial, sans-serif" font-size="30" fill="#ffffff" font-weight="700">USDT Gift Cards</text>
+  <text x="210" y="175" font-family="Arial, sans-serif" font-size="18" fill="#f8fafc">Instant digital codes</text>
+  <rect x="410" y="205" width="150" height="44" rx="22" fill="rgba(255,255,255,0.9)" />
+  <text x="485" y="234" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#0f172a" font-weight="700">Pay with USDT</text>
+</svg>
