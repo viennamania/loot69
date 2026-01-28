@@ -5009,7 +5009,7 @@ const fetchBuyOrders = async () => {
         <div className="mb-4 flex w-full items-center justify-between gap-2">
           <button
             type="button"
-            onClick={() => router.push(`/${params.lang}/p2p`)}
+            onClick={() => router.push(`/${params.lang}/loot`)}
             className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
           >
             <svg
