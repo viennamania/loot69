@@ -103,7 +103,7 @@ export default async function NoticeDetailPage({
                 공지사항 목록
               </Link>
               <Link
-                href={`/${lang}/p2p`}
+                href={`/${lang}/loot`}
                 className="inline-flex items-center justify-center rounded-full bg-[color:var(--accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_45px_-22px_rgba(249,115,22,0.85)] transition hover:bg-[color:var(--accent-deep)]"
               >
                 P2P 홈으로 이동

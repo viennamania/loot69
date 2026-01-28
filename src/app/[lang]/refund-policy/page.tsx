@@ -87,7 +87,7 @@ export default async function RefundPolicyPage({ params }: { params: { lang?: st
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
-                href={`/${lang}/p2p`}
+                href={`/${lang}/loot`}
                 className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/90 px-6 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-white"
               >
                 P2P 홈으로 돌아가기
