@@ -523,13 +523,13 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
                 </span>
                 <div className="flex items-center gap-2">
                   <Image
-                    src="/logo-chain-polygon.png"
-                    alt="Polygon"
+                    src={`/logo-chain-${displayChain}.png`}
+                    alt={`${networkLabel} logo`}
                     width={18}
                     height={18}
                     className="h-4 w-4 rounded-full"
                   />
-                  <span className="text-base font-semibold">Polygon</span>
+                  <span className="text-base font-semibold">{networkLabel}</span>
                 </div>
               </div>
             </div>
