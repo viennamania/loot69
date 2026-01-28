@@ -11,7 +11,7 @@ import { ConnectButton } from 'thirdweb/react';
 import { useClientWallets } from '@/lib/useClientWallets';
 import { client } from '@/app/client';
 
-const SENDBIRD_APP_ID = 'CCD67D05-55A6-4CA2-A6B1-187A5B62EC9D';
+const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
 const USER_STORECODE = 'admin';
 
 const formatNumber = (value: number | undefined, digits = 2) => {
