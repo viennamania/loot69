@@ -849,13 +849,13 @@ export default function SendUsdt({ params }: any) {
 
   if (!address) {
     return (
-      <main className="min-h-[100vh] bg-[radial-gradient(120%_120%_at_0%_0%,#fff7ed_0%,#fef2f2_38%,#eff6ff_78%,#f8fafc_100%)] px-4 py-8">
+      <main className="min-h-[100vh] bg-[radial-gradient(120%_120%_at_0%_0%,#fff7ed_0%,#fef2f2_38%,#eff6ff_78%,#f8fafc_100%)] px-3 py-6">
         <AutoConnect
             client={client}
             wallets={[wallet]}
         />
-        <div className="mx-auto flex min-h-[70vh] max-w-screen-sm items-center justify-center text-center">
-          <p className="text-2xl font-semibold text-rose-600 sm:text-3xl">
+        <div className="mx-auto flex min-h-[65vh] max-w-screen-sm items-center justify-center text-center">
+          <p className="text-xl font-semibold text-rose-600 sm:text-2xl">
             지갑 연결이 필요합니다. 연결 후 이용하십시오.
           </p>
         </div>
@@ -865,7 +865,7 @@ export default function SendUsdt({ params }: any) {
 
   return (
 
-    <main className="min-h-[100vh] bg-[radial-gradient(120%_120%_at_0%_0%,#fff7ed_0%,#fef2f2_38%,#eff6ff_78%,#f8fafc_100%)] px-4 py-8">
+    <main className="min-h-[100vh] bg-[radial-gradient(120%_120%_at_0%_0%,#fff7ed_0%,#fef2f2_38%,#eff6ff_78%,#f8fafc_100%)] px-3 py-6">
 
 
       <AutoConnect
@@ -876,20 +876,20 @@ export default function SendUsdt({ params }: any) {
 
       <div className="w-full max-w-screen-sm mx-auto">
         
-        <div className="rounded-[32px] border border-slate-200/70 bg-white/85 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur">
+        <div className="rounded-[24px] border border-slate-200/70 bg-white/85 p-3 shadow-[0_26px_70px_-50px_rgba(15,23,42,0.6)] backdrop-blur">
 
   
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <button
               onClick={() => window.history.back()}
-              className="group inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+              className="group inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-100">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-100">
                 <Image
                   src="/icon-back.png"
                   alt="Back"
-                  width={18}
-                  height={18}
+                  width={16}
+                  height={16}
                   className="rounded-full"
                 />
               </span>
@@ -898,38 +898,38 @@ export default function SendUsdt({ params }: any) {
 
           </div>
 
-          <div className="mt-5 flex flex-col gap-1">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-200/70 bg-emerald-50 shadow-sm">
+          <div className="mt-3 flex flex-col gap-1">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200/70 bg-emerald-50 shadow-sm">
                 <Image
                   src="/logo-tether.svg"
                   alt="USDT"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                   Wallet Transfer
                 </span>
-                <span className="text-xl font-semibold text-slate-900">
+                <span className="text-lg font-semibold text-slate-900">
                   {Withdraw_USDT}
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-500">보안 기준을 충족한 사용자만 출금할 수 있습니다.</p>
+            <p className="text-xs text-slate-500">보안 기준을 충족한 사용자만 출금할 수 있습니다.</p>
           </div>
 
-          <div className="mt-5 flex flex-col gap-2 rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-[0_16px_40px_-30px_rgba(15,23,42,0.4)]">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          <div className="mt-3 flex flex-col gap-2 rounded-2xl border border-slate-200/70 bg-white/90 p-3 shadow-[0_14px_34px_-30px_rgba(15,23,42,0.35)]">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
               네트워크 선택
             </span>
             <select
               value={selectedNetwork}
               onChange={(e) => setSelectedNetwork(e.target.value as NetworkKey)}
               disabled={sending}
-              className={`w-full rounded-xl border px-3 py-2 text-base font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+              className={`w-full rounded-xl border px-3 py-1.5 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
                 sending
                   ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
                   : 'border-slate-200 bg-white text-slate-800'
@@ -942,7 +942,7 @@ export default function SendUsdt({ params }: any) {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] text-slate-500">
               선택한 네트워크 기준으로 잔고와 출금이 처리됩니다.
             </p>
           </div>
@@ -950,14 +950,14 @@ export default function SendUsdt({ params }: any) {
               
 
           {address && (
-            <div className="mt-6 rounded-2xl border border-slate-200/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(240,253,250,0.85))] p-4 shadow-[0_18px_45px_-30px_rgba(15,23,42,0.45)]">
-              <div className="flex items-center justify-between gap-3">
+            <div className="mt-4 rounded-2xl border border-slate-200/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(240,253,250,0.85))] p-3 shadow-[0_16px_40px_-30px_rgba(15,23,42,0.4)]">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                     My Wallet
                   </span>
                   <button
-                    className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-2 transition hover:text-slate-900"
+                    className="text-xs font-semibold text-slate-700 underline decoration-slate-300 underline-offset-2 transition hover:text-slate-900"
                     onClick={() => {
                       navigator.clipboard.writeText(address);
                       toast.success(Copied_Wallet_Address);
@@ -976,38 +976,38 @@ export default function SendUsdt({ params }: any) {
                       </span>
                     </div>
                   )}
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-200/70 bg-white shadow-sm">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200/70 bg-white shadow-sm">
                     <Image
                       src="/icon-shield.png"
                       alt="Wallet"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5"
+                      width={18}
+                      height={18}
+                      className="w-4 h-4"
                     />
                   </div>
                 </div>
               </div>
-              <div className="mt-3 flex items-baseline justify-end gap-2">
-                <span className="text-3xl sm:text-4xl font-semibold text-emerald-700 tabular-nums"
+              <div className="mt-2 flex items-baseline justify-end gap-2">
+                <span className="text-2xl sm:text-3xl font-semibold text-emerald-700 tabular-nums"
                   style={{ fontFamily: 'monospace' }}
                 >
                   {Number(balance).toFixed(3)}
                 </span>
-                <span className="text-sm font-semibold text-slate-500">USDT</span>
+                <span className="text-xs font-semibold text-slate-500">USDT</span>
               </div>
             </div>
           )}
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {NETWORK_OPTIONS.map((option) => {
               const value = nativeBalances[option.id];
               return (
                 <div
                   key={option.id}
-                  className="rounded-2xl border border-slate-200/70 bg-white/85 px-4 py-3 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]"
+                  className="rounded-xl border border-slate-200/70 bg-white/85 px-3 py-2 shadow-[0_10px_24px_-22px_rgba(15,23,42,0.3)]"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                       {option.label}
                     </span>
                     {option.id === selectedNetwork && (
@@ -1016,8 +1016,8 @@ export default function SendUsdt({ params }: any) {
                       </span>
                     )}
                   </div>
-                  <div className="mt-2 flex items-baseline justify-between gap-2">
-                    <span className="text-lg font-semibold text-slate-800 tabular-nums">
+                  <div className="mt-1.5 flex items-baseline justify-between gap-2">
+                    <span className="text-base font-semibold text-slate-800 tabular-nums">
                       {value == null
                         ? '...'
                         : value.toFixed(4)}
@@ -1031,22 +1031,22 @@ export default function SendUsdt({ params }: any) {
             })}
           </div>
 
-          <div className="mt-6 flex flex-col gap-5 rounded-2xl border border-slate-200/70 bg-white/90 p-5 shadow-[0_20px_50px_-35px_rgba(15,23,42,0.5)]">
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/90 p-3 shadow-[0_18px_44px_-35px_rgba(15,23,42,0.45)]">
             <div className="flex flex-col gap-1">
               <span className="text-sm font-semibold text-slate-900">출금 요청</span>
-              <p className="text-sm text-slate-500">{Enter_the_amount_and_recipient_address}</p>
+              <p className="text-xs text-slate-500">{Enter_the_amount_and_recipient_address}</p>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-3">
-                  <label className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                     Amount
                   </label>
                   <button
                     type="button"
                     onClick={handleMaxAmount}
-                    className="text-xs font-semibold text-emerald-600 underline decoration-emerald-200 underline-offset-2 transition hover:text-emerald-700"
+                    className="text-[11px] font-semibold text-emerald-600 underline decoration-emerald-200 underline-offset-2 transition hover:text-emerald-700"
                   >
                     잔고 전체 선택
                   </button>
@@ -1058,7 +1058,7 @@ export default function SendUsdt({ params }: any) {
                     inputMode="decimal"
                     placeholder="0.00"
                     className={`
-                      w-full rounded-2xl border px-4 py-4 pr-20 text-right text-3xl font-semibold text-slate-900 shadow-[inset_0_1px_2px_rgba(15,23,42,0.08)] focus:outline-none focus:ring-2 focus:ring-emerald-400
+                      w-full rounded-xl border px-3 py-3 pr-16 text-right text-2xl font-semibold text-slate-900 shadow-[inset_0_1px_2px_rgba(15,23,42,0.08)] focus:outline-none focus:ring-2 focus:ring-emerald-400
                       ${sending ? 'border-slate-200 bg-slate-100 text-slate-400' : 'border-slate-200 bg-white'}
                     `}
                     value={amountInput}
@@ -1068,7 +1068,7 @@ export default function SendUsdt({ params }: any) {
                     USDT
                   </span>
                 </div>
-                <div className="text-xs font-semibold text-slate-400">
+                <div className="text-[11px] font-semibold text-slate-400">
                   사용 가능: {formatAmountInput(maxAmount, selectedNetworkConfig.decimals)} USDT
                 </div>
               </div>
@@ -1078,13 +1078,12 @@ export default function SendUsdt({ params }: any) {
               
                   {!wantToReceiveWalletAddress ? (
                     <>
-                    <div className='w-full flex flex-row gap-4 items-center justify-between'>
+                    <div className='w-full flex flex-row gap-3 items-center justify-between'>
                       <select
                         disabled={sending}
 
                         className="
-                          
-                          w-56 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-800 shadow-sm "
+                          w-52 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-800 shadow-sm "
                           
                         value={
                           recipient?.nickname
@@ -1116,13 +1115,13 @@ export default function SendUsdt({ params }: any) {
                         <Image
                           src={recipient?.avatar || '/profile-default.png'}
                           alt="profile"
-                          width={38}
-                          height={38}
+                          width={32}
+                          height={32}
                           className="rounded-full border border-slate-200 bg-white"
                           style={{
                             objectFit: 'cover',
-                            width: '38px',
-                            height: '38px',
+                            width: '32px',
+                            height: '32px',
                           }}
                         />
 
@@ -1130,8 +1129,8 @@ export default function SendUsdt({ params }: any) {
                           <Image
                             src="/verified.png"
                             alt="check"
-                            width={28}
-                            height={28}
+                            width={22}
+                            height={22}
                           />
                         )}
 
@@ -1149,7 +1148,7 @@ export default function SendUsdt({ params }: any) {
                         disabled={true}
                         type="text"
                         placeholder={User_wallet_address}
-                        className="w-80 xl:w-full rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600"
                         value={recipient?.walletAddress}
                         onChange={(e) => {
         
@@ -1187,12 +1186,12 @@ export default function SendUsdt({ params }: any) {
 
                   ) : (
 
-                    <div className='flex flex-col gap-4 items-center justify-between'>
+                    <div className='flex flex-col gap-3 items-center justify-between'>
                       <input
                         disabled={sending}
                         type="text"
                         placeholder={User_wallet_address}
-                        className="w-80 xl:w-96 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-sm"
                         value={recipient.walletAddress}
                         onChange={(e) => setRecipient({
                           ...recipient,
@@ -1201,27 +1200,27 @@ export default function SendUsdt({ params }: any) {
                       />
 
                       {isWhateListedUser ? (
-                        <div className="flex flex-row gap-2 items-center justify-center rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                        <div className="flex flex-row gap-2 items-center justify-center rounded-full border border-emerald-200/70 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
 
 
                           <Image
                             src={recipient.avatar || '/profile-default.png'}
                             alt="profile"
-                            width={30}
-                            height={30}
+                            width={26}
+                            height={26}
                             className="rounded-full"
                             style={{
                               objectFit: 'cover',
-                              width: '38px',
-                              height: '38px',
+                              width: '26px',
+                              height: '26px',
                             }}
                           />
                           <div>{recipient?.nickname}</div>
                           <Image
                             src="/verified.png"
                             alt="check"
-                            width={30}
-                            height={30}
+                            width={24}
+                            height={24}
                           />
                           
                         </div>
@@ -1229,7 +1228,7 @@ export default function SendUsdt({ params }: any) {
                         <>
 
                         {recipient?.walletAddress && (
-                          <div className='flex flex-row gap-2 items-start justify-center rounded-xl border border-rose-200/70 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600'>
+                          <div className='flex flex-row gap-2 items-start justify-center rounded-xl border border-rose-200/70 bg-rose-50 px-2.5 py-1.5 text-[11px] font-semibold text-rose-600'>
                             {/* dot icon */}
                             <div className="mt-1 h-2.5 w-2.5 rounded-full bg-rose-500"></div>
                             <div>
@@ -1327,7 +1326,7 @@ export default function SendUsdt({ params }: any) {
                 <button
                   disabled={!address || !recipient?.walletAddress || !amount || sending || !verifiedOtp}
                   onClick={sendUsdt}
-                  className={`mt-2 w-full rounded-2xl px-4 py-3 text-lg font-semibold transition-all duration-200 ease-in-out
+                  className={`mt-1.5 w-full rounded-xl px-4 py-2.5 text-base font-semibold transition-all duration-200 ease-in-out
 
                       ${
                       !address || !recipient?.walletAddress || !amount || sending || !verifiedOtp
@@ -1340,12 +1339,12 @@ export default function SendUsdt({ params }: any) {
                     {Send_USDT}
                 </button>
 
-                <div className="w-full flex flex-row gap-2 text-sm font-semibold text-slate-600">
+                <div className="w-full flex flex-row gap-2 text-xs font-semibold text-slate-600">
 
                   {/* sending rotate animation with white color*/}
                   {sending && (
                     <div className="
-                      w-5 h-5
+                      w-4 h-4
                       border-2 border-slate-400
                       rounded-full
                       animate-spin
@@ -1353,8 +1352,8 @@ export default function SendUsdt({ params }: any) {
                       <Image
                         src="/icon-loading.png"
                         alt="loading"
-                        width={20}
-                        height={20}
+                        width={16}
+                        height={16}
                       />
                     </div>
                   )}
@@ -1369,8 +1368,8 @@ export default function SendUsdt({ params }: any) {
 
 
           {address && (
-            <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-4">
-              <span className="text-xs font-semibold text-slate-400">보안 로그인을 확인했습니다.</span>
+            <div className="mt-4 flex items-center justify-between gap-2.5 border-t border-slate-200/70 pt-3">
+              <span className="text-[11px] font-semibold text-slate-400">보안 로그인을 확인했습니다.</span>
               <ConnectButton
                 client={client}
                 wallets={wallets}
@@ -1383,11 +1382,11 @@ export default function SendUsdt({ params }: any) {
                     style: {
                         backgroundColor: "#0047ab", // cobalt blue
                         color: "#f3f4f6", // gray-300
-                        padding: "2px 10px",
+                        padding: "2px 8px",
                         borderRadius: "10px",
-                        fontSize: "14px",
+                        fontSize: "12px",
                         width: "60x",
-                        height: "38px",
+                        height: "34px",
                     },
                     label: "웹3 로그인",
                 }}

@@ -232,14 +232,14 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
     : "Unknown";
 
   const networkTone = displayChain === "ethereum"
-    ? "border-indigo-200/40 bg-indigo-50/50 text-indigo-700"
+    ? "border-indigo-400/40 bg-indigo-500/10 text-indigo-200"
     : displayChain === "polygon"
-    ? "border-violet-200/40 bg-violet-50/50 text-violet-700"
+    ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
     : displayChain === "arbitrum"
-    ? "border-sky-200/40 bg-sky-50/50 text-sky-700"
+    ? "border-sky-400/40 bg-sky-500/10 text-sky-200"
     : displayChain === "bsc"
-    ? "border-amber-200/40 bg-amber-50/50 text-amber-700"
-    : "border-slate-200/40 bg-slate-50/50 text-slate-600";
+    ? "border-amber-400/40 bg-amber-500/10 text-amber-200"
+    : "border-slate-500/40 bg-slate-500/10 text-slate-200";
 
 
 
@@ -315,10 +315,10 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
   return (
 
     <div
-      className="console-shell relative mx-auto mb-4 w-[360px] max-w-full overflow-hidden rounded-[22px]
-      bg-[radial-gradient(120%_120%_at_0%_0%,#fbfaf6_0%,#eff3f7_45%,#e1e8f1_100%)]
-      p-2 shadow-[0_40px_80px_-50px_rgba(15,23,42,0.65)] ring-1 ring-[#d6dde7]"
-      style={{ fontFamily: '"Space Grotesk", "Avenir Next", "Segoe UI", sans-serif' }}
+      className="console-shell relative mx-auto mb-6 w-[380px] max-w-full overflow-hidden rounded-[26px]
+      border border-slate-800/70 bg-[radial-gradient(140%_120%_at_0%_0%,#13243a_0%,#0b1320_45%,#070a12_100%)]
+      p-3 shadow-[0_35px_90px_-50px_rgba(2,6,23,0.9)] text-slate-100"
+      style={{ fontFamily: '"Rajdhani", "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif' }}
     >
 
       {/* sponsor gas auto connect */}
@@ -328,9 +328,20 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
       />
 
       <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full
-        bg-[radial-gradient(circle_at_center,#9be8d9_0%,rgba(155,232,217,0.2)_45%,transparent_70%)] blur-2xl" />
+        bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.55)_0%,rgba(16,185,129,0.18)_45%,transparent_70%)] blur-2xl" />
       <div className="pointer-events-none absolute -bottom-20 -left-10 h-40 w-40 rounded-full
-        bg-[radial-gradient(circle_at_center,#bcd1ff_0%,rgba(188,209,255,0.25)_40%,transparent_70%)] blur-2xl" />
+        bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.55)_0%,rgba(59,130,246,0.2)_40%,transparent_70%)] blur-2xl" />
+
+      <div className="console-hud relative z-10 mb-2 flex items-center justify-between rounded-full
+        border border-emerald-500/20 bg-slate-950/40 px-4 py-2">
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-300/90">
+          <span className="hud-dot inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+          SYSTEM ONLINE
+        </div>
+        <div className="text-[11px] font-medium text-slate-300">
+          NET · {networkLabel}
+        </div>
+      </div>
 
 
       {/* address balance */}
@@ -340,12 +351,12 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
           <>
             <div
-              className="console-row w-full rounded-2xl border border-slate-200/40 bg-white/60 p-3"
+              className="console-row w-full rounded-2xl border border-emerald-500/20 bg-slate-950/60 p-3 backdrop-blur-sm"
               style={{ animationDelay: "0.05s" }}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-[12px] font-medium text-slate-500">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
+                <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-300">
+                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.18)]" />
                   <span>내 지갑주소</span>
                 </div>
                 {smartAccountEnabled && (
@@ -361,9 +372,9 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
               <div className="mt-2 grid w-full gap-3">
                 <button
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200/50
-                  bg-white/70 px-4 py-2 text-sm font-semibold text-slate-900
-                  transition hover:border-slate-300"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-700/70
+                  bg-slate-900/70 px-4 py-2 text-sm font-semibold text-slate-100
+                  transition hover:border-emerald-300/60"
                   onClick={() => {
                     navigator.clipboard.writeText(address);
                     //toast.success(Copied_Wallet_Address);
@@ -382,12 +393,12 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
                   </span>
                 </button>
 
-                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-300">
                   <span>QR 코드</span>
                   <button
                     type="button"
                     onClick={() => setShowQrCode((prev) => !prev)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-sm transition hover:border-slate-300"
+                    className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-[11px] font-semibold text-slate-200 shadow-sm transition hover:border-emerald-300/60"
                   >
                     {showQrCode ? 'QR 접기' : 'QR 펼치기'}
                   </button>
@@ -397,7 +408,7 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
                   className={`flex justify-center overflow-hidden transition-all duration-300 ease-out origin-top
                   ${showQrCode ? 'max-h-[260px] opacity-100 scale-100' : 'max-h-0 opacity-0 scale-95'}`}
                 >
-                  <div className="rounded-2xl bg-white/80 p-2 ring-1 ring-slate-200/50">
+                  <div className="rounded-2xl bg-slate-900/80 p-2 ring-1 ring-emerald-400/20">
                     <Canvas
                       text={address}
                       options={{
@@ -421,29 +432,29 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
 
             <div
-              className="console-row w-full rounded-2xl border border-emerald-100/40
-              bg-[linear-gradient(135deg,#f7fffb_0%,#f8fbff_100%)] p-3"
+              className="console-row w-full rounded-2xl border border-emerald-400/25
+              bg-[linear-gradient(135deg,#0b1f1a_0%,#0a1522_100%)] p-3"
               style={{ animationDelay: "0.12s" }}
             >
-              <div className="flex items-center gap-2 text-[12px] font-medium text-emerald-700/80">
+              <div className="flex items-center gap-2 text-[12px] font-semibold text-emerald-200/90">
                 <Image
                   src="/token-usdt-icon.png"
                   alt="USDT"
                   width={35}
                   height={35}
-                  className="h-6 w-6 rounded-lg bg-white p-1 shadow-sm"
+                  className="h-6 w-6 rounded-lg bg-slate-900 p-1 shadow-sm"
                 />
                 <span>내 테더 잔액(USDT)</span>
               </div>
 
               <div className="mt-2 flex w-full items-baseline justify-end gap-2 text-right">
                 <div
-                  className="text-xl font-semibold text-emerald-700 tabular-nums text-right"
+                  className="text-xl font-semibold text-emerald-300 tabular-nums text-right"
                   style={{ fontFamily: '"JetBrains Mono", "IBM Plex Mono", "Menlo", monospace' }}
                 >
                   {Number(balance).toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 </div>
-                <span className="text-[11px] font-medium text-emerald-700/60">USDT</span>
+                <span className="text-[11px] font-medium text-emerald-200/60">USDT</span>
               </div>
 
 
@@ -479,7 +490,7 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
             {!smartAccountEnabled && (
               <div
-                className="console-row w-full rounded-2xl border border-slate-200/40 bg-white/60 px-3 py-2.5"
+                className="console-row w-full rounded-2xl border border-slate-700/60 bg-slate-950/60 px-3 py-2.5"
                 style={{ animationDelay: "0.18s" }}
               >
                 <div className="flex w-full items-center justify-between">
@@ -491,18 +502,18 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
                       height={20}
                       className="rounded-lg"
                     />
-                    <span className="text-[12px] font-medium text-slate-500">
+                    <span className="text-[12px] font-semibold text-slate-300">
                       가스보유량
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span
-                      className="text-lg font-semibold text-slate-900 tabular-nums"
+                      className="text-lg font-semibold text-slate-100 tabular-nums"
                       style={{ fontFamily: '"JetBrains Mono", "IBM Plex Mono", "Menlo", monospace' }}
                     >
                       {Number(nativeBalance).toFixed(4)}
                     </span>
-                    <span className="text-[12px] font-medium text-slate-500">
+                    <span className="text-[12px] font-semibold text-slate-300">
                       {displayChain === "ethereum" ? "ETH" :
                       displayChain === "polygon" ? "POL" :
                       displayChain === "arbitrum" ? "ETH" :
@@ -536,8 +547,8 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
             {smartAccountEnabled ? (
               <div
-                className="console-row w-full rounded-xl border border-emerald-200/50 bg-emerald-50/70
-                px-3 py-2 text-[11px] text-emerald-700"
+                className="console-row w-full rounded-xl border border-emerald-400/40 bg-emerald-500/10
+                px-3 py-2 text-[11px] text-emerald-200"
                 style={{ animationDelay: "0.22s" }}
               >
                 스마트 어카운트는 출금 시 가스비용이 필요 없어 편리합니다.
@@ -545,8 +556,8 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
             ) : (
               nativeBalance < 0.0001 && (
                 <div
-                  className="console-row w-full rounded-xl border border-rose-200/50 bg-rose-50/70
-                  px-3 py-2 text-[11px] text-rose-600"
+                  className="console-row w-full rounded-xl border border-rose-400/40 bg-rose-500/10
+                  px-3 py-2 text-[11px] text-rose-200"
                   style={{ animationDelay: "0.22s" }}
                 >
                   가스비용이 부족합니다.<br />가스비용이 부족하면 입금은 가능하지만 출금은 불가능합니다.
@@ -560,8 +571,9 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
               style={{ animationDelay: "0.26s" }}
             >
               <button
-                className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900
-                px-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800"
+                className="group inline-flex h-11 items-center justify-center gap-2 rounded-full
+                bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 text-sm font-bold text-slate-900
+                shadow-[0_14px_30px_-18px_rgba(16,185,129,0.7)] transition hover:-translate-y-0.5"
                 //onClick={() => router.push("/ko/administration/withdraw-usdt")}
                 /* router and hide button for withdraw USDT */
                 onClick={() => {
@@ -579,8 +591,8 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
 
                 <button
                   className="inline-flex h-11 items-center justify-center rounded-full border border-rose-200/70
-                  bg-white/70 px-4 text-sm font-semibold text-rose-600
-                  transition hover:border-rose-300 hover:bg-rose-50"
+                  bg-slate-900/60 px-4 text-sm font-semibold text-rose-200
+                  transition hover:border-rose-300/60 hover:bg-rose-500/10"
                   onClick={() => {
                     // Add your disconnect wallet logic here
                     confirm("지갑 연결을 해제하시겠습니까?") && activeWallet?.disconnect()
@@ -601,11 +613,11 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
         ) : (
 
           <div
-            className="console-row w-full rounded-2xl border border-slate-200/50 bg-white/60 p-4 text-center"
+            className="console-row w-full rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4 text-center"
             style={{ animationDelay: "0.08s" }}
           >
             {/* 로그인하고 나의 자산을 확인하세요 */}
-            <span className="text-[13px] font-medium text-slate-500">
+            <span className="text-[13px] font-medium text-slate-300">
               로그인하고 나의 지갑주소에서 자산을 확인하세요
             </span>
 
@@ -616,7 +628,7 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
                 wallets={wallets}
                 chain={activeChain}
                 
-                theme={"light"}
+                theme={"dark"}
 
                 // button color is dark skyblue convert (49, 103, 180) to hex
                 connectButton={{
@@ -654,11 +666,41 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
         .console-shell {
           animation: consoleShellIn 0.6s ease-out both;
         }
+        .console-shell::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(90deg, rgba(15, 23, 42, 0.1) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.1) 1px, transparent 1px);
+          background-size: 28px 28px;
+          opacity: 0.35;
+          pointer-events: none;
+        }
+        .console-shell::after {
+          content: "";
+          position: absolute;
+          inset: -40% 0;
+          background: linear-gradient(180deg, transparent 0%, rgba(56, 189, 248, 0.1) 50%, transparent 100%);
+          animation: scanline 6s linear infinite;
+          opacity: 0.6;
+          pointer-events: none;
+        }
+        .console-hud {
+          box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.08);
+        }
+        .hud-dot {
+          animation: hudPulse 1.6s ease-in-out infinite;
+          box-shadow: 0 0 14px rgba(16, 185, 129, 0.7);
+        }
         .console-card {
+          position: relative;
+          z-index: 1;
           animation: consoleCardIn 0.7s ease-out 0.05s both;
         }
         .console-row {
           animation: consoleRowIn 0.6s ease-out both;
+          box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.05);
         }
         @keyframes consoleShellIn {
           from {
@@ -718,6 +760,25 @@ const StabilityConsole = ({ onRequestClose }: { onRequestClose?: () => void }) =
           50% {
             opacity: 0.95;
             transform: scale(1.08);
+          }
+        }
+        @keyframes scanline {
+          0% {
+            transform: translateY(-30%);
+          }
+          100% {
+            transform: translateY(30%);
+          }
+        }
+        @keyframes hudPulse {
+          0%,
+          100% {
+            transform: scale(0.9);
+            opacity: 0.65;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 1;
           }
         }
       `}</style>
