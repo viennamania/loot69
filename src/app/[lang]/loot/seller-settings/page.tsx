@@ -1196,11 +1196,11 @@ export default function SettingsPage({ params }: any) {
 
     return (
 
-        <main className="p-4 pb-28 min-h-[100vh] flex items-start justify-center container max-w-screen-sm mx-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800">
+        <main className="seller-shell min-h-[100vh] px-4 pb-28 text-slate-100 antialiased">
 
-            <AutoConnect client={client} wallets={[wallet]} />
+        <AutoConnect client={client} wallets={[wallet]} />
 
-            <div className="py-0 w-full">
+            <div className="mx-auto w-full max-w-[560px] py-2">
         
 
                 {/*
@@ -1219,7 +1219,7 @@ export default function SettingsPage({ params }: any) {
                     <div className="w-full flex justify-start items-center gap-2">
                         <button
                             onClick={() => window.history.back()}
-                            className="flex items-center justify-center rounded-full border border-slate-200/70 bg-white/90 p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            className="flex items-center justify-center rounded-full border border-slate-200/70 bg-white/90 p-2 shadow-sm">
                             <Image
                                 src="/icon-back.png"
                                 alt="Back"
@@ -1249,8 +1249,8 @@ export default function SettingsPage({ params }: any) {
                             조회할 USDT 체인을 선택하세요.
                         </span>
 
-                        <div className="w-full flex flex-row items-center justify-center gap-4 mb-4">
-                            <label className="flex items-center gap-2">
+                    <div className="w-full flex flex-row items-center justify-center gap-4 mb-4">
+                        <label className="flex items-center gap-2">
                                 <input
                                     type="radio"
                                     name="chain"
@@ -1305,17 +1305,38 @@ export default function SettingsPage({ params }: any) {
 
                 {!address ? (
                     <div className="w-full">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 text-center shadow-sm">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-5 text-center shadow-sm">
                             <p className="text-base font-semibold text-slate-600">
                                 로그인해서 지갑을 연결하세요.
                             </p>
-                            <button
-                                type="button"
-                                onClick={() => router.push(`/${params.lang}/web3login`)}
-                                className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                            >
-                                웹3 로그인 이동
-                            </button>
+                            <div className="mt-4 inline-flex items-center justify-center">
+                                <ConnectButton
+                                    client={client}
+                                    wallets={wallets}
+                                    theme={"dark"}
+                                    connectButton={{
+                                        style: {
+                                            backgroundColor: "#0f172a",
+                                            color: "#e2e8f0",
+                                            padding: "10px 26px",
+                                            borderRadius: "999px",
+                                            fontSize: "15px",
+                                            fontWeight: 700,
+                                            border: "1px solid rgba(168, 85, 247, 0.45)",
+                                            boxShadow:
+                                                "0 0 0 1px rgba(34, 197, 94, 0.2), 0 16px 32px -18px rgba(168, 85, 247, 0.9), 0 0 24px rgba(168, 85, 247, 0.35)",
+                                            letterSpacing: "0.02em",
+                                        },
+                                        label: "웹3 로그인",
+                                    }}
+                                    connectModal={{
+                                        size: "wide",
+                                        titleIcon: "https://loot.menu/logo.png",
+                                        showThirdwebBranding: false,
+                                    }}
+                                    locale={"ko_KR"}
+                                />
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -1336,7 +1357,7 @@ export default function SettingsPage({ params }: any) {
                                     onClick={() => {
                                         router.push('/' + params.lang + '/loot/profile-settings');
                                     }}
-                                    className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                                    className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm"
                                 >
                                     회원가입하기
                                 </button>
@@ -1370,7 +1391,7 @@ export default function SettingsPage({ params }: any) {
                                         applySeller();
                                     }}
                                     className={`
-                                        ${applyingSeller ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white hover:bg-emerald-500'}
+                                        ${applyingSeller ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
                                         px-5 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                     `}
                                     disabled={applyingSeller}
@@ -1454,7 +1475,7 @@ export default function SettingsPage({ params }: any) {
                                         <button
                                             onClick={toggleSellerEnabled}
                                             className="flex flex-row items-center gap-2
-                                                bg-emerald-600 text-white px-4 py-1.5 rounded-full shadow-sm transition hover:bg-emerald-500"
+                                                bg-emerald-600 text-white px-4 py-1.5 rounded-full shadow-sm"
                                         >
                                             <span className="text-sm font-semibold">
                                                 판매중
@@ -1464,7 +1485,7 @@ export default function SettingsPage({ params }: any) {
                                         <button
                                             onClick={toggleSellerEnabled}
                                             className="flex flex-row items-center gap-2
-                                                bg-slate-200 text-slate-600 px-4 py-1.5 rounded-full shadow-sm transition hover:bg-slate-300"
+                                                bg-slate-200 text-slate-600 px-4 py-1.5 rounded-full shadow-sm"
                                         >
                                             <span className="text-sm font-semibold">
                                                 판매중지
@@ -1601,7 +1622,7 @@ export default function SettingsPage({ params }: any) {
                                             }}
                                             className={`
                                                 ${!verifiedOtp ? 'bg-slate-200 text-slate-400'
-                                                : 'bg-emerald-600 text-white hover:bg-emerald-500'}
+                                                : 'bg-emerald-600 text-white'}
                                                 px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                             `}
                                         >
@@ -1796,7 +1817,7 @@ export default function SettingsPage({ params }: any) {
                                         <>
                                             <label
                                                 htmlFor="kyc-id-upload-seller"
-                                                className="cursor-pointer rounded-xl border border-dashed border-slate-200/80 bg-slate-50/80 px-4 py-4 text-center shadow-sm transition hover:border-slate-300"
+                                                className="cursor-pointer rounded-xl border border-dashed border-slate-200/80 bg-slate-50/80 px-4 py-4 text-center shadow-sm"
                                             >
                                                 <input
                                                     id="kyc-id-upload-seller"
@@ -1833,7 +1854,7 @@ export default function SettingsPage({ params }: any) {
                                                 className={`inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition sm:w-auto sm:self-start ${
                                                     kycSubmitting || (!kycFile && !kycImageUrl)
                                                         ? 'bg-slate-200 text-slate-400'
-                                                        : 'bg-slate-900 text-white hover:bg-slate-800'
+                                                        : 'bg-slate-900 text-white'
                                                 }`}
                                             >
                                                 {kycSubmitting ? '심사 신청 중...' : '심사신청하기'}
@@ -1885,7 +1906,7 @@ export default function SettingsPage({ params }: any) {
                                             className='w-8 h-8'
                                         />
                                         <button
-                                            className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900"
+                                            className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4"
                                             onClick={() => {
                                                 navigator.clipboard.writeText(seller?.escrowWalletAddress || "");
                                                 toast.success("에스크로 지갑 주소가 복사되었습니다" );
@@ -1932,7 +1953,7 @@ export default function SettingsPage({ params }: any) {
                                             }
                                         }}
                                         className={`
-                                            ${clearingSellerEscrowWalletBalance ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white hover:bg-emerald-500'}
+                                            ${clearingSellerEscrowWalletBalance ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
                                             px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                         `}
                                         disabled={clearingSellerEscrowWalletBalance || escrowBalance <= 0}
@@ -1985,7 +2006,7 @@ export default function SettingsPage({ params }: any) {
                                             className={`
                                                 ${seller?.priceSettingMethod === 'market'
                                                     ? 'bg-slate-900 text-white'
-                                                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}
+                                                    : 'bg-slate-200 text-slate-600'}
                                                 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                             `}
                                             disabled={seller?.priceSettingMethod === 'market'}
@@ -2003,7 +2024,7 @@ export default function SettingsPage({ params }: any) {
                                             className={`
                                                 ${seller?.priceSettingMethod === 'fixed'
                                                     ? 'bg-slate-900 text-white'
-                                                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}
+                                                    : 'bg-slate-200 text-slate-600'}
                                                 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                             `}
                                             disabled={seller?.priceSettingMethod === 'fixed'}
@@ -2034,7 +2055,7 @@ export default function SettingsPage({ params }: any) {
                                                 disabled={updatingUsdtToKrw}
                                                 onClick={updateUsdtToKrwRate}
                                                 className={`
-                                                    ${updatingUsdtToKrw ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white hover:bg-emerald-500'}
+                                                    ${updatingUsdtToKrw ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
                                                     px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                                 `}
                                             >
@@ -2065,7 +2086,7 @@ export default function SettingsPage({ params }: any) {
                                                     className={`
                                                         ${seller?.market === 'upbit'
                                                             ? 'bg-slate-900 text-white'
-                                                            : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}
+                                                            : 'bg-slate-200 text-slate-600'}
                                                         px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                                     `}
                                                     disabled={seller?.market === 'upbit'}
@@ -2092,7 +2113,7 @@ export default function SettingsPage({ params }: any) {
                                                     className={`
                                                         ${seller?.market === 'bithumb'
                                                             ? 'bg-slate-900 text-white'
-                                                            : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}
+                                                            : 'bg-slate-200 text-slate-600'}
                                                         px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                                     `}
                                                     disabled={seller?.market === 'bithumb'}
@@ -2120,7 +2141,7 @@ export default function SettingsPage({ params }: any) {
                                                     className={`
                                                         ${seller?.market === 'korbit'
                                                             ? 'bg-slate-900 text-white'
-                                                            : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}
+                                                            : 'bg-slate-200 text-slate-600'}
                                                         px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                                     `}
                                                     disabled={seller?.market === 'korbit'}
@@ -2198,7 +2219,7 @@ export default function SettingsPage({ params }: any) {
                                                 className={`
                                                     ${generatingPromotionText || updatingPromotionText
                                                         ? 'bg-slate-200 text-slate-400'
-                                                        : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}
+                                                        : 'bg-white text-slate-700 border border-slate-200'}
                                                     px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                                 `}
                                             >
@@ -2210,7 +2231,7 @@ export default function SettingsPage({ params }: any) {
                                                 className={`
                                                     ${updatingPromotionText || generatingPromotionText
                                                         ? 'bg-slate-200 text-slate-400'
-                                                        : 'bg-emerald-600 text-white hover:bg-emerald-500'}
+                                                        : 'bg-emerald-600 text-white'}
                                                     px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                                 `}
                                             >
@@ -2251,6 +2272,80 @@ export default function SettingsPage({ params }: any) {
                 )}
 
             </div>
+        <style jsx global>{`
+          .seller-shell {
+            --seller-bg: #0b1020;
+            --seller-surface: rgba(28, 44, 92, 0.72);
+            --seller-surface-soft: rgba(34, 54, 108, 0.58);
+            --seller-border: rgba(125, 211, 252, 0.28);
+            --seller-text: #e2e8f0;
+            --seller-muted: #b6c2d6;
+            background-color: var(--seller-bg);
+            background-image:
+              radial-gradient(circle at 12% 0%, rgba(125, 211, 252, 0.22), transparent 48%),
+              radial-gradient(circle at 82% 10%, rgba(110, 231, 183, 0.12), transparent 52%),
+              repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.04) 0 1px, transparent 1px 6px);
+          }
+
+          .seller-shell .bg-white,
+          .seller-shell .bg-white\\/90,
+          .seller-shell .bg-white\\/95,
+          .seller-shell .bg-white\\/80 {
+            background-color: var(--seller-surface) !important;
+          }
+
+          .seller-shell .bg-slate-50,
+          .seller-shell .bg-slate-50\\/80,
+          .seller-shell .bg-slate-100 {
+            background-color: var(--seller-surface-soft) !important;
+          }
+
+          .seller-shell .bg-slate-200,
+          .seller-shell .bg-amber-50,
+          .seller-shell .bg-amber-50\\/80,
+          .seller-shell .bg-emerald-50,
+          .seller-shell .bg-emerald-50\\/80 {
+            background-color: rgba(125, 211, 252, 0.16) !important;
+          }
+
+          .seller-shell .border-slate-200,
+          .seller-shell .border-slate-200\\/70,
+          .seller-shell .border-slate-200\\/80,
+          .seller-shell .border-slate-200\\/90,
+          .seller-shell .border-slate-300,
+          .seller-shell .border-amber-200\\/70,
+          .seller-shell .border-amber-200\\/80,
+          .seller-shell .border-emerald-200\\/70,
+          .seller-shell .border-emerald-200\\/80 {
+            border-color: var(--seller-border) !important;
+          }
+
+          .seller-shell .text-slate-900,
+          .seller-shell .text-slate-800,
+          .seller-shell .text-slate-700 {
+            color: var(--seller-text) !important;
+          }
+
+          .seller-shell .text-slate-600,
+          .seller-shell .text-slate-500,
+          .seller-shell .text-slate-400 {
+            color: var(--seller-muted) !important;
+          }
+
+          .seller-shell a,
+          .seller-shell button,
+          .seller-shell [role="button"] {
+            transition: none !important;
+          }
+
+          .seller-shell a:hover,
+          .seller-shell button:hover,
+          .seller-shell [role="button"]:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+          }
+        `}</style>
         </main>
 
     );
