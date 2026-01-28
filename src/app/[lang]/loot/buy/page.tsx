@@ -4311,8 +4311,8 @@ const fetchBuyOrders = async () => {
 
   if (address && loadingUser) {
     return (
-      <main className="p-4 pb-28 min-h-[100vh] flex items-start justify-center container max-w-screen-2xl mx-auto bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <div className="py-0 w-full flex flex-col items-center justify-center gap-4">
+      <main className="buy-shell min-h-[100vh] px-4 pb-28 text-slate-100 antialiased flex items-start justify-center">
+        <div className="w-full max-w-[860px] py-6 flex flex-col items-center justify-center gap-4">
 
           <Image
             src="/banner-loading.gif"
@@ -4332,7 +4332,7 @@ const fetchBuyOrders = async () => {
 
   return (
 
-    <main className="p-4 pb-28 min-h-[100vh] flex items-start justify-center container max-w-screen-2xl mx-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800 antialiased">
+    <main className="buy-shell min-h-[100vh] px-4 pb-28 text-slate-100 antialiased">
 
       <AutoConnect
           client={client}
@@ -4443,8 +4443,8 @@ const fetchBuyOrders = async () => {
 
 
 
-      <div className="py-0 w-full">
-        <div className="mb-4 w-full rounded-2xl border border-sky-200/70 bg-sky-50/80 p-4 shadow-[0_18px_45px_-35px_rgba(14,116,144,0.35)] backdrop-blur">
+      <div className="w-full max-w-[860px] mx-auto py-2">
+        <div className="buy-neon mb-4 w-full rounded-2xl border border-sky-200/70 bg-sky-50/80 p-4 shadow-[0_18px_45px_-35px_rgba(14,116,144,0.35)] backdrop-blur">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-200/80 text-sky-700">
@@ -4790,7 +4790,7 @@ const fetchBuyOrders = async () => {
             )}
           </div>
 
-          <section className="w-full lg:flex-[0.9] rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)] backdrop-blur">
+          <section className="buy-neon w-full lg:flex-[0.9] rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)] backdrop-blur">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-200/70 bg-orange-50 text-orange-600">
@@ -11664,6 +11664,140 @@ const fetchBuyOrders = async () => {
             />
         </ModalUser>
 
+        <style jsx global>{`
+          .buy-shell {
+            --buy-bg: #0b1020;
+            --buy-surface: rgba(244, 246, 255, 0.96);
+            --buy-surface-soft: rgba(232, 238, 255, 0.9);
+            --buy-border: rgba(139, 92, 246, 0.5);
+            --buy-text: #0f172a;
+            --buy-muted: #475569;
+            background-color: var(--buy-bg);
+            background-image:
+              radial-gradient(circle at 18% 12%, rgba(192, 132, 252, 0.28), transparent 50%),
+              radial-gradient(circle at 80% 0%, rgba(74, 222, 128, 0.14), transparent 55%),
+              repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.1) 0 1px, transparent 1px 6px);
+          }
+
+          .buy-shell .bg-white,
+          .buy-shell .bg-white\\/90,
+          .buy-shell .bg-white\\/80,
+          .buy-shell .bg-white\\/70 {
+            background-color: var(--buy-surface) !important;
+          }
+
+          .buy-shell .bg-slate-50,
+          .buy-shell .bg-slate-50\\/80,
+          .buy-shell .bg-slate-100,
+          .buy-shell .bg-slate-200,
+          .buy-shell .bg-slate-300,
+          .buy-shell .bg-slate-200\\/70,
+          .buy-shell .bg-slate-200\\/80,
+          .buy-shell .bg-slate-200\\/90 {
+            background-color: var(--buy-surface-soft) !important;
+          }
+
+          .buy-shell .bg-gray-100,
+          .buy-shell .bg-gray-200,
+          .buy-shell .bg-zinc-100,
+          .buy-shell .bg-zinc-100\\/50,
+          .buy-shell .bg-zinc-200 {
+            background-color: var(--buy-surface-soft) !important;
+          }
+
+          .buy-shell .bg-sky-50,
+          .buy-shell .bg-sky-50\\/80 {
+            background-color: rgba(186, 230, 253, 0.6) !important;
+          }
+
+          .buy-shell .bg-indigo-50,
+          .buy-shell .bg-indigo-50\\/80 {
+            background-color: rgba(199, 210, 254, 0.6) !important;
+          }
+
+          .buy-shell .bg-emerald-50,
+          .buy-shell .bg-emerald-50\\/80 {
+            background-color: rgba(167, 243, 208, 0.6) !important;
+          }
+
+          .buy-shell .bg-amber-50,
+          .buy-shell .bg-amber-50\\/80 {
+            background-color: rgba(254, 215, 170, 0.6) !important;
+          }
+
+          .buy-shell .bg-orange-50,
+          .buy-shell .bg-orange-50\\/80 {
+            background-color: rgba(254, 215, 170, 0.5) !important;
+          }
+
+          .buy-shell .border-slate-200,
+          .buy-shell .border-slate-200\\/70,
+          .buy-shell .border-slate-200\\/80,
+          .buy-shell .border-slate-200\\/90,
+          .buy-shell .border-slate-300,
+          .buy-shell .border-sky-200\\/70,
+          .buy-shell .border-sky-200\\/80,
+          .buy-shell .border-emerald-200\\/70,
+          .buy-shell .border-emerald-200\\/80,
+          .buy-shell .border-amber-200\\/70,
+          .buy-shell .border-amber-200\\/80,
+          .buy-shell .border-orange-200\\/70,
+          .buy-shell .border-orange-200\\/80,
+          .buy-shell .border-indigo-200\\/70,
+          .buy-shell .border-indigo-200\\/80 {
+            border-color: var(--buy-border) !important;
+          }
+
+          .buy-shell .text-slate-900,
+          .buy-shell .text-slate-800,
+          .buy-shell .text-slate-700,
+          .buy-shell .text-gray-800,
+          .buy-shell .text-gray-700 {
+            color: var(--buy-text) !important;
+          }
+
+          .buy-shell .text-slate-600,
+          .buy-shell .text-slate-500,
+          .buy-shell .text-slate-400,
+          .buy-shell .text-gray-500,
+          .buy-shell .text-zinc-500 {
+            color: var(--buy-muted) !important;
+          }
+
+          .buy-shell .text-gray-400,
+          .buy-shell .text-slate-300,
+          .buy-shell .text-slate-200 {
+            color: #64748b !important;
+          }
+
+          .buy-shell a,
+          .buy-shell button,
+          .buy-shell [role="button"] {
+            transition: none !important;
+          }
+
+          .buy-shell a:hover,
+          .buy-shell button:hover,
+          .buy-shell [role="button"]:hover,
+          .buy-shell .hover\\:scale-105:hover,
+          .buy-shell .hover\\:-translate-y-0\\.5:hover,
+          .buy-shell .hover\\:shadow-lg:hover,
+          .buy-shell .hover\\:shadow-md:hover,
+          .buy-shell .hover\\:shadow-sm:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+          }
+
+          .buy-shell .buy-neon {
+            border-color: rgba(168, 85, 247, 0.7) !important;
+            box-shadow:
+              0 0 0 1px rgba(34, 197, 94, 0.2),
+              0 0 28px rgba(168, 85, 247, 0.45),
+              0 22px 50px -34px rgba(168, 85, 247, 0.95),
+              0 14px 40px -28px rgba(34, 197, 94, 0.75) !important;
+          }
+        `}</style>
 
     </main>
 
