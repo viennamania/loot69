@@ -110,6 +110,7 @@ export default function SettingsPage({ params }: any) {
  
     ///const wallet = searchParams.get('wallet');
 
+    const kycFileHint = "파일 조건: JPG/PNG, 10MB 이하";
     
 
     
@@ -1545,17 +1546,24 @@ export default function SettingsPage({ params }: any) {
                             <div className='seller-panel w-full flex flex-col gap-3 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:gap-4 sm:p-5'>
 
                                 {/* image and title */}
-                                <div className='w-full flex flex-row gap-2 items-center justify-start'>
-                                    <Image
-                                        src="/icon-seller.png"
-                                        alt="Seller"
-                                        width={50}
-                                        height={50}
-                                        className='w-10 h-10'
-                                    />
-                                    <span className="text-lg font-semibold text-slate-900 sm:text-xl">
-                                        {Seller} 설정
-                                    </span>
+                                <div className='w-full flex items-center gap-3'>
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/10 text-slate-100 shadow-sm">
+                                        <Image
+                                            src="/icon-seller.png"
+                                            alt="Seller"
+                                            width={24}
+                                            height={24}
+                                            className='h-6 w-6'
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-semibold text-slate-900 sm:text-xl">
+                                            {Seller} 설정
+                                        </span>
+                                        <span className="text-xs text-slate-300">
+                                            판매자 상태 및 계정 설정
+                                        </span>
+                                    </div>
                                 </div>
 
 
@@ -1674,18 +1682,18 @@ export default function SettingsPage({ params }: any) {
                             <div className='seller-panel mt-4 w-full flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:p-5'>
                                 <div className="flex w-full flex-row items-center justify-between gap-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/10 text-slate-100 shadow-sm">
                                             <Image
-                                                src="/icon-bank-check.png"
-                                                alt="Bank"
+                                                src="/icon-kyc-minimal.svg"
+                                                alt="KYC"
                                                 width={24}
                                                 height={24}
                                                 className="h-6 w-6"
                                             />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-lg font-semibold text-slate-900 sm:text-xl">입금받을 계좌 설정</span>
-                                            <span className="text-xs text-slate-500">계좌 정보 제출 및 상태 확인</span>
+                                            <span className="text-lg font-semibold text-slate-900 sm:text-xl">KYC</span>
+                                            <span className="text-xs text-slate-300">신원 확인 및 계좌 정보 제출 상태 확인</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1693,7 +1701,7 @@ export default function SettingsPage({ params }: any) {
                                 <div className='seller-panel w-full rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:p-5'>
                                     <div className="flex w-full flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/10 text-slate-100 shadow-sm">
                                                 <Image
                                                     src="/icon-bank-check.png"
                                                     alt="Bank"
@@ -1704,25 +1712,25 @@ export default function SettingsPage({ params }: any) {
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-semibold text-slate-900">입금받을 계좌 정보</span>
-                                                <span className="text-xs text-slate-500">계좌 정보 제출 후 심사됩니다.</span>
+                                                <span className="text-xs text-slate-300">계좌 정보 제출 후 심사됩니다.</span>
                                             </div>
                                         </div>
                                         <span
                                             className={`inline-flex w-full items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold sm:w-auto ${
                                                 bankInfoStatus === 'approved'
-                                                    ? 'border-emerald-200/80 bg-emerald-50 text-emerald-700'
+                                                    ? 'border-emerald-300/50 bg-emerald-500/15 text-emerald-200'
                                                     : bankInfoStatus === 'rejected'
-                                                    ? 'border-rose-200/80 bg-rose-50 text-rose-700'
+                                                    ? 'border-rose-300/50 bg-rose-500/15 text-rose-200'
                                                     : bankInfoStatus === 'pending'
-                                                    ? 'border-amber-200/80 bg-amber-50 text-amber-700'
-                                                    : 'border-slate-200/80 bg-slate-50 text-slate-600'
+                                                    ? 'border-amber-300/50 bg-amber-500/15 text-amber-200'
+                                                    : 'border-slate-300/40 bg-white/5 text-slate-200'
                                             }`}
                                         >
                                             {bankInfoStatusLabel}
                                         </span>
                                     </div>
 
-                                    <div className="mt-3 flex flex-col gap-1 text-sm text-slate-600">
+                                    <div className="mt-3 flex flex-col gap-1 text-sm text-slate-300">
                                         {seller?.bankInfo?.bankName ? (
                                             <>
                                                 <span>은행: {seller?.bankInfo?.bankName}</span>
@@ -1733,17 +1741,17 @@ export default function SettingsPage({ params }: any) {
                                             <span>등록된 계좌 정보가 없습니다.</span>
                                         )}
                                         {bankInfoStatus === 'approved' && (
-                                            <span className="text-xs text-emerald-600">
+                                            <span className="text-xs text-emerald-300">
                                                 승인된 계좌 정보입니다. 승인 시간: {seller?.bankInfo?.reviewedAt ? new Date(seller.bankInfo.reviewedAt).toLocaleString() : '-'}
                                             </span>
                                         )}
                                         {bankInfoStatus === 'pending' && (
-                                            <span className="text-xs text-amber-600">
+                                            <span className="text-xs text-amber-300">
                                                 신청 시간: {seller?.bankInfo?.submittedAt ? new Date(seller.bankInfo.submittedAt).toLocaleString() : '-'}
                                             </span>
                                         )}
                                         {bankInfoStatus === 'rejected' && seller?.bankInfo?.rejectionReason && (
-                                            <span className="text-xs text-rose-600">거절 사유: {seller.bankInfo.rejectionReason}</span>
+                                            <span className="text-xs text-rose-300">거절 사유: {seller.bankInfo.rejectionReason}</span>
                                         )}
                                     </div>
                                 </div>
@@ -1752,17 +1760,17 @@ export default function SettingsPage({ params }: any) {
                                 <div className='w-full flex flex-col gap-2 items-start sm:flex-row sm:items-center sm:justify-between'>
                                     <div className="flex flex-row items-center gap-2">
                                         <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                        <span className="text-sm font-semibold text-slate-600">
+                                        <span className="text-sm font-semibold text-slate-300">
                                             입금받을 계좌 정보 신청
                                         </span>
                                     </div>
 
                                     {bankInfoStatus === 'pending' ? (
-                                        <div className="w-full rounded-full bg-amber-100 px-3 py-1.5 text-center text-xs font-semibold text-amber-700 shadow-sm sm:w-auto">
+                                        <div className="w-full rounded-full border border-amber-300/50 bg-amber-500/15 px-3 py-1.5 text-center text-xs font-semibold text-amber-200 shadow-sm sm:w-auto">
                                             심사중
                                         </div>
                                     ) : applying ? (
-                                        <div className="w-full rounded-full bg-slate-900 px-3 py-1.5 text-center text-xs font-semibold text-white shadow-sm sm:w-auto">
+                                        <div className="w-full rounded-full border border-slate-300/40 bg-white/10 px-3 py-1.5 text-center text-xs font-semibold text-slate-200 shadow-sm sm:w-auto">
                                             {Applying}...
                                         </div>
                                     ) : (
@@ -1892,14 +1900,13 @@ export default function SettingsPage({ params }: any) {
                                     />
                                 </div>
                             </div>
-                            </div>
-
+                            
                             <div className="seller-panel mt-4 w-full rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:p-5">
                                 <div className="flex w-full flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/10 text-slate-100 shadow-sm">
                                             <Image
-                                                src="/icon-kyc.png"
+                                                src="/icon-kyc-minimal.svg"
                                                 alt="KYC"
                                                 width={24}
                                                 height={24}
@@ -1908,18 +1915,18 @@ export default function SettingsPage({ params }: any) {
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold text-slate-900">신분증 인증 (KYC)</span>
-                                            <span className="text-xs text-slate-500">주민증/운전면허증/여권 중 1장 업로드</span>
+                                            <span className="text-xs text-slate-300">주민증/운전면허증/여권 중 1장 업로드</span>
                                         </div>
                                     </div>
                                     <span
                                         className={`inline-flex w-full items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold sm:w-auto ${
-                                            kycStatus === 'approved'
-                                                ? 'border-emerald-200/80 bg-emerald-50 text-emerald-700'
+                                                kycStatus === 'approved'
+                                                ? 'border-emerald-300/50 bg-emerald-500/15 text-emerald-200'
                                                 : kycStatus === 'rejected'
-                                                ? 'border-rose-200/80 bg-rose-50 text-rose-700'
+                                                ? 'border-rose-300/50 bg-rose-500/15 text-rose-200'
                                                 : kycStatus === 'pending'
-                                                ? 'border-amber-200/80 bg-amber-50 text-amber-700'
-                                                : 'border-slate-200/80 bg-slate-50 text-slate-600'
+                                                ? 'border-amber-300/50 bg-amber-500/15 text-amber-200'
+                                                : 'border-slate-300/40 bg-white/5 text-slate-200'
                                         }`}
                                     >
                                         {kycStatusLabel}
@@ -1929,8 +1936,9 @@ export default function SettingsPage({ params }: any) {
                                 <div className="mt-4 flex flex-col gap-3">
                                     {kycStatus === 'pending' ? (
                                         <>
-                                            <div className="flex flex-col gap-2 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-sm text-amber-700 shadow-sm">
+                                            <div className="flex flex-col gap-2 rounded-xl border border-amber-300/50 bg-amber-500/15 px-4 py-3 text-sm text-amber-200 shadow-sm">
                                                 <span className="font-semibold">심사 신청이 접수되었습니다.</span>
+                                                <span className="text-xs text-amber-200">{kycFileHint}</span>
                                                 <span className="text-xs">
                                                     신청 시간: {seller?.kyc?.submittedAt ? new Date(seller.kyc.submittedAt).toLocaleString() : '-'}
                                                 </span>
@@ -1948,11 +1956,50 @@ export default function SettingsPage({ params }: any) {
                                         </>
                                     ) : kycStatus === 'approved' ? (
                                         <>
-                                            <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 shadow-sm">
+                                            <div className="rounded-xl border border-emerald-300/50 bg-emerald-500/15 px-4 py-3 text-sm text-emerald-200 shadow-sm">
                                                 <span className="font-semibold">승인된 신분증입니다.</span>
-                                                <span className="mt-1 text-xs text-emerald-600">
+                                                <span className="text-xs text-emerald-200">{kycFileHint}</span>
+                                                <span className="mt-1 text-xs text-emerald-300">
                                                     승인 시간: {seller?.kyc?.reviewedAt ? new Date(seller.kyc.reviewedAt).toLocaleString() : '-'}
                                                 </span>
+                                            </div>
+                                            {kycPreview && (
+                                                <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={kycPreview}
+                                                        alt="KYC Preview"
+                                                        className="h-40 w-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : kycStatus === 'rejected' ? (
+                                        <>
+                                            <div className="rounded-xl border border-rose-300/50 bg-rose-500/15 px-4 py-3 text-sm text-rose-200 shadow-sm">
+                                                <span className="font-semibold">신분증 인증이 반려되었습니다.</span>
+                                                {seller?.kyc?.rejectionReason && (
+                                                    <span className="mt-1 text-xs text-rose-200">
+                                                        거절 사유: {seller.kyc.rejectionReason}
+                                                    </span>
+                                                )}
+                                                <p className="mt-2 text-xs text-rose-200">
+                                                    수정 후 다시 업로드해 주세요.
+                                                </p>
+                                                <label
+                                                    htmlFor="kyc-id-upload-seller"
+                                                    className="mt-3 inline-flex w-full cursor-pointer items-center justify-center rounded-full border border-rose-300/60 bg-rose-500/20 px-4 py-2 text-xs font-semibold text-rose-100 shadow-sm transition sm:w-auto"
+                                                >
+                                                    신분증 다시 업로드
+                                                    <input
+                                                        id="kyc-id-upload-seller"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={handleKycFileChange}
+                                                    />
+                                                </label>
+                                                <span className="mt-2 text-xs text-rose-200">{kycFileHint}</span>
                                             </div>
                                             {kycPreview && (
                                                 <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 shadow-sm">
@@ -1980,7 +2027,7 @@ export default function SettingsPage({ params }: any) {
                                                 />
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-sm font-semibold text-slate-700">신분증 사진 업로드</span>
-                                                    <span className="text-xs text-slate-500">JPG/PNG, 10MB 이하</span>
+                                                    <span className="text-xs text-slate-300">JPG/PNG, 10MB 이하</span>
                                                 </div>
                                             </label>
                                             {kycPreview && (
@@ -1993,10 +2040,7 @@ export default function SettingsPage({ params }: any) {
                                                     />
                                                 </div>
                                             )}
-                                            {kycStatus === 'rejected' && seller?.kyc?.rejectionReason && (
-                                                <span className="text-xs text-rose-600">거절 사유: {seller.kyc.rejectionReason}</span>
-                                            )}
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-xs text-slate-300">
                                                 업로드 후 심사까지 영업일 기준 1-2일 소요될 수 있습니다.
                                             </p>
                                             <button
@@ -2015,6 +2059,8 @@ export default function SettingsPage({ params }: any) {
                                     )}
                                 </div>
                             </div>
+
+                            </div>
                             </>
                         )}
 
@@ -2023,27 +2069,34 @@ export default function SettingsPage({ params }: any) {
                             
                             <div className='seller-panel w-full flex flex-col gap-3 items-start justify-between mt-4 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:p-5'>
 
-                                <div className='w-full flex flex-row gap-2 items-center justify-start mb-2'>
-                                    <Image
-                                        src="/icon-escrow-wallet.png"
-                                        alt="Escrow Wallet"
-                                        width={50}
-                                        height={50}
-                                        className='w-10 h-10'
-                                    />
-                                    <span className="text-lg font-semibold text-slate-900 sm:text-xl">
-                                        에스크로 지갑 정보
-                                    </span>
+                                <div className='w-full flex items-center gap-3'>
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/10 text-slate-100 shadow-sm">
+                                        <Image
+                                            src="/icon-escrow-wallet.png"
+                                            alt="Escrow Wallet"
+                                            width={24}
+                                            height={24}
+                                            className='h-6 w-6'
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-semibold text-slate-900 sm:text-xl">
+                                            에스크로 지갑 정보
+                                        </span>
+                                        <span className="text-xs text-slate-300">
+                                            에스크로 잔액 및 지갑 주소 안내
+                                        </span>
+                                    </div>
                                 </div>
                                 {/* 설명 */}
                                 {/* 에스크로 지갑에 잔액이 있어야 구매주문을 자동으로 처리할 수 있습니다. */}
-                                <div className="text-sm text-slate-600 mb-4">
+                                <div className="text-sm text-slate-300 mb-4">
                                     에스크로 지갑에 잔액이 있어야 구매주문을 자동으로 처리할 수 있습니다.
                                 </div>
 
                                 <div className="flex flex-row items-center gap-2">
                                     <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                    <span className="text-sm font-semibold text-slate-600">
+                                    <span className="text-sm font-semibold text-slate-300">
                                         에스크로 지갑 주소
                                     </span>
                                 </div>
@@ -2072,12 +2125,12 @@ export default function SettingsPage({ params }: any) {
                                 <div className='w-full flex flex-col gap-2 items-start border-t border-slate-200/80 pt-4 sm:flex-row sm:items-center sm:justify-between'>
                                     <div className="flex flex-row items-center gap-2">
                                         <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                        <span className="text-sm font-semibold text-slate-600">
+                                        <span className="text-sm font-semibold text-slate-300">
                                             에스크로 잔액
                                         </span>
                                     </div>
                                     <div className='flex flex-row items-center gap-2'>
-                                        <span className="text-2xl font-semibold text-emerald-700 tabular-nums tracking-tight sm:text-3xl xl:text-4xl"
+                                        <span className="text-2xl font-semibold text-emerald-300 tabular-nums tracking-tight sm:text-3xl xl:text-4xl"
                                             style={{ fontFamily: 'monospace' }}
                                         >
                                             {escrowBalance.toFixed(2)}
@@ -2088,7 +2141,7 @@ export default function SettingsPage({ params }: any) {
 
                                 {/* 설명 */}
                                 {/* 에스크로 지갑 잔액을 모두 나의 지갑 (address) 으로 회수할 수 있습니다. */}
-                                <div className="text-sm text-slate-600 mb-2">
+                                <div className="text-sm text-slate-300 mb-2">
                                     에스크로 지갑 잔액을 전부 나의 지갑 ({address?.slice(0,6)}...{address?.slice(-4)}) 으로 회수할 수 있습니다.
                                 </div>
                                 <div
@@ -2121,7 +2174,7 @@ export default function SettingsPage({ params }: any) {
                                 </div>
 
                                 <div className="mt-4 flex w-full flex-col gap-2">
-                                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 sm:text-right">
+                                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-300 sm:text-right">
                                         <span>내 지갑 보유 USDT: {usdtBalance.toFixed(6)}</span>
                                         {loadingUsdtBalance && (
                                             <span
@@ -2173,11 +2226,13 @@ export default function SettingsPage({ params }: any) {
                                 <div className='w-full flex flex-col gap-2 items-start justify-between mt-4
                                 border-t border-slate-200/80 pt-4'>
 
-                                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                                        <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                        <span className="text-sm font-semibold text-slate-600">
-                                            1 USDT 당 판매금액(원) 설정
-                                        </span>
+                                    <div className="flex flex-col items-start gap-1">
+                                        <div className="flex items-center gap-2 whitespace-nowrap">
+                                            <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
+                                            <span className="text-sm font-semibold text-slate-600">
+                                                1 USDT 당 판매금액(원) 설정
+                                            </span>
+                                        </div>
 
                                         {/* seller.usdtToKrwRate */}
                                         <span className="text-sm text-slate-500">
@@ -2190,9 +2245,9 @@ export default function SettingsPage({ params }: any) {
                                     {/* market 연동: upbit or bithumb or korbit */}
                                     {/* market중 하나 선택, 또는 지정가 선택 */}
                                     {/* checkbox style */}
-                                    <div className='w-full flex flex-col gap-2 items-start sm:flex-row sm:items-center sm:justify-start'>
+                                    <div className='w-full flex flex-col gap-2 items-start'>
 
-                                        <div className="flex flex-row items-center gap-2">
+                                        <div className="flex flex-row items-center gap-2 whitespace-nowrap">
                                             <span className="text-sm font-semibold text-slate-700">
                                                 가격 설정 방식:
                                             </span>
@@ -2202,40 +2257,42 @@ export default function SettingsPage({ params }: any) {
                                             </span>
                                         </div>
 
-                                        <button
-                                            onClick={() => {
-                                                //setPriceSettingMethod('market');
-                                                setPriceSettingMethodFunc('market');
+                                        <div className="flex w-full gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    //setPriceSettingMethod('market');
+                                                    setPriceSettingMethodFunc('market');
 
-                                            }}
-                                            className={`
+                                                }}
+                                                className={`
                                                 ${seller?.priceSettingMethod === 'market'
                                                     ? 'bg-slate-900 text-white'
-                                                    : 'bg-slate-200 text-slate-600'}
-                                                w-full px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
+                                                    : 'bg-white/10 text-slate-100 border border-slate-200/60'}
+                                                flex-1 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                             `}
                                             disabled={seller?.priceSettingMethod === 'market'}
                                         >
-                                            Market 연동
-                                        </button>
+                                                Market 연동
+                                            </button>
 
-                                        <button
-                                            onClick={() => {
-                                                
-                                                //setPriceSettingMethod('fixed');
-                                                setPriceSettingMethodFunc('fixed');
+                                            <button
+                                                onClick={() => {
+                                                    
+                                                    //setPriceSettingMethod('fixed');
+                                                    setPriceSettingMethodFunc('fixed');
 
-                                            }}
-                                            className={`
+                                                }}
+                                                className={`
                                                 ${seller?.priceSettingMethod === 'fixed'
                                                     ? 'bg-slate-900 text-white'
-                                                    : 'bg-slate-200 text-slate-600'}
-                                                w-full px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
+                                                    : 'bg-white/10 text-slate-100 border border-slate-200/60'}
+                                                flex-1 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition
                                             `}
                                             disabled={seller?.priceSettingMethod === 'fixed'}
                                         >
-                                            지정가
-                                        </button>
+                                                지정가
+                                            </button>
+                                        </div>
 
                                     </div>
 
@@ -2278,9 +2335,9 @@ export default function SettingsPage({ params }: any) {
 
                                         <div className='w-full flex flex-col gap-2 items-start justify-between'>
 
-                                            <span className="text-sm font-semibold text-slate-700">
-                                                연동할 마켓 선택:
-                                            </span>
+                                        <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                            연동할 마켓 선택:
+                                        </span>
                                         <div className='w-full flex flex-col gap-2 items-start sm:flex-row sm:flex-wrap sm:items-center sm:justify-end'>
 
                                             <button
@@ -2289,9 +2346,9 @@ export default function SettingsPage({ params }: any) {
                                                     setMarketFunc('upbit');
                                                 }}
                                                 className={`
-                                                    ${seller?.market === 'upbit'
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-200 text-slate-600'}
+                                                        ${seller?.market === 'upbit'
+                                                            ? 'bg-slate-900 text-white'
+                                                            : 'bg-white/10 text-slate-100 border border-slate-200/60'}
                                                     w-full px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
                                                 `}
                                                 disabled={seller?.market === 'upbit'}
@@ -2316,9 +2373,9 @@ export default function SettingsPage({ params }: any) {
                                                         setMarketFunc('bithumb');
                                                     }}
                                                 className={`
-                                                    ${seller?.market === 'bithumb'
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-200 text-slate-600'}
+                                                        ${seller?.market === 'bithumb'
+                                                            ? 'bg-slate-900 text-white'
+                                                            : 'bg-white/10 text-slate-100 border border-slate-200/60'}
                                                     w-full px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
                                                 `}
                                                 disabled={seller?.market === 'bithumb'}
@@ -2344,9 +2401,9 @@ export default function SettingsPage({ params }: any) {
 
                                                     }}
                                                 className={`
-                                                    ${seller?.market === 'korbit'
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-200 text-slate-600'}
+                                                        ${seller?.market === 'korbit'
+                                                            ? 'bg-slate-900 text-white'
+                                                            : 'bg-white/10 text-slate-100 border border-slate-200/60'}
                                                     w-full px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
                                                 `}
                                                 disabled={seller?.market === 'korbit'}
@@ -2417,15 +2474,15 @@ export default function SettingsPage({ params }: any) {
                                             rows={4}
                                         ></textarea>
 
-                                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                                        <div className="flex flex-row flex-nowrap gap-2">
                                             <button
                                                 disabled={generatingPromotionText || updatingPromotionText}
                                                 onClick={generatePromotionText}
                                                 className={`
                                                     ${generatingPromotionText || updatingPromotionText
                                                         ? 'bg-slate-200 text-slate-400'
-                                                        : 'bg-white text-slate-700 border border-slate-200'}
-                                                    w-full px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
+                                                        : 'bg-white/10 text-slate-100 border border-slate-200/60'}
+                                                    flex-1 min-w-0 whitespace-nowrap px-3 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                                 `}
                                             >
                                                 {generatingPromotionText ? '자동 생성중...' : '자동 생성'}
@@ -2437,7 +2494,7 @@ export default function SettingsPage({ params }: any) {
                                                     ${updatingPromotionText || generatingPromotionText
                                                         ? 'bg-slate-200 text-slate-400'
                                                         : 'bg-emerald-600 text-white'}
-                                                    w-full px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
+                                                    flex-1 min-w-0 whitespace-nowrap px-3 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                                 `}
                                             >
                                                 {updatingPromotionText ? '수정중...' : '수정하기'}
@@ -2448,24 +2505,6 @@ export default function SettingsPage({ params }: any) {
                                                 {promotionGenerateError}
                                             </div>
                                         )}
-                                    </div>
-
-                                    <div className="seller-panel w-full mt-6 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm">
-                                        <div className="flex items-center gap-2">
-                                            <Image
-                                                src="/icon-info.png"
-                                                alt="Guide"
-                                                width={18}
-                                                height={18}
-                                                className="h-4 w-4"
-                                            />
-                                            <span className="text-sm font-semibold text-slate-700">
-                                                이 페이지에서 설정할 항목
-                                            </span>
-                                        </div>
-                                        <p className="mt-2 text-sm text-slate-600">
-                                            판매 금액(원), 가격 설정 방식(시장가/고정가), 마켓 연동 선택, 판매 홍보 문구를 설정합니다.
-                                        </p>
                                     </div>
 
                                 </div>
