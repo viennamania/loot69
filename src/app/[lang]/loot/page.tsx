@@ -180,33 +180,7 @@ type MarketTicker = {
 
 const MARKET_SOURCES: MarketTicker[] = [
     { id: 'upbit', name: '업비트', price: null },
-    { id: 'bithumb', name: '빗썸', price: null },
-    { id: 'korbit', name: '코빗', price: null },
 ];
-
-const MARKET_STYLES: Record<
-    MarketId,
-    { badge: string; accent: string; glow: string; label: string }
-> = {
-    upbit: {
-        label: 'Upbit',
-        badge: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200',
-        accent: 'bg-[linear-gradient(135deg,#10b981,#22d3ee)]',
-        glow: 'bg-emerald-400/30',
-    },
-    bithumb: {
-        label: 'Bithumb',
-        badge: 'border-sky-400/40 bg-sky-400/10 text-sky-200',
-        accent: 'bg-[linear-gradient(135deg,#38bdf8,#0ea5e9)]',
-        glow: 'bg-sky-400/30',
-    },
-    korbit: {
-        label: 'Korbit',
-        badge: 'border-amber-400/40 bg-amber-400/10 text-amber-200',
-        accent: 'bg-[linear-gradient(135deg,#f59e0b,#f97316)]',
-        glow: 'bg-amber-400/30',
-    },
-};
 
 type TradeTone = 'buy' | 'sell' | 'pending';
 type RecentTrade = {
@@ -351,8 +325,8 @@ export default function Loot69Page() {
         : sellerEscrowLoading
         ? '판매자 정보 확인 중'
         : sellerEscrowWalletAddress
-        ? '보호된 판매 시작하기'
-        : '판매자 설정하기';
+        ? '보호 판매 시작'
+        : '판매자 설정';
     const needsSellerSetup = Boolean(hasWallet && !sellerEscrowLoading && !sellerEscrowWalletAddress);
     const sellerCtaTone = !hasWallet
         ? 'border-orange-400/40 bg-orange-500/10 text-orange-200 ring-1 ring-orange-400/30 shadow-[0_18px_40px_-24px_rgba(249,115,22,0.35)]'
@@ -1565,44 +1539,60 @@ export default function Loot69Page() {
 
             <AutoConnect client={client} wallets={[wallet]} />
             {/* 메인 컨텐츠 */}
-            <main className="container relative z-10 mx-auto max-w-[900px] overflow-x-hidden px-4 pb-16 lg:px-6 lg:pb-12">
+            <main className="container relative z-10 mx-auto max-w-[780px] overflow-x-hidden px-4 pb-16 lg:px-6 lg:pb-12">
                 {/* 히어로 섹션 */}
-                <div className="hero-fade relative mt-10 mb-14 overflow-hidden rounded-[24px] border border-slate-800/70 bg-slate-950/70 shadow-[0_30px_90px_-60px_rgba(2,6,23,0.9)] backdrop-blur-sm">
+                <div className="hero-fade relative mt-10 mb-12 overflow-hidden rounded-[24px] border border-slate-800/70 bg-slate-950/70 shadow-[0_30px_90px_-60px_rgba(2,6,23,0.9)] backdrop-blur-sm">
                     <div className="absolute -right-16 -top-24 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)] opacity-25" />
                     <div className="absolute -bottom-24 left-[-10%] h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,var(--sea)_0%,transparent_70%)] opacity-20" />
-                    <div className="relative grid gap-10 p-7 md:grid-cols-[1.1fr_0.9fr] md:p-10">
+                    <div className="relative flex flex-col gap-10 p-7 md:p-10">
                         <div className="space-y-6">
                             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
                                 USDT · P2P · Escrow
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-4 shadow-[0_16px_40px_-24px_rgba(2,6,23,0.85)]">
+                                <div className="relative inline-flex items-center justify-center rounded-3xl border border-white/15 bg-white/10 px-6 py-5 shadow-[0_20px_50px_-24px_rgba(2,6,23,0.9)]">
+                                    <span className="pointer-events-none absolute -inset-3 rounded-[28px] bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.35),transparent_70%)] blur-2xl" />
                                     <Image
                                         src="/logo-loot.png"
                                         alt="Loot69"
                                         width={320}
                                         height={96}
-                                        className="h-16 w-auto drop-shadow-lg brightness-110 sm:h-20 md:h-24"
+                                        className="h-20 w-auto drop-shadow-[0_8px_24px_rgba(255,255,255,0.2)] brightness-125 sm:h-24 md:h-28"
                                         priority
                                     />
                                 </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
                                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.6)] md:h-10 md:w-10">
-                                    <Image
-                                        src="/logo-tether.png"
-                                        alt="Tether"
-                                        width={40}
-                                        height={40}
-                                        className="h-6 w-6 object-contain md:h-7 md:w-7"
-                                    />
+                                    <svg
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        className="h-6 w-6 text-slate-900 md:h-7 md:w-7"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M12 3.5l7 2.5v6.2c0 4.2-2.9 7.9-7 8.8-4.1-.9-7-4.6-7-8.8V6l7-2.5Z"
+                                            stroke="currentColor"
+                                            strokeWidth="1.6"
+                                            strokeLinejoin="round"
+                                        />
+                                        <path
+                                            d="M9.2 12.6l1.9 1.9 3.8-3.8"
+                                            stroke="currentColor"
+                                            strokeWidth="1.6"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
                                 </span>
                                 <h1 className="font-[var(--font-display)] text-2xl leading-tight text-[color:var(--ink)] whitespace-nowrap sm:text-4xl md:text-5xl">
-                                    안전한 테더 구매·판매
+                                    신뢰로 완성된 USDT 마켓
                                 </h1>
                             </div>
                             <p className="text-lg text-slate-300 md:text-xl">
-                                신원확인(KYC)·에스크로·분쟁조정으로 결제를 보호합니다.
+                                KYC·에스크로·분쟁조정까지 한 번에, 안전한 거래만 남깁니다.
                             </p>
 
                             <div className="flex flex-col gap-4 sm:flex-row">
@@ -1615,7 +1605,7 @@ export default function Loot69Page() {
                                         <path d="M9 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"/>
                                         <path d="M18 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"/>
                                     </svg>
-                                    안전 구매 진행하기
+                                    안전 구매 시작
                                 </Link>
                                 {canStartSeller ? (
                                     <Link
@@ -1626,7 +1616,7 @@ export default function Loot69Page() {
                                             <path d="M12 2l7 7-7 7-7-7 7-7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                             <path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
-                                        보호된 판매 시작하기
+                                        보호 판매 시작
                                     </Link>
                                 ) : (
                                     <div className="flex w-full items-center justify-center sm:w-auto">
@@ -1635,7 +1625,7 @@ export default function Loot69Page() {
                                                 href={sellerSetupHref}
                                                 className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
                                             >
-                                                판매자 설정하기
+                                                판매자 설정
                                             </Link>
                                         ) : (
                                             <span
@@ -1652,110 +1642,86 @@ export default function Loot69Page() {
                             </div>
 
                             <div className="grid gap-4 lg:grid-cols-2">
-                                <div className="group relative overflow-hidden rounded-[24px] border border-emerald-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)] backdrop-blur transition hover:-translate-y-0.5">
-                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-emerald-400/60" />
-                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-emerald-400/20 blur-3xl" />
+                                <div className="rounded-2xl border border-slate-800/60 bg-slate-950/70 p-5">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.25)]">
-                                                <Image
-                                                    src="/icon-buyer.png"
-                                                    alt="Buyer Guide"
-                                                    width={24}
-                                                    height={24}
-                                                    className="h-6 w-6"
-                                                />
+                                            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-200">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path
+                                                        d="M5 5h9a2 2 0 0 1 2 2v12H7a2 2 0 0 0-2 2V5Z"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.6"
+                                                        strokeLinejoin="round"
+                                                    />
+                                                    <path
+                                                        d="M16 7h3a2 2 0 0 1 2 2v10a2 2 0 0 0-2-2h-3"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.6"
+                                                        strokeLinejoin="round"
+                                                    />
+                                                    <path d="M8 9h6M8 12h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                                                </svg>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">Buyer Guide</p>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Buyer Guide</p>
                                                 <p className="text-base font-semibold text-slate-100 sm:text-lg">구매 시작 전에 확인하세요</p>
                                             </div>
                                         </div>
                                         <Link
                                             href={`/${lang}/buyerGuide`}
-                                            className="inline-flex items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-5 py-2.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300/60 whitespace-nowrap"
+                                            className="text-xs font-semibold text-slate-300 underline underline-offset-4 decoration-slate-500/70 hover:text-white whitespace-nowrap"
                                         >
-                                            구매자 메뉴얼 보기
+                                            구매자 가이드 보기 →
                                         </Link>
                                     </div>
-                                    <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-300">
                                         구매자 메뉴얼에서 안전한 구매 흐름과 주의사항을 확인해 보세요.
                                     </p>
-                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-emerald-200/80">
-                                        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1">안전 흐름</span>
-                                        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1">주의사항</span>
-                                    </div>
                                 </div>
-                                <div className="group relative overflow-hidden rounded-[24px] border border-orange-400/30 bg-[linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.95))] px-6 py-5 shadow-[0_24px_60px_-45px_rgba(2,6,23,0.8)] backdrop-blur transition hover:-translate-y-0.5">
-                                    <span className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-orange-400/60" />
-                                    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-orange-400/20 blur-3xl" />
+                                <div className="rounded-2xl border border-slate-800/60 bg-slate-950/70 p-5">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-200 shadow-[inset_0_0_0_1px_rgba(249,115,22,0.25)]">
-                                                <Image
-                                                    src="/icon-seller.png"
-                                                    alt="Seller Guide"
-                                                    width={24}
-                                                    height={24}
-                                                    className="h-6 w-6"
-                                                />
+                                            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/10 text-amber-200">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path
+                                                        d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.6"
+                                                    />
+                                                    <path
+                                                        d="M5 20a7 7 0 0 1 14 0"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.6"
+                                                        strokeLinecap="round"
+                                                    />
+                                                    <path
+                                                        d="M16 5h4v4"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.6"
+                                                        strokeLinecap="round"
+                                                    />
+                                                </svg>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-200">Seller Guide</p>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Seller Guide</p>
                                                 <p className="text-base font-semibold text-slate-100 sm:text-lg">판매 시작 전에 확인하세요</p>
                                             </div>
                                         </div>
                                         <Link
                                             href={`/${lang}/sellerGuide`}
-                                            className="inline-flex items-center justify-center rounded-full border border-orange-400/40 bg-orange-500/10 px-5 py-2.5 text-xs font-semibold text-orange-200 transition hover:border-orange-300/60 whitespace-nowrap"
+                                            className="text-xs font-semibold text-slate-300 underline underline-offset-4 decoration-slate-500/70 hover:text-white whitespace-nowrap"
                                         >
-                                            판매자 메뉴얼 보기
+                                            판매자 가이드 보기 →
                                         </Link>
                                     </div>
-                                    <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-300">
                                         판매자 메뉴얼에서 에스크로 운영과 입금 확인 절차를 확인해 보세요.
                                     </p>
-                                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-orange-200/80">
-                                        <span className="rounded-full border border-orange-400/40 bg-orange-500/10 px-3 py-1">에스크로 운영</span>
-                                        <span className="rounded-full border border-orange-400/40 bg-orange-500/10 px-3 py-1">입금 확인</span>
-                                    </div>
                                 </div>
                             </div>
 
                         </div>
 
-                        <div className="rounded-2xl border border-emerald-400/30 bg-slate-950/70 p-6 shadow-[0_25px_70px_-45px_rgba(2,6,23,0.8)]">
-                            <div className="flex items-center justify-between">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/70">정산 절차</p>
-                                <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">보호됨</span>
-                            </div>
-                            <div className="mt-6 space-y-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">1</div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-emerald-100">구매 요청 생성</p>
-                                        <p className="text-xs text-emerald-100/70">구매 요청이 등록됩니다.</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">2</div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-emerald-100">에스크로 보관</p>
-                                        <p className="text-xs text-emerald-100/70">판매자가 테더를 에스크로에 보관합니다.</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-xs font-semibold text-emerald-100">3</div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-emerald-100">입금 확인 & 정산</p>
-                                        <p className="text-xs text-emerald-100/70">입금 확인 후 자동 정산됩니다.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-6 rounded-xl border border-orange-400/40 bg-orange-500/10 px-4 py-3 text-sm text-orange-200">
-                                평균 처리 10-30분, 판매자 입금 확인 후 자동 USDT 전송 및 정산
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1819,32 +1785,20 @@ export default function Loot69Page() {
 
 
                 {/* 마켓 시세 섹션 */}
-                <div
-                    data-reveal
-                    className="glam-card relative overflow-hidden rounded-[32px] border border-slate-900/70 bg-[linear-gradient(135deg,#0b1220,#111827_55%,#0b1220)] p-8 mb-12 shadow-[0_50px_120px_-70px_rgba(15,23,42,0.9)]"
-                >
-                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:32px_32px]" />
-                    <div className="pointer-events-none absolute -left-16 -top-20 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.22),transparent_70%)] blur-3xl" />
-                    <div className="pointer-events-none absolute -right-12 -bottom-20 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.25),transparent_70%)] blur-3xl" />
-                    <div className="relative flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="mb-12 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                    <div
+                        data-reveal
+                        className="rounded-2xl border border-slate-800/60 bg-slate-950/70 p-5 h-full flex flex-col"
+                    >
+                        <div className="flex min-h-[80px] flex-col gap-3 sm:min-h-[88px] sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                            <div className="flex items-center gap-3">
-                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="inline-block text-emerald-300">
-                                    <path d="M3 3h18v4H3V3zM5 7v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7H5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8 10h8M8 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                <h2 className="font-[var(--font-display)] text-2xl text-white whitespace-nowrap tracking-tight sm:text-4xl">
-                                    USDT/KRW 실시간 시세
-                                </h2>
-                            </div>
-                            <p className="text-sm text-slate-300">업비트 · 빗썸 · 코빗 기준</p>
+                            <h2 className="font-[var(--font-display)] text-lg text-white whitespace-nowrap tracking-tight sm:text-2xl">
+                                USDT/KRW 실시간 시세
+                            </h2>
+                            <p className="text-xs text-slate-400">업비트 기준</p>
                         </div>
-                        <div className="flex items-center gap-3 text-xs font-semibold text-slate-200">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200 shadow-[0_12px_30px_-18px_rgba(16,185,129,0.6)]">
-                                <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-                                LIVE
-                            </span>
-                            <span className="rounded-full border border-slate-500/40 bg-slate-900/70 px-3 py-1 text-slate-200 shadow-sm">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-200">
+                            <span className="rounded-full border border-slate-600/40 bg-slate-900/70 px-2.5 py-1">
                                 업데이트{' '}
                                 {tickerUpdatedAt
                                     ? new Date(tickerUpdatedAt).toLocaleTimeString('ko-KR', { hour12: false })
@@ -1855,57 +1809,54 @@ export default function Loot69Page() {
 
                     {tickerError && <p className="mb-4 text-xs font-semibold text-rose-300">{tickerError}</p>}
 
-                    <div className="grid gap-4 md:grid-cols-3">
-                        {marketTickers.map((ticker, index) => {
-                            const style = MARKET_STYLES[ticker.id];
-                            return (
+                        <div className="mt-auto grid gap-3 pt-5">
+                            {marketTickers.map((ticker, index) => {
+                                return (
                                 <div
                                     key={ticker.id}
                                     data-reveal
                                     style={{ '--reveal-delay': `${index * 0.06}s` } as React.CSSProperties}
-                                    className="glam-card relative overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/60 p-5 shadow-[0_24px_60px_-45px_rgba(15,23,42,0.7)] backdrop-blur transition hover:-translate-y-1 hover:border-slate-500/70"
+                                    className="rounded-2xl border border-slate-800/60 bg-slate-950/70 p-4"
                                 >
-                                    <span className={`absolute left-0 top-0 h-full w-1.5 ${style.accent}`} />
-                                    <span className={`pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full ${style.glow} blur-2xl`} />
-                                    <div className="flex items-start justify-between gap-3">
+                                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
                                         <div className="flex items-center gap-3">
                                             <Image
                                                 src={`/icon-market-${ticker.id}.png`}
                                                 alt={`${ticker.name} 로고`}
                                                 width={40}
                                                 height={40}
-                                                className="h-10 w-10 rounded-full border border-slate-700/70 bg-slate-800/80 object-contain p-1"
+                                                className="h-8 w-8 rounded-full border border-slate-700/60 bg-slate-900/70 object-contain p-1"
                                             />
                                             <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                                    {style.label}
+                                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                                    {ticker.id.toUpperCase()}
                                                 </p>
-                                                <p className="text-lg font-semibold text-white">{ticker.name}</p>
+                                                <p className="text-base font-semibold text-white">{ticker.name}</p>
                                             </div>
                                         </div>
-                                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${style.badge}`}>
-                                            USDT/KRW
-                                        </span>
+                                        <div className="flex flex-wrap items-center gap-3 md:flex-nowrap md:gap-4">
+                                            <span className="font-[var(--font-display)] text-2xl text-white tabular-nums sm:text-3xl whitespace-nowrap">
+                                                {formatKrw(ticker.price)}
+                                            </span>
+                                            {ticker.price === null && (
+                                                <span className="text-[11px] text-slate-400 whitespace-nowrap">불러오는 중</span>
+                                            )}
+                                            <span className="rounded-full border border-slate-700/60 bg-slate-900/60 px-2.5 py-1 text-[11px] font-semibold text-slate-200 whitespace-nowrap">
+                                                USDT/KRW
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="mt-4 flex items-baseline gap-2">
-                                        <span className="font-[var(--font-display)] text-3xl text-white tabular-nums sm:text-4xl">
-                                            {formatKrw(ticker.price)}
-                                        </span>
-                                        {ticker.price === null && (
-                                            <span className="text-xs text-slate-400">불러오는 중</span>
-                                        )}
-                                    </div>
-                                    <p className="mt-2 text-xs text-slate-400">공개 API 기준</p>
+                                    <p className="mt-2 text-[11px] text-slate-500 md:text-right">공개 API 기준</p>
                                 </div>
                             );
                         })}
                     </div>
-                </div>
-                <section
-                    data-reveal
-                    className="mb-12 rounded-[22px] border border-slate-800/50 bg-slate-950/60 p-6 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.7)]"
-                >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    </div>
+                    <section
+                        data-reveal
+                        className="rounded-[22px] border border-slate-800/50 bg-slate-950/60 p-6 shadow-[0_18px_40px_-34px_rgba(2,6,23,0.7)] h-full flex flex-col"
+                    >
+                    <div className="flex min-h-[80px] flex-col gap-4 sm:min-h-[88px] sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex items-start gap-3">
                             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/70 text-slate-300">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1937,7 +1888,7 @@ export default function Loot69Page() {
                         </Link>
                     </div>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-3">
+                    <div className="mt-auto grid gap-3 pt-5 md:grid-cols-3">
                         {noticeLoading ? (
                             <div className="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/50 px-4 py-6 text-sm text-slate-500">
                                 공지 로딩 중.
@@ -1969,7 +1920,8 @@ export default function Loot69Page() {
                             ))
                         )}
                     </div>
-                </section>
+                    </section>
+                </div>
 
                 {bannerAds.length > 0 && (
                     <div
@@ -2414,7 +2366,7 @@ export default function Loot69Page() {
                             href={buyPageHref}
                             className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-emerald-400 px-6 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_40px_-20px_rgba(16,185,129,0.6)] transition hover:brightness-110"
                         >
-                            구매 바로 시작 →
+                            구매 시작 →
                         </Link>
                     </div>
 
@@ -2459,7 +2411,7 @@ export default function Loot69Page() {
                                 href={sellerPageHref}
                                 className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_40px_-20px_rgba(34,211,238,0.55)] transition hover:brightness-110"
                             >
-                                판매 바로 시작 →
+                                판매 시작 →
                             </Link>
                         ) : (
                             <div className="mt-8 flex items-center justify-center">
@@ -2468,7 +2420,7 @@ export default function Loot69Page() {
                                         href={sellerSetupHref}
                                         className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-900 shadow-[0_16px_40px_-24px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto"
                                     >
-                                        판매 시작 설정 →
+                                        판매 설정 →
                                     </Link>
                                 ) : (
                                     <span
@@ -2528,15 +2480,15 @@ export default function Loot69Page() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link 
                             href={buyPageHref}
-                            className="w-full sm:w-auto rounded-full bg-[#f8fafc] px-8 py-5 text-lg font-bold text-slate-900 shadow-[0_18px_45px_-25px_rgba(2,6,23,0.8)] transition hover:bg-[#eef2f7]"
+                            className="w-full sm:w-auto rounded-full bg-emerald-400/90 px-8 py-5 text-lg font-bold text-slate-900 shadow-[0_18px_45px_-25px_rgba(2,6,23,0.8)] transition hover:bg-emerald-300"
                         >
-                            안전 구매 시작 →
+                            지금 구매 시작 →
                         </Link>
                         <a 
                             href="#settlement-guide"
-                            className="w-full sm:w-auto rounded-full border border-slate-500/70 px-8 py-5 text-lg font-bold text-slate-200 transition hover:bg-white/5"
+                            className="w-full sm:w-auto rounded-full border border-slate-600/70 bg-slate-900/60 px-8 py-5 text-lg font-bold text-slate-100 transition hover:bg-slate-800/70"
                         >
-                            절차 보기 →
+                            정산 절차 보기 →
                         </a>
                     </div>
                 </div>
