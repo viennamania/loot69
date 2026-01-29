@@ -309,6 +309,7 @@ export default function Loot69Page() {
     const { smartAccountEnabled, wallet } = useClientWallets();
     const hasWallet = Boolean(walletAddress);
     const buyPageHref = `/${lang}/loot/buy`;
+    const searchSellerHref = `/${lang}/loot/searchSeller`;
     const [sellerEscrowWalletAddress, setSellerEscrowWalletAddress] = useState<string | null>(null);
     const [sellerEscrowLoading, setSellerEscrowLoading] = useState(false);
     const [profileAvatarUrl, setProfileAvatarUrl] = useState('');
@@ -1597,7 +1598,7 @@ export default function Loot69Page() {
 
                             <div className="flex flex-col gap-4 sm:flex-row">
                                 <Link
-                                    href={buyPageHref}
+                                    href={searchSellerHref}
                                     className="accent-cta inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:bg-[color:var(--accent-deep)] sm:w-auto sm:min-w-[220px]"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
