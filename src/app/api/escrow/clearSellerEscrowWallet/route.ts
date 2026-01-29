@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     const {
         selectedChain,
         walletAddress,
+        withdrawAmount,
     } = body;
 
     if (!walletAddress) {
@@ -120,17 +121,56 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Escrow wallet balance is zero' }, { status: 400 });
         }
 
+        const activeTradeStatus = seller?.seller?.buyOrder?.status;
+        const activeTradeUsdtAmount = ['accepted', 'paymentRequested', 'paymentConfirmed'].includes(activeTradeStatus)
+            ? Number(seller?.seller?.buyOrder?.usdtAmount || 0)
+            : 0;
+        const reservedAmount = Number.isFinite(activeTradeUsdtAmount) ? activeTradeUsdtAmount : 0;
+        const availableAmount = escrowBalanceFormatted - reservedAmount;
+
+        if (!Number.isFinite(availableAmount) || availableAmount <= 0) {
+            return NextResponse.json({ error: 'No withdrawable balance (reserved for active trade)' }, { status: 400 });
+        }
+
+        const requestedAmount = Number(withdrawAmount);
+        const finalWithdrawAmount =
+            Number.isFinite(requestedAmount) && requestedAmount > 0
+                ? Math.min(requestedAmount, availableAmount)
+                : availableAmount;
+
+        console.log(`Clearing escrow wallet. Escrow balance: ${escrowBalanceFormatted} USDT, Reserved amount: ${reservedAmount} USDT, Available amount: ${availableAmount} USDT, Final withdraw amount: ${finalWithdrawAmount} USDT`);
+
+        // escrow wallet address
+        console.log(`Escrow Wallet Address: ${escrowWalletAddress}`);
+        console.log(`Seller Main Wallet Address: ${sellerMainWalletAddress}`);
+
+
         // create server wallet for escrow wallet
+        
+        const vaultAccessToken =
+            process.env.THIRDWEB_ENGINE_VAULT_ACCESS_TOKEN ||
+            process.env.THIRDWEB_VAULT_ACCESS_TOKEN ||
+            process.env.VAULT_TOKEN ||
+            "";
+
+        if (!vaultAccessToken) {
+            return NextResponse.json(
+                { error: 'Engine vault access token is required to sign escrow transactions.' },
+                { status: 500 },
+            );
+        }
+        
 
         const wallet = Engine.serverWallet({
             client: client,
             address: escrowWalletAddress, // your server wallet signer (EOA) address
+            vaultAccessToken,
         });
 
         const transaction = transfer({
             contract,
             to: sellerMainWalletAddress,
-            amount: escrowBalanceFormatted,
+            amount: finalWithdrawAmount,
         });
 
         // enqueue the transaction
@@ -138,11 +178,15 @@ export async function POST(request: NextRequest) {
             transaction,
         });
 
+        console.log(`Escrow wallet cleared: ${finalWithdrawAmount} USDT transferred from ${escrowWalletAddress} to ${sellerMainWalletAddress}. Transaction ID: ${transactionId}`);
+
 
         return NextResponse.json({
             result: {
                 transactionId,
-                transferredAmount: escrowBalanceFormatted,
+                transferredAmount: finalWithdrawAmount,
+                reservedAmount,
+                availableAmount,
             },
             error: null,
         }, { status: 200 });
@@ -153,4 +197,3 @@ export async function POST(request: NextRequest) {
     }
 
 }
-

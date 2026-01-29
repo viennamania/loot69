@@ -1,6 +1,6 @@
 // nickname settings
 'use client';
-import React, { use, useEffect, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 
 
 
@@ -48,7 +48,6 @@ import AppBarComponent from "@/components/Appbar/AppBar";
 import { getDictionary } from "../../../dictionaries";
 
 
-import { useQRCode } from 'next-qrcode';
 
 
 import {
@@ -111,7 +110,7 @@ export default function SettingsPage({ params }: any) {
  
     ///const wallet = searchParams.get('wallet');
 
-    const { Canvas } = useQRCode();
+    
 
     
     
@@ -262,6 +261,7 @@ export default function SettingsPage({ params }: any) {
 
     const { wallet, wallets, smartAccountEnabled, chain } = useClientWallets({
         authOptions: walletAuthOptions,
+        sponsorGas: true,
     });
 
 
@@ -317,6 +317,12 @@ export default function SettingsPage({ params }: any) {
         // OPTIONAL: the contract's abi
         //abi: [...],
     });
+
+    const selectedChainObject =
+        selectedChain === "ethereum" ? ethereum :
+        selectedChain === "polygon" ? polygon :
+        selectedChain === "arbitrum" ? arbitrum :
+        selectedChain === "bsc" ? bsc : ethereum;
 
 
 
@@ -921,6 +927,11 @@ export default function SettingsPage({ params }: any) {
     // get escrow wallet address and balance
     
     const [escrowBalance, setEscrowBalance] = useState(0);
+    const [usdtBalance, setUsdtBalance] = useState(0);
+    const [loadingUsdtBalance, setLoadingUsdtBalance] = useState(false);
+    const hasLoadedUsdtBalanceRef = useRef(false);
+    const [escrowTopUpAmount, setEscrowTopUpAmount] = useState("");
+    const [toppingUpEscrow, setToppingUpEscrow] = useState(false);
 
     
     useEffect(() => {
@@ -951,7 +962,117 @@ export default function SettingsPage({ params }: any) {
 
     return () => clearInterval(interval);
 
-    } , [seller?.escrowWalletAddress, contract, selectedChain]);
+    } , [seller?.escrowWalletAddress, selectedChain]);
+
+    const activeTradeStatus = seller?.buyOrder?.status;
+    const activeTradeUsdtAmount = ['accepted', 'paymentRequested', 'paymentConfirmed'].includes(activeTradeStatus)
+        ? Number(seller?.buyOrder?.usdtAmount || 0)
+        : 0;
+    const withdrawableEscrowBalance = Math.max(
+        escrowBalance - (Number.isFinite(activeTradeUsdtAmount) ? activeTradeUsdtAmount : 0),
+        0,
+    );
+
+
+    useEffect(() => {
+        if (!address) {
+            setLoadingUsdtBalance(false);
+            hasLoadedUsdtBalanceRef.current = false;
+            return;
+        }
+
+        hasLoadedUsdtBalanceRef.current = false;
+
+        const getUserBalance = async () => {
+            if (!address) return;
+
+
+            console.log('fetching user balance for address', address);
+
+            try {
+                if (!hasLoadedUsdtBalanceRef.current) {
+                    setLoadingUsdtBalance(true);
+                }
+                const result = await balanceOf({
+                    contract,
+                    address: address,
+                });
+                if (selectedChain === 'bsc') {
+                    setUsdtBalance(Number(result) / 10 ** 18);
+                } else {
+                    setUsdtBalance(Number(result) / 10 ** 6);
+                }
+            } catch (error) {
+                console.error('Failed to fetch user balance', error);
+            } finally {
+                if (!hasLoadedUsdtBalanceRef.current) {
+                    setLoadingUsdtBalance(false);
+                }
+                hasLoadedUsdtBalanceRef.current = true;
+            }
+        };
+
+        getUserBalance();
+
+        const interval = setInterval(() => {
+            getUserBalance();
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, [address, selectedChain]);
+
+
+    const topUpEscrowWallet = async () => {
+        if (toppingUpEscrow) return;
+        if (!activeAccount) {
+            toast.error('지갑을 먼저 연결해주세요.');
+            return;
+        }
+        if (!seller?.escrowWalletAddress) {
+            toast.error('에스크로 지갑 주소가 없습니다.');
+            return;
+        }
+        const amount = Number(escrowTopUpAmount);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            toast.error('충전할 USDT 수량을 입력해주세요.');
+            return;
+        }
+        if (loadingUsdtBalance) {
+            toast.error('USDT 잔액 확인 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+        if (amount > usdtBalance) {
+            toast.error(`USDT 잔액이 부족합니다. 보유: ${usdtBalance.toFixed(6)} USDT`);
+            return;
+        }
+
+        setToppingUpEscrow(true);
+        try {
+            const transaction = transfer({
+                contract,
+                to: seller.escrowWalletAddress,
+                amount: amount,
+            });
+
+            await sendAndConfirmTransaction({
+                account: activeAccount as any,
+                transaction,
+            });
+
+            setEscrowTopUpAmount("");
+            toast.success('에스크로 지갑으로 USDT가 전송되었습니다.');
+        } catch (error) {
+            console.error(error);
+            const message = error instanceof Error
+                ? error.message
+                : typeof error === 'string'
+                ? error
+                : JSON.stringify(error);
+            toast.error(`충전에 실패했습니다: ${message}`);
+        } finally {
+            setToppingUpEscrow(false);
+        }
+    };
 
 
 
@@ -1176,8 +1297,12 @@ export default function SettingsPage({ params }: any) {
     const [clearingSellerEscrowWalletBalance, setClearingSellerEscrowWalletBalance] = useState(false);
     const clearSellerEscrowWalletBalance = async () => {
         if (clearingSellerEscrowWalletBalance) return;
+        if (withdrawableEscrowBalance <= 0) {
+            toast.error('거래중 수량을 제외하면 회수 가능한 잔액이 없습니다.');
+            return;
+        }
         setClearingSellerEscrowWalletBalance(true);
-        await fetch('/api/escrow/clearSellerEscrowWallet', {
+        const response = await fetch('/api/escrow/clearSellerEscrowWallet', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1185,10 +1310,17 @@ export default function SettingsPage({ params }: any) {
             body: JSON.stringify({
                 selectedChain: selectedChain,
                 walletAddress: address,
+                withdrawAmount: withdrawableEscrowBalance,
             }),
         });
+        const data = await response.json().catch(() => ({}));
         setClearingSellerEscrowWalletBalance(false);
-        toast.success('판매자 에스크로 지갑 잔고 회수 요청이 완료되었습니다.');
+        if (!response.ok || data?.error || !data?.result) {
+            const message = data?.error || '잔액 회수 요청에 실패했습니다.';
+            toast.error(message);
+            return;
+        }
+        toast.success('판매자 에스크로 지갑 잔액 전부 회수 요청이 완료되었습니다.');
     };
 
 
@@ -1196,11 +1328,16 @@ export default function SettingsPage({ params }: any) {
 
     return (
 
-        <main className="seller-shell min-h-[100vh] px-4 pb-28 text-slate-100 antialiased">
+        <main className="seller-shell relative min-h-[100vh] overflow-hidden px-4 pb-28 text-slate-100 antialiased">
+
+        <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-24 left-1/2 h-64 w-[520px] -translate-x-1/2 rounded-full bg-cyan-500/20 blur-3xl" />
+            <div className="absolute bottom-0 right-0 h-72 w-72 translate-x-1/3 translate-y-1/3 rounded-full bg-emerald-500/20 blur-3xl" />
+        </div>
 
         <AutoConnect client={client} wallets={[wallet]} />
 
-            <div className="mx-auto w-full max-w-[560px] py-2">
+            <div className="relative mx-auto w-full max-w-[400px] py-3">
         
 
                 {/*
@@ -1213,10 +1350,9 @@ export default function SettingsPage({ params }: any) {
                 )}
                 */}
         
-                <div className="w-full flex flex-row gap-2 items-center justify-start mb-2"
-                >
+                <div className="seller-panel mb-3 flex w-full items-center justify-start gap-2 rounded-2xl border border-slate-200/70 bg-white/80 px-3 py-2">
                     {/* go back button */}
-                    <div className="w-full flex justify-start items-center gap-2">
+                    <div className="flex w-full items-center gap-2">
                         <button
                             onClick={() => window.history.back()}
                             className="flex items-center justify-center rounded-full border border-slate-200/70 bg-white/90 p-2 shadow-sm">
@@ -1305,7 +1441,7 @@ export default function SettingsPage({ params }: any) {
 
                 {!address ? (
                     <div className="w-full">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-5 text-center shadow-sm">
+                        <div className="seller-panel rounded-2xl border border-slate-200/70 bg-white/90 p-5 text-center shadow-sm">
                             <p className="text-base font-semibold text-slate-600">
                                 로그인해서 지갑을 연결하세요.
                             </p>
@@ -1313,6 +1449,7 @@ export default function SettingsPage({ params }: any) {
                                 <ConnectButton
                                     client={client}
                                     wallets={wallets}
+                                    chain={selectedChainObject}
                                     theme={"dark"}
                                     connectButton={{
                                         style: {
@@ -1347,7 +1484,7 @@ export default function SettingsPage({ params }: any) {
                         )}
 
                         {!loadingUserData && !nickname && (
-                            <div className='w-full flex flex-col gap-2 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm'>
+                            <div className='seller-panel w-full flex flex-col gap-2 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm'>
 
                                 <span className="text-base font-semibold text-slate-800">
                                     회원이 아닙니다.
@@ -1366,7 +1503,7 @@ export default function SettingsPage({ params }: any) {
                         )}
 
                         {!loadingUserData && nickname && !seller && (
-                            <div className='w-full flex flex-col gap-3 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm'>
+                            <div className='seller-panel w-full flex flex-col gap-3 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm'>
 
                                 {/* nickname */}
                                 <div className='w-full flex flex-row gap-2 items-center justify-between'>
@@ -1405,7 +1542,7 @@ export default function SettingsPage({ params }: any) {
 
                         {!loadingUserData && seller && (
                             <>
-                            <div className='w-full flex flex-col gap-4 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
+                            <div className='seller-panel w-full flex flex-col gap-4 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
 
                                 {/* image and title */}
                                 <div className='w-full flex flex-row gap-2 items-center justify-start'>
@@ -1496,7 +1633,68 @@ export default function SettingsPage({ params }: any) {
                                 
 
 
-                                <div className='mt-4 w-full rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
+                                {/* 입금 자동 처리 시작 / 중지 토글 버튼 */}
+                                {/*
+                                <div className='w-full flex flex-row gap-2 items-center justify-between
+                                    border-t border-gray-300 pt-4'>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                        <span className="text-lg">
+                                            입금 자동 처리 상태
+                                        </span>
+                                    </div>
+                                    {seller?.autoProcessDeposit ? (
+                                        <button
+                                            onClick={toggleAutoProcessDeposit}
+                                            className={`
+                                                ${togglingAutoProcessDeposit ? 'bg-gray-300 text-gray-400' : 'bg-green-500 text-zinc-100'}
+                                                flex flex-row items-center gap-2 p-2 rounded-lg
+                                            `}
+                                            disabled={togglingAutoProcessDeposit}
+                                        >
+                                            <span className="text-lg font-semibold">
+                                                자동 처리 중
+                                            </span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={toggleAutoProcessDeposit}
+                                            className={`
+                                                ${togglingAutoProcessDeposit ? 'bg-gray-300 text-gray-400' : 'bg-gray-300 text-gray-600'}
+                                                flex flex-row items-center gap-2 p-2 rounded-lg
+                                            `}
+                                            disabled={togglingAutoProcessDeposit}
+                                        >
+                                            <span className="text-lg font-semibold">
+                                                자동 처리 중지
+                                            </span>
+                                        </button>
+                                    )}
+                                </div>
+                                */}
+
+                            </div>
+
+                            <div className='seller-panel mt-4 w-full flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
+                                <div className="flex w-full flex-row items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                            <Image
+                                                src="/icon-bank-check.png"
+                                                alt="Bank"
+                                                width={24}
+                                                height={24}
+                                                className="h-6 w-6"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-xl font-semibold text-slate-900">입금받을 계좌 설정</span>
+                                            <span className="text-xs text-slate-500">계좌 정보 제출 및 상태 확인</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className='seller-panel w-full rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
                                     <div className="flex w-full flex-row items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
@@ -1554,50 +1752,7 @@ export default function SettingsPage({ params }: any) {
                                     </div>
                                 </div>
 
-
-                                {/* 입금 자동 처리 시작 / 중지 토글 버튼 */}
-                                {/*
-                                <div className='w-full flex flex-row gap-2 items-center justify-between
-                                    border-t border-gray-300 pt-4'>
-                                    <div className="flex flex-row items-center gap-2">
-                                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                        <span className="text-lg">
-                                            입금 자동 처리 상태
-                                        </span>
-                                    </div>
-                                    {seller?.autoProcessDeposit ? (
-                                        <button
-                                            onClick={toggleAutoProcessDeposit}
-                                            className={`
-                                                ${togglingAutoProcessDeposit ? 'bg-gray-300 text-gray-400' : 'bg-green-500 text-zinc-100'}
-                                                flex flex-row items-center gap-2 p-2 rounded-lg
-                                            `}
-                                            disabled={togglingAutoProcessDeposit}
-                                        >
-                                            <span className="text-lg font-semibold">
-                                                자동 처리 중
-                                            </span>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={toggleAutoProcessDeposit}
-                                            className={`
-                                                ${togglingAutoProcessDeposit ? 'bg-gray-300 text-gray-400' : 'bg-gray-300 text-gray-600'}
-                                                flex flex-row items-center gap-2 p-2 rounded-lg
-                                            `}
-                                            disabled={togglingAutoProcessDeposit}
-                                        >
-                                            <span className="text-lg font-semibold">
-                                                자동 처리 중지
-                                            </span>
-                                        </button>
-                                    )}
-                                </div>
-                                */}
-
-                            </div>
-
-                            <div className='mt-4 w-full flex flex-col gap-4 items-center justify-between rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4'>
+                                <div className='seller-panel w-full flex flex-col gap-4 items-center justify-between rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4'>
                                 <div className='w-full flex flex-row gap-2 items-center justify-between'>
                                     <div className="flex flex-row items-center gap-2">
                                         <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
@@ -1741,8 +1896,9 @@ export default function SettingsPage({ params }: any) {
                                     />
                                 </div>
                             </div>
+                            </div>
 
-                            <div className="mt-4 w-full rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm">
+                            <div className="seller-panel mt-4 w-full rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm">
                                 <div className="flex w-full flex-row items-center justify-between gap-3">
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
@@ -1869,7 +2025,7 @@ export default function SettingsPage({ params }: any) {
 
                         {!loadingUserData && seller?.escrowWalletAddress && (
                             
-                            <div className='w-full flex flex-col gap-3 items-start justify-between mt-4 rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
+                            <div className='seller-panel w-full flex flex-col gap-3 items-start justify-between mt-4 rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm'>
 
                                 <div className='w-full flex flex-row gap-2 items-center justify-start mb-2'>
                                     <Image
@@ -1896,8 +2052,8 @@ export default function SettingsPage({ params }: any) {
                                     </span>
                                 </div>
 
-                                <div className='w-full flex flex-row gap-2 items-center justify-between'>
-                                    <div className="flex flex-row items-center gap-2">
+                                <div className='w-full flex flex-col gap-3'>
+                                    <div className="flex w-full flex-row items-center gap-2">
                                         <Image
                                             src="/icon-smart-wallet.png"
                                             alt="Smart Wallet"
@@ -1915,8 +2071,6 @@ export default function SettingsPage({ params }: any) {
                                             {seller?.escrowWalletAddress.slice(0, 6)}...{seller?.escrowWalletAddress.slice(-4)}
                                         </button>
                                     </div>
-                                    {/* QR code */}
-                                    <Canvas text={seller?.escrowWalletAddress || ""} />
                                 </div>
 
                                 <div className='w-full flex flex-row gap-2 items-center justify-between mt-4
@@ -1940,7 +2094,15 @@ export default function SettingsPage({ params }: any) {
                                 {/* 설명 */}
                                 {/* 에스크로 지갑 잔액을 모두 나의 지갑 (address) 으로 회수할 수 있습니다. */}
                                 <div className="text-sm text-slate-600 mb-2">
-                                    에스크로 지갑 잔액을 모두 나의 지갑 ({address?.slice(0,6)}...{address?.slice(-4)}) 으로 회수할 수 있습니다.
+                                    에스크로 지갑 잔액을 전부 나의 지갑 ({address?.slice(0,6)}...{address?.slice(-4)}) 으로 회수할 수 있습니다.
+                                </div>
+                                <div
+                                    className={`escrow-summary ${activeTradeUsdtAmount > 0 ? 'escrow-summary--active' : ''}`}
+                                >
+                                    거래중 수량: {activeTradeUsdtAmount.toFixed(6)} USDT
+                                    <div className="escrow-summary-sub">
+                                        회수 가능 잔액: {withdrawableEscrowBalance.toFixed(6)} USDT
+                                    </div>
                                 </div>
                                 {/* 잔액 회수하기 버튼 */}
                                 <div className='w-full flex flex-row gap-2 items-center justify-end'>
@@ -1948,7 +2110,7 @@ export default function SettingsPage({ params }: any) {
                                     {/* if escrowBalance is 0, disable the button */}
                                     <button
                                         onClick={() => {
-                                            if (window.confirm('에스크로 지갑 잔액을 회수하시겠습니까?')) {
+                                            if (window.confirm('에스크로 지갑 잔액을 전부 회수하시겠습니까?')) {
                                                 clearSellerEscrowWalletBalance();
                                             }
                                         }}
@@ -1956,11 +2118,59 @@ export default function SettingsPage({ params }: any) {
                                             ${clearingSellerEscrowWalletBalance ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
                                             px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition
                                         `}
-                                        disabled={clearingSellerEscrowWalletBalance || escrowBalance <= 0}
+                                        disabled={clearingSellerEscrowWalletBalance || withdrawableEscrowBalance <= 0}
                                     >
-                                        {clearingSellerEscrowWalletBalance ? '회수중...' : '잔액 회수하기'}
+                                        {clearingSellerEscrowWalletBalance ? '회수중...' : '잔액 전부 회수하기'}
                                     </button>
 
+                                </div>
+
+                                <div className="mt-4 flex w-full flex-col gap-2">
+                                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 sm:text-right">
+                                        <span>내 지갑 보유 USDT: {usdtBalance.toFixed(6)}</span>
+                                        {loadingUsdtBalance && (
+                                            <span
+                                                className="inline-flex h-2 w-2 rounded-full bg-emerald-300/70 animate-pulse"
+                                                aria-label="갱신 중"
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="flex w-full gap-2">
+                                        <input
+                                            className="flex-1 rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-right"
+                                            placeholder="USDT 수량"
+                                            value={escrowTopUpAmount}
+                                            type="text"
+                                            inputMode="decimal"
+                                            onChange={(e) => {
+                                                const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                                                const normalized = sanitized.replace(/(\..*)\./g, '$1');
+                                                if (normalized === '' || normalized === '.') {
+                                                    setEscrowTopUpAmount(normalized);
+                                                    return;
+                                                }
+                                                const nextValue = Number(normalized);
+                                                if (!Number.isFinite(nextValue)) {
+                                                    return;
+                                                }
+                                                if (!loadingUsdtBalance && nextValue > usdtBalance) {
+                                                    setEscrowTopUpAmount(usdtBalance.toFixed(6));
+                                                    return;
+                                                }
+                                                setEscrowTopUpAmount(normalized);
+                                            }}
+                                        />
+                                        <button
+                                            onClick={topUpEscrowWallet}
+                                            className={`
+                                                ${toppingUpEscrow ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
+                                                px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition whitespace-nowrap
+                                            `}
+                                            disabled={toppingUpEscrow || !escrowTopUpAmount || Number(escrowTopUpAmount) <= 0}
+                                        >
+                                            {toppingUpEscrow ? '충전중...' : '충전하기'}
+                                        </button>
+                                    </div>
                                 </div>
 
 
@@ -2245,7 +2455,7 @@ export default function SettingsPage({ params }: any) {
                                         )}
                                     </div>
 
-                                    <div className="w-full mt-6 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm">
+                                    <div className="seller-panel w-full mt-6 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm">
                                         <div className="flex items-center gap-2">
                                             <Image
                                                 src="/icon-info.png"
@@ -2274,17 +2484,54 @@ export default function SettingsPage({ params }: any) {
             </div>
         <style jsx global>{`
           .seller-shell {
-            --seller-bg: #0b1020;
-            --seller-surface: rgba(28, 44, 92, 0.72);
-            --seller-surface-soft: rgba(34, 54, 108, 0.58);
-            --seller-border: rgba(125, 211, 252, 0.28);
-            --seller-text: #e2e8f0;
-            --seller-muted: #b6c2d6;
+            --seller-bg: #070b18;
+            --seller-surface: rgba(15, 23, 42, 0.88);
+            --seller-surface-soft: rgba(30, 41, 59, 0.72);
+            --seller-border: rgba(56, 189, 248, 0.32);
+            --seller-text: #e6f1ff;
+            --seller-muted: #a6b4c9;
+            --seller-glow: rgba(34, 211, 238, 0.35);
             background-color: var(--seller-bg);
             background-image:
-              radial-gradient(circle at 12% 0%, rgba(125, 211, 252, 0.22), transparent 48%),
-              radial-gradient(circle at 82% 10%, rgba(110, 231, 183, 0.12), transparent 52%),
+              radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.18), transparent 52%),
+              radial-gradient(circle at 86% 14%, rgba(59, 130, 246, 0.16), transparent 58%),
+              radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.14), transparent 62%),
+              repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.05) 0 1px, transparent 1px 12px),
               repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.04) 0 1px, transparent 1px 6px);
+          }
+
+          .seller-shell .seller-panel {
+            position: relative;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.72)) !important;
+            border-color: rgba(56, 189, 248, 0.35) !important;
+            box-shadow:
+              0 0 0 1px rgba(15, 23, 42, 0.8),
+              0 18px 40px -28px rgba(56, 189, 248, 0.9),
+              inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+          }
+
+          .seller-shell .seller-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            pointer-events: none;
+          }
+
+          .seller-shell .seller-panel::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), transparent);
+            opacity: 0.7;
+            pointer-events: none;
           }
 
           .seller-shell .bg-white,
@@ -2330,6 +2577,50 @@ export default function SettingsPage({ params }: any) {
           .seller-shell .text-slate-500,
           .seller-shell .text-slate-400 {
             color: var(--seller-muted) !important;
+          }
+
+          .seller-shell input,
+          .seller-shell select,
+          .seller-shell textarea {
+            color: var(--seller-text) !important;
+            background-color: rgba(8, 12, 24, 0.78) !important;
+            border-color: rgba(56, 189, 248, 0.45) !important;
+          }
+
+          .seller-shell input::placeholder,
+          .seller-shell textarea::placeholder {
+            color: rgba(56, 189, 248, 0.95);
+            font-weight: 700;
+            text-shadow: 0 1px 10px rgba(56, 189, 248, 0.45);
+          }
+
+          .seller-shell .escrow-summary {
+            width: 100%;
+            border-radius: 14px;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            background: rgba(5, 10, 24, 0.65);
+            color: #e6f1ff;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            box-shadow: 0 14px 28px -22px rgba(56, 189, 248, 0.65);
+          }
+
+          .seller-shell .escrow-summary--active {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(10, 28, 26, 0.7);
+            box-shadow: 0 14px 28px -22px rgba(16, 185, 129, 0.7);
+          }
+
+          .seller-shell .escrow-summary-sub {
+            margin-top: 4px;
+            font-size: 12px;
+            color: rgba(148, 197, 255, 0.9);
+          }
+
+          .seller-shell .escrow-summary--active .escrow-summary-sub {
+            color: rgba(167, 243, 208, 0.92);
           }
 
           .seller-shell a,
