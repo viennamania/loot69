@@ -563,7 +563,7 @@ export async function deleteSellOrder(
   }
 
 
-): Promise<boolean> {
+): Promise<{ cancelled: boolean } | null> {
 
   const client = await clientPromise;
   const collection = client.db(dbName).collection('orders');
@@ -3238,18 +3238,29 @@ export async function deleteBuyOrder(
     return false;
   }
 
-  // status is 'ordered'
-  const result = await collection.deleteOne(
-    { _id: new ObjectId(orderId), walletAddress: walletAddress, status: 'ordered' }
+  // allow cancel when buyer is owner and still pending
+  const result = await collection.updateOne(
+    {
+      _id: new ObjectId(orderId),
+      walletAddress: walletAddress,
+      status: { $in: ['ordered', 'paymentRequested', 'accepted'] },
+    },
+    {
+      $set: {
+        status: 'cancelled',
+        cancelTradeReason: 'buyer_cancelled',
+        cancelledAt: new Date().toISOString(),
+      },
+    }
   );
 
-
-
-  if (result.deletedCount === 1) {
-    return true;
-  } else {
-    return false;
+  if (result.modifiedCount === 1) {
+    return {
+      cancelled: true,
+    };
   }
+
+  return null;
 
 
 }

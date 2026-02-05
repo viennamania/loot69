@@ -107,6 +107,8 @@ export default function EscrowSellerPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [ordersInitialized, setOrdersInitialized] = useState(false);
   const [, forceTick] = useState(0);
+  const [cancelModalOrderId, setCancelModalOrderId] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const pendingUsdtAmount = useMemo(() => {
     return sellerOrders
@@ -119,6 +121,95 @@ export default function EscrowSellerPage() {
     const avail = escrowBalance - pendingUsdtAmount;
     return avail > 0 ? avail : 0;
   }, [escrowBalance, pendingUsdtAmount]);
+
+  const myOrders = useMemo(
+    () =>
+      sellerOrders
+        .filter((o) => address && o?.walletAddress?.toLowerCase() === address.toLowerCase())
+        .sort(
+          (a, b) =>
+            new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime(),
+        ),
+    [sellerOrders, address],
+  );
+  const myPaymentRequestedOrders = useMemo(
+    () => myOrders.filter((o) => o?.status === 'paymentRequested'),
+    [myOrders],
+  );
+  const hasActivePaymentRequest = useMemo(
+    () => myPaymentRequestedOrders.length > 0,
+    [myPaymentRequestedOrders],
+  );
+  const isCheckingMyOrders = loadingOrders && !ordersInitialized;
+
+  const handleCancelOrder = async () => {
+    if (!cancelModalOrderId || !address) return;
+    setIsCancelling(true);
+    try {
+      const response = await fetch('/api/order/cancelBuyOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: cancelModalOrderId,
+          walletAddress: address,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.result) {
+        throw new Error(data?.error || '주문 취소에 실패했습니다.');
+      }
+      toast.success('주문이 취소되었습니다.');
+      setSellerOrders((prev) =>
+        prev.map((o) =>
+          normalizeId(o?._id) === cancelModalOrderId
+            ? { ...o, status: 'cancelled', cancelledAt: new Date().toISOString() }
+            : o,
+        ),
+      );
+      setCancelModalOrderId(null);
+      forceTick((v) => v + 1); // refresh orders
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '주문 취소에 실패했습니다.');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const renderCancelModal = () => {
+    if (!cancelModalOrderId) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div
+          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          onClick={() => (!isCancelling ? setCancelModalOrderId(null) : null)}
+        />
+        <div className="relative z-10 w-full max-w-md rounded-2xl border border-rose-200/40 bg-slate-900/90 p-6 shadow-2xl">
+          <h3 className="text-lg font-bold text-white">주문 취소 안내</h3>
+          <p className="mt-2 text-sm text-rose-100">
+            주문을 취소하면 구매자 평가에 부정적인 영향을 줄 수 있습니다. 그래도 취소하시겠습니까?
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              className="w-full rounded-full border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+              onClick={() => setCancelModalOrderId(null)}
+              disabled={isCancelling}
+            >
+              돌아가기
+            </button>
+            <button
+              className={`w-full rounded-full px-4 py-2 text-sm font-semibold shadow-sm sm:w-auto ${
+                isCancelling ? 'bg-rose-400 text-rose-100' : 'bg-rose-600 text-white hover:bg-rose-500'
+              }`}
+              onClick={handleCancelOrder}
+              disabled={isCancelling}
+            >
+              {isCancelling ? '취소 중...' : '주문 취소하기'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const chainObj = useMemo(() => getChainObject(), []);
   const usdtAddress = useMemo(() => getUsdtAddress(), []);
@@ -524,7 +615,96 @@ export default function EscrowSellerPage() {
                     {seller?.seller?.promotionText || '등록된 문구가 없습니다.'}
                   </p>
                 </div>
-                {lastOrderStatus === 'paymentRequested' ? (
+                {isCheckingMyOrders ? (
+                  <div className="rounded-3xl border-2 border-emerald-400/60 bg-emerald-900/30 p-5 shadow-[0_18px_40px_-22px_rgba(16,185,129,0.6)]">
+                    <p className="text-sm font-semibold text-emerald-50">내 주문 확인 중...</p>
+                    <p className="mt-2 text-xs text-emerald-100/80">잠시만 기다려 주세요.</p>
+                  </div>
+                ) : hasActivePaymentRequest ? (
+                  <div className="rounded-3xl border-2 border-emerald-400/60 bg-emerald-900/30 p-5 shadow-[0_18px_40px_-22px_rgba(16,185,129,0.6)]">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-emerald-100">내 구매 주문</p>
+                        <p className="text-xl font-bold text-white leading-tight">
+                          총 {myPaymentRequestedOrders.length}건 진행 중
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {myPaymentRequestedOrders.slice(0, 3).map((order) => (
+                        <div
+                          key={normalizeId(order?._id)}
+                          className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-3 text-sm text-emerald-50"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="font-semibold">
+                              {order.usdtAmount} USDT /{' '}
+                              {Number(order.krwAmount || 0).toLocaleString('ko-KR')}원
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold ${
+                                  order?.status === 'paymentConfirmed'
+                                    ? 'bg-emerald-500/20 text-emerald-50 border border-emerald-300/60'
+                                    : order?.status === 'accepted'
+                                    ? 'bg-sky-500/20 text-sky-50 border border-sky-300/60'
+                                    : order?.status === 'cancelled'
+                                    ? 'bg-rose-500/20 text-rose-50 border border-rose-300/60'
+                                    : 'bg-amber-500/20 text-amber-50 border border-amber-300/60'
+                                }`}
+                              >
+                                {order?.status === 'paymentConfirmed'
+                                  ? '결제완료'
+                                  : order?.status === 'accepted'
+                                  ? '판매자 승인'
+                                  : order?.status === 'cancelled'
+                                  ? '취소됨'
+                                  : '결제 요청중'}
+                              </span>
+                              {order?.status === 'paymentRequested' && (
+                                <button
+                                  type="button"
+                                  onClick={() => setCancelModalOrderId(normalizeId(order?._id))}
+                                  className="rounded-full border border-rose-300/70 bg-rose-500/20 px-3 py-1.5 text-[11px] font-semibold text-rose-50 hover:bg-rose-500/30"
+                                >
+                                  주문 취소하기
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-1 text-[11px] text-emerald-100/80">
+                            주문번호: {order?.tradeId || '-'} · 환율{' '}
+                            {Number(order?.rate || 0).toLocaleString('ko-KR')} 원 ·{' '}
+                            {order?.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}
+                          </div>
+                          {order?.status === 'paymentRequested' && order?.createdAt && (
+                            <div className="mt-1 text-[11px] font-semibold text-amber-100">
+                              남은 시간:{' '}
+                              {Math.max(
+                                0,
+                                30 -
+                                  Math.floor(
+                                    (Date.now() - new Date(order.createdAt).getTime()) / 60000,
+                                  ),
+                              )}
+                              분
+                            </div>
+                          )}
+                          {order?.store?.bankInfo && (
+                            <div className="mt-2 rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-3 py-2 text-[11px] text-emerald-50">
+                              <div className="font-semibold">판매자 입금 계좌</div>
+                              <div className="mt-1 space-y-0.5">
+                                <div>은행: {order.store.bankInfo.bankName || '-'}</div>
+                                <div>계좌: {order.store.bankInfo.accountNumber || '-'}</div>
+                                <div>예금주: {order.store.bankInfo.accountHolder || '-'}</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : lastOrderStatus === 'paymentRequested' ? (
                   <div className="rounded-2xl border border-amber-300/40 bg-amber-500/10 p-4 shadow-inner">
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -861,26 +1041,28 @@ export default function EscrowSellerPage() {
                           </div>
                         )}
                       </div>
-                      <span
-                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
-                          order?.status === 'paymentConfirmed'
-                            ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-300/60'
+                      <div className="flex flex-col items-end gap-2">
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                            order?.status === 'paymentConfirmed'
+                              ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-300/60'
+                              : order?.status === 'accepted'
+                              ? 'bg-sky-500/15 text-sky-100 border border-sky-300/60'
+                              : order?.status === 'cancelled'
+                              ? 'bg-rose-500/15 text-rose-100 border border-rose-300/60'
+                              : 'bg-amber-500/15 text-amber-100 border border-amber-300/60'
+                          }`}
+                        >
+                          <span className="h-2 w-2 rounded-full bg-current" />
+                          {order?.status === 'paymentConfirmed'
+                            ? '결제완료'
                             : order?.status === 'accepted'
-                            ? 'bg-sky-500/15 text-sky-100 border border-sky-300/60'
+                            ? '판매자 승인'
                             : order?.status === 'cancelled'
-                            ? 'bg-rose-500/15 text-rose-100 border border-rose-300/60'
-                            : 'bg-amber-500/15 text-amber-100 border border-amber-300/60'
-                        }`}
-                      >
-                        <span className="h-2 w-2 rounded-full bg-current" />
-                        {order?.status === 'paymentConfirmed'
-                          ? '결제완료'
-                          : order?.status === 'accepted'
-                          ? '판매자 승인'
-                          : order?.status === 'cancelled'
-                          ? '취소됨'
-                          : '결제 요청중'}
-                      </span>
+                            ? '취소됨'
+                            : '결제 요청중'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -888,6 +1070,8 @@ export default function EscrowSellerPage() {
             )}
           </div>
         </section>
+
+        {renderCancelModal()}
       </div>
     </main>
   );
