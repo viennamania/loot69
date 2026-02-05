@@ -106,6 +106,7 @@ export default function EscrowSellerPage() {
   const [sellerOrders, setSellerOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [ordersInitialized, setOrdersInitialized] = useState(false);
+  const [, forceTick] = useState(0);
 
   const pendingUsdtAmount = useMemo(() => {
     return sellerOrders
@@ -333,9 +334,11 @@ export default function EscrowSellerPage() {
     };
     fetchOrders();
     const timer = setInterval(fetchOrders, 10000);
+    const tick = setInterval(() => forceTick((v) => v + 1), 1000);
     return () => {
       active = false;
       clearInterval(timer);
+      clearInterval(tick);
     };
   }, [seller?.walletAddress, escrowWalletAddress]);
 
@@ -585,7 +588,7 @@ export default function EscrowSellerPage() {
                         <input
                           id="buy-amount"
                           value={buyAmount}
-                          disabled={!isLoggedIn || availableUsdtToBuy <= 0}
+                          disabled={!isLoggedIn || availableUsdtToBuy <= 0 || placingOrder}
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
                             const numeric = Number(sanitized);
@@ -602,7 +605,7 @@ export default function EscrowSellerPage() {
                           placeholder={availableUsdtToBuy > 0 ? '예: 100' : '구매 가능 수량 없음'}
                           inputMode="decimal"
                           max={availableUsdtToBuy > 0 ? availableUsdtToBuy : undefined}
-                          className={`w-full rounded-2xl border-2 px-4 py-3 text-lg font-semibold shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-300/80 ${
+                          className={`w-full rounded-2xl border-2 px-4 py-3 text-lg font-semibold shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-300/80 text-right ${
                             isLoggedIn && availableUsdtToBuy > 0
                               ? 'border-emerald-300/70 bg-slate-950/70 text-emerald-50'
                               : 'border-slate-700 bg-slate-900/60 text-slate-500 cursor-not-allowed'
@@ -667,16 +670,13 @@ export default function EscrowSellerPage() {
                             }
                             toast.success('구매 요청이 접수되었습니다.');
                             const insertedId = normalizeId(data.result._id);
-                            setLastOrderId(insertedId || null);
-                            setLastOrderStatus('paymentRequested');
-                            setLastOrderDetail({
-                              _id: insertedId,
-                              usdtAmount: amount,
-                              krwAmount,
-                              rate: seller.seller.usdtToKrwRate,
-                              createdAt: new Date().toISOString(),
-                              status: 'paymentRequested',
-                            });
+                            // 주문 생성 후 목록 및 상태 갱신
+                            setLastOrderId(null);
+                            setLastOrderStatus(null);
+                            setLastOrderDetail(null);
+                            // 최신 주문 목록 즉시 반영
+                            // fetchOrders는 effect 안에 정의되어 있어 여기서 직접 접근 불가하므로 강제 리프레시를 위해 상태를 토글
+                            forceTick((v) => v + 1);
                             const summaryMsg = `구매 요청: ${amount} USDT (약 ${krwAmount.toLocaleString('ko-KR')}원), 환율 ${seller.seller.usdtToKrwRate.toLocaleString('ko-KR')}원/USDT`;
                             notifySellerChannel(summaryMsg);
                             setBuyAmount('');
@@ -831,6 +831,7 @@ export default function EscrowSellerPage() {
                         <span className="text-sm font-semibold text-white">
                           {order?.usdtAmount} USDT / {Number(order?.krwAmount || 0).toLocaleString('ko-KR')}원
                         </span>
+                        <span className="text-[11px] text-slate-400">주문번호: {order?.tradeId || '-'}</span>
                         <span className="text-[11px] text-slate-400">
                           환율 {Number(order?.rate || 0).toLocaleString('ko-KR')} 원 · {order?.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}
                         </span>
@@ -842,6 +843,23 @@ export default function EscrowSellerPage() {
                             </span>
                           )}
                         </span>
+                        {order?.status === 'paymentRequested' && order?.createdAt && (
+                          <span className="text-[11px] font-semibold text-emerald-100">
+                            남은 시간: {Math.max(0, 30 - Math.floor((Date.now() - new Date(order.createdAt).getTime()) / 60000))}분
+                          </span>
+                        )}
+                        {address && order?.walletAddress?.toLowerCase() === address.toLowerCase() && order?.store?.bankInfo && (
+                          <div className="mt-1 rounded-xl border border-emerald-300/30 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-50">
+                            <div className="font-semibold">판매자 입금 계좌</div>
+                            <div className="mt-1 space-y-0.5">
+                              <div>은행: {order.store.bankInfo.bankName || '-'}</div>
+                              <div>
+                                계좌: {order.store.bankInfo.accountNumber || '-'}
+                              </div>
+                              <div>예금주: {order.store.bankInfo.accountHolder || '-'}</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <span
                         className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
