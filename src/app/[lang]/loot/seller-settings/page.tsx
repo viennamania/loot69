@@ -1098,44 +1098,70 @@ export default function SettingsPage({ params }: any) {
             const preparedIn = transferEvent({ to: seller.escrowWalletAddress });
             const preparedOut = transferEvent({ from: seller.escrowWalletAddress });
 
+            type HistoryPlan =
+                | { kind: 'range'; blockRange: bigint }
+                | { kind: 'from'; fromBlock: bigint; toBlock?: bigint };
+
             // Try progressively broader queries to avoid missing older history or indexer hiccups.
-            const queryPlans: Array<{
-                blockRange?: bigint;
-                fromBlock?: bigint;
-                toBlock?: bigint;
-            }> = [
-                { blockRange: 500000n },      // fast recent window
-                { blockRange: 2000000n },     // wider recent window
-                { fromBlock: 0n },            // full history (indexer/RPC may be slower)
+            const queryPlans: HistoryPlan[] = [
+                { kind: 'range', blockRange: 500000n },   // fast recent window
+                { kind: 'range', blockRange: 2000000n },  // wider recent window
+                { kind: 'from', fromBlock: 0n },          // full history (indexer/RPC may be slower)
             ];
 
             let incoming: any[] = [];
             let outgoing: any[] = [];
             let lastError: unknown = null;
 
-            for (const plan of queryPlans) {
-                try {
-                    const [inc, out] = await Promise.all([
+            const runPlan = async (plan: HistoryPlan, useIndexerFlag: boolean) => {
+                const common = { contract: historyContract, useIndexer: useIndexerFlag as boolean };
+                if (plan.kind === 'range') {
+                    return Promise.all([
                         getContractEvents({
-                            contract: historyContract,
+                            ...common,
                             events: [preparedIn],
-                            useIndexer: true,
-                            ...plan,
+                            blockRange: plan.blockRange,
                         }),
                         getContractEvents({
-                            contract: historyContract,
+                            ...common,
                             events: [preparedOut],
-                            useIndexer: true,
-                            ...plan,
+                            blockRange: plan.blockRange,
                         }),
                     ]);
-                    incoming = inc;
-                    outgoing = out;
-                    if (inc.length + out.length > 0) break;
-                } catch (err) {
-                    lastError = err;
-                    // fall through to next plan
                 }
+                return Promise.all([
+                    getContractEvents({
+                        ...common,
+                        events: [preparedIn],
+                        fromBlock: plan.fromBlock,
+                        toBlock: plan.toBlock,
+                    }),
+                    getContractEvents({
+                        ...common,
+                        events: [preparedOut],
+                        fromBlock: plan.fromBlock,
+                        toBlock: plan.toBlock,
+                    }),
+                ]);
+            };
+
+            for (const plan of queryPlans) {
+                let found = false;
+                for (const useIndexerFlag of [true, false]) {
+                    try {
+                        const [inc, out] = await runPlan(plan, useIndexerFlag);
+                        incoming = inc;
+                        outgoing = out;
+                        if (inc.length + out.length > 0) {
+                            found = true;
+                            break;
+                        }
+                    } catch (err) {
+                        lastError = err;
+                        // try next plan / fallback
+                    }
+                }
+                if (found) break;
             }
 
             if (incoming.length + outgoing.length === 0 && lastError) {
