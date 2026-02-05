@@ -85,6 +85,7 @@ export default function SellerManagementPage() {
                     <th className="px-4 py-2 text-left">프로필</th>
                     <th className="px-4 py-2 text-left">지갑주소</th>
                     <th className="px-4 py-2 text-left">상태</th>
+                    <th className="px-4 py-2 text-left">활동 상태</th>
                     <th className="px-4 py-2 text-left">계좌정보</th>
                     <th className="px-4 py-2 text-left">계좌정보 신청시간</th>
                     <th className="px-4 py-2 text-left">KYC</th>
@@ -121,6 +122,7 @@ export default function SellerManagementPage() {
                       .replace(/^0x/i, '')
                       .slice(0, 2)
                       .toUpperCase();
+                    const isEnabled = Boolean(sellerUser?.seller?.enabled);
                     return (
                       <tr key={index} className="border-b hover:bg-slate-50">
                         <td className="px-4 py-2">
@@ -159,6 +161,17 @@ export default function SellerManagementPage() {
                             }`}
                           >
                             {normalizedSellerStatus === 'confirmed' ? '판매가능상태' : '판매불가능상태'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            className={`inline-flex min-w-[120px] items-center justify-center rounded-full border px-3 py-1.5 text-sm font-semibold shadow-sm ${
+                              isEnabled
+                                ? 'border-emerald-200/80 bg-emerald-50 text-emerald-700'
+                                : 'border-slate-200/80 bg-slate-50 text-slate-600'
+                            }`}
+                          >
+                            {isEnabled ? '활동중' : '중지'}
                           </span>
                         </td>
                         <td className="px-4 py-2">

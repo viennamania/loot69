@@ -24,6 +24,7 @@ export default function SellerDetailPage() {
   const [decisionLoading, setDecisionLoading] = useState<'approve' | 'reject' | null>(null);
   const [bankDecisionLoading, setBankDecisionLoading] = useState<'approve' | 'reject' | null>(null);
   const [statusUpdating, setStatusUpdating] = useState(false);
+  const [togglingEnabled, setTogglingEnabled] = useState(false);
   const [selectedSellerStatus, setSelectedSellerStatus] = useState<SellerStatusValue>('pending');
   const rejectionReasons = [
     '신분증 식별 불가',
@@ -102,6 +103,7 @@ export default function SellerDetailPage() {
   const bankInfoStatus: KycStatus =
     seller?.bankInfo?.status || (seller?.bankInfo?.accountNumber ? 'pending' : 'none');
   const normalizedSellerStatus: SellerStatusValue = sellerStatus === 'confirmed' ? 'confirmed' : 'pending';
+  const isEnabled = Boolean(seller?.enabled);
 
   const buildStatusHistory = (nextStatus: SellerStatusValue, reason: string) => {
     const previousStatus = seller?.status || 'pending';
@@ -278,6 +280,28 @@ export default function SellerDetailPage() {
     setStatusUpdating(false);
   };
 
+  const toggleSellerEnabled = async () => {
+    if (!walletAddress || !seller) return;
+    setTogglingEnabled(true);
+    try {
+      await fetch('/api/user/updateSellerEnabled', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storecode: user?.storecode || storecode,
+          walletAddress,
+          sellerEnabled: !isEnabled,
+        }),
+      });
+      toast.success(!isEnabled ? '판매자 활동을 활성화했습니다.' : '판매자 활동을 중지했습니다.');
+      await fetchUser();
+    } catch (error) {
+      console.error('Toggle seller enabled failed', error);
+      toast.error('활동 상태 변경에 실패했습니다.');
+    }
+    setTogglingEnabled(false);
+  };
+
   return (
     <main className="p-4 min-h-[100vh] flex items-start justify-center container max-w-screen-md mx-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800">
       <div className="w-full">
@@ -327,6 +351,25 @@ export default function SellerDetailPage() {
                   >
                     {normalizedSellerStatus === 'confirmed' ? '판매가능상태' : '판매불가능상태'}
                   </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                  <span className="rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1 font-semibold">
+                    활동 상태: {isEnabled ? '활동중' : '중지'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={toggleSellerEnabled}
+                    disabled={togglingEnabled}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
+                      togglingEnabled
+                        ? 'bg-slate-200 text-slate-400'
+                        : isEnabled
+                        ? 'bg-rose-600 text-white hover:bg-rose-500'
+                        : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                    }`}
+                  >
+                    {togglingEnabled ? '변경중...' : isEnabled ? '활동 중지' : '활동 활성화'}
+                  </button>
                 </div>
                 <div className="flex flex-col gap-1 text-xs text-slate-600">
                   <span>지갑주소: {walletAddress}</span>

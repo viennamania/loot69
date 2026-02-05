@@ -51,18 +51,40 @@ export default function SearchSellerPage() {
             setLoading(true);
             setError(null);
             try {
-                const response = await fetch('/api/user/getAllSellersForBalance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ storecode, limit: 200, page: 1 }),
-                    signal: controller.signal,
-                });
-                const payload = await response.json();
-                if (!response.ok) {
-                    throw new Error(payload?.error || '판매자 정보를 불러오지 못했습니다.');
+                const PAGE_SIZE = 200;
+                let page = 1;
+                let totalCount = Number.POSITIVE_INFINITY;
+                const aggregated: SellerRecord[] = [];
+
+                while (!ignore && aggregated.length < totalCount && page <= 50) {
+                    const response = await fetch('/api/user/getAllSellersForBalance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ storecode, limit: PAGE_SIZE, page }),
+                        signal: controller.signal,
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        throw new Error(payload?.error || '판매자 정보를 불러오지 못했습니다.');
+                    }
+
+                    const batch: SellerRecord[] = payload?.result?.users ?? [];
+                    totalCount = payload?.result?.totalCount ?? batch.length ?? 0;
+
+                    // dedupe by walletAddress to be safe
+                    for (const item of batch) {
+                        const key = item.walletAddress || item.nickname || String(item.id);
+                        if (!aggregated.some((s) => (s.walletAddress || s.nickname || String(s.id)) === key)) {
+                            aggregated.push(item);
+                        }
+                    }
+
+                    if (batch.length < PAGE_SIZE) break;
+                    page += 1;
                 }
+
                 if (!ignore) {
-                    setSellers(payload?.result?.users ?? []);
+                    setSellers(aggregated);
                 }
             } catch (err) {
                 if (!ignore && !(err instanceof DOMException)) {
