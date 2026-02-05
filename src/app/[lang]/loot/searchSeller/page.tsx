@@ -8,6 +8,7 @@ type SellerRecord = {
     id?: number;
     nickname?: string;
     walletAddress?: string;
+    avatar?: string;
     seller?: {
         usdtToKrwRate?: number;
         status?: string;
