@@ -585,7 +585,7 @@ export default function EscrowSellerPage() {
                         <input
                           id="buy-amount"
                           value={buyAmount}
-                          disabled={!isLoggedIn}
+                          disabled={!isLoggedIn || availableUsdtToBuy <= 0}
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
                             const numeric = Number(sanitized);
@@ -599,16 +599,16 @@ export default function EscrowSellerPage() {
                             }
                             setBuyAmount(sanitized);
                           }}
-                          placeholder="예: 100"
+                          placeholder={availableUsdtToBuy > 0 ? '예: 100' : '구매 가능 수량 없음'}
                           inputMode="decimal"
                           max={availableUsdtToBuy > 0 ? availableUsdtToBuy : undefined}
                           className={`w-full rounded-2xl border-2 px-4 py-3 text-lg font-semibold shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-300/80 ${
-                            isLoggedIn
+                            isLoggedIn && availableUsdtToBuy > 0
                               ? 'border-emerald-300/70 bg-slate-950/70 text-emerald-50'
                               : 'border-slate-700 bg-slate-900/60 text-slate-500 cursor-not-allowed'
                           }`}
                         />
-                        <p className="text-sm font-semibold text-emerald-100/85">
+                        <p className={`text-sm font-semibold ${availableUsdtToBuy > 0 ? 'text-emerald-100/85' : 'text-rose-200/85'}`}>
                           진행 중: {pendingUsdtAmount.toFixed(6)} USDT · 구매 가능: {availableUsdtToBuy.toFixed(6)} USDT
                         </p>
                         <p className="text-sm font-semibold text-emerald-100/80">
