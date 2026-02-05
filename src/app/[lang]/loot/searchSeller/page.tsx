@@ -251,7 +251,7 @@ export default function SearchSellerPage() {
                                     </span>
                                     {seller.seller?.escrowWalletAddress && (
                                       <Link
-                                        href={`/${lang}/loot/escorw/${seller.seller.escrowWalletAddress}`}
+                                        href={`/${lang}/loot/escrow/${seller.seller.escrowWalletAddress}`}
                                         className="rounded-full border border-emerald-500/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100 underline decoration-emerald-300/60 underline-offset-4"
                                       >
                                         판매자에게 문의하기
