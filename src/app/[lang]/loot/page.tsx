@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Rajdhani, Space_Grotesk } from 'next/font/google';
 import SendbirdProvider from '@sendbird/uikit-react/SendbirdProvider';
 import GroupChannel from '@sendbird/uikit-react/GroupChannel';
-import { AutoConnect, useActiveAccount } from 'thirdweb/react';
+import { AutoConnect, ConnectButton, useActiveAccount } from 'thirdweb/react';
+import { arbitrum, bsc, ethereum, polygon } from 'thirdweb/chains';
 import { useClientWallets } from '@/lib/useClientWallets';
 import { client } from '@/app/client';
 
@@ -306,7 +307,20 @@ export default function Loot69Page() {
         process.env.NODE_ENV === 'development';
     const activeAccount = useActiveAccount();
     const walletAddress = activeAccount?.address ?? '';
-    const { smartAccountEnabled, wallet } = useClientWallets();
+    const { smartAccountEnabled, wallet, wallets, chain } = useClientWallets();
+    const activeChainObj = useMemo(() => {
+        switch (chain) {
+            case 'ethereum':
+                return ethereum;
+            case 'arbitrum':
+                return arbitrum;
+            case 'bsc':
+                return bsc;
+            case 'polygon':
+            default:
+                return polygon;
+        }
+    }, [chain]);
     const hasWallet = Boolean(walletAddress);
     const buyPageHref = `/${lang}/loot/buy`;
     const searchSellerHref = `/${lang}/loot/searchSeller`;
@@ -317,7 +331,7 @@ export default function Loot69Page() {
     const [profileNickname, setProfileNickname] = useState('');
     const sellerPageHref =
         hasWallet && sellerEscrowWalletAddress
-            ? `/${lang}/escrow/${sellerEscrowWalletAddress}`
+            ? `/${lang}/loot/seller/${sellerEscrowWalletAddress}`
             : '';
     const sellerSetupHref = `/${lang}/loot/seller-settings`;
     const canStartSeller = Boolean(hasWallet && sellerEscrowWalletAddress);
@@ -1593,25 +1607,48 @@ export default function Loot69Page() {
                                 </h1>
                             </div>
                             <p className="text-lg text-slate-300 md:text-xl">
-                                KYC·에스크로·분쟁조정까지 한 번에, 안전한 거래만 남깁니다.
+                            KYC·에스크로·분쟁조정까지 한 번에, 안전한 거래만 남깁니다.
                             </p>
 
-                            <div className="flex flex-col gap-4 sm:flex-row">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:gap-4">
+                                {!hasWallet && (
+                                    <div className="flex w-full items-center justify-center sm:w-auto sm:min-w-[240px]">
+                                        <ConnectButton
+                                            client={client}
+                                            wallets={wallets}
+                                            chain={activeChainObj}
+                                            theme="dark"
+                                            connectButton={{
+                                                label: '지갑 연결하기',
+                                                style: {
+                                                    width: '100%',
+                                                    height: 56,
+                                                    borderRadius: 9999,
+                                                    background:
+                                                        'linear-gradient(90deg,#22d3ee,#10b981)',
+                                                    color: '#0f172a',
+                                                    fontWeight: 800,
+                                                    fontSize: 16,
+                                                    border: '1px solid rgba(16,185,129,0.6)',
+                                                    boxShadow:
+                                                        '0 18px 40px -20px rgba(16,185,129,0.65)',
+                                                },
+                                            }}
+                                            connectModal={{ size: 'wide', showThirdwebBranding: false }}
+                                            locale="ko_KR"
+                                        />
+                                    </div>
+                                )}
                                 <Link
                                     href={searchSellerHref}
-                                    className="accent-cta inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:bg-[color:var(--accent-deep)] sm:w-auto sm:min-w-[220px]"
+                                    className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-[color:var(--accent)] px-8 py-3.5 text-base font-semibold text-[color:var(--accent)] shadow-[0_18px_45px_-26px_rgba(34,211,238,0.45)] transition hover:bg-[color:var(--accent)] hover:text-slate-900 sm:w-auto sm:min-w-[220px]"
                                 >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
-                                        <path d="M6 6h15l-1.5 9h-13L6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M9 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"/>
-                                        <path d="M18 22a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"/>
-                                    </svg>
                                     안전 구매 시작
                                 </Link>
                                 {canStartSeller ? (
                                     <Link
                                         href={sellerPageHref}
-                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-700/70 bg-slate-900/70 px-8 py-4 text-base font-semibold text-slate-200 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.6)] transition hover:border-emerald-400/40 sm:w-auto sm:min-w-[240px]"
+                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-700/70 bg-slate-900/70 px-8 py-3.5 text-base font-semibold text-slate-200 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.6)] transition hover:border-emerald-400/40 sm:w-auto sm:min-w-[240px]"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
                                             <path d="M12 2l7 7-7 7-7-7 7-7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1624,13 +1661,13 @@ export default function Loot69Page() {
                                         {needsSellerSetup ? (
                                             <Link
                                                 href={sellerSetupHref}
-                                                className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-4 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
+                                                className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-3.5 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
                                             >
                                                 판매자 설정
                                             </Link>
                                         ) : (
                                             <span
-                                                className={`relative inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border px-8 py-4 text-base font-semibold tracking-tight sm:w-auto sm:min-w-[240px] ${sellerCtaTone}`}
+                                                className={`relative inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border px-8 py-3.5 text-base font-semibold tracking-tight sm:w-auto sm:min-w-[240px] ${sellerCtaTone}`}
                                             >
                                                 {!hasWallet && (
                                                     <span className="pointer-events-none absolute -right-6 -top-4 h-10 w-10 rounded-full bg-orange-300/40 blur-2xl" />

@@ -570,13 +570,13 @@ export async function deleteSellOrder(
 
   // check orderId is valid ObjectId
   if (!ObjectId.isValid(orderId)) {
-    return false;
+    return null;
   }
 
   // check walletAddress is valid
 
   if (!walletAddress) {
-    return false;
+    return null;
   }
 
   // status is 'ordered'
@@ -586,11 +586,7 @@ export async function deleteSellOrder(
 
 
 
-  if (result.deletedCount === 1) {
-    return true;
-  } else {
-    return false;
-  }
+  return { cancelled: result.deletedCount === 1 };
 
 
 }
@@ -3222,20 +3218,20 @@ export async function deleteBuyOrder(
   }
 
 
-): Promise<boolean> {
+): Promise<{ cancelled: boolean } | null> {
 
   const client = await clientPromise;
   const collection = client.db(dbName).collection('buyorders');
 
   // check orderId is valid ObjectId
   if (!ObjectId.isValid(orderId)) {
-    return false;
+    return null;
   }
 
   // check walletAddress is valid
 
   if (!walletAddress) {
-    return false;
+    return null;
   }
 
   // allow cancel when buyer is owner and still pending
@@ -3254,13 +3250,7 @@ export async function deleteBuyOrder(
     }
   );
 
-  if (result.modifiedCount === 1) {
-    return {
-      cancelled: true,
-    };
-  }
-
-  return null;
+  return { cancelled: result.modifiedCount === 1 };
 
 
 }
