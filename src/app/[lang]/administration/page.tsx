@@ -1420,7 +1420,11 @@ export default function Index({ params }: any) {
                           <td className="
                             hidden xl:table-cell
                             px-4 py-2 text-slate-900 font-medium">
-                            {trade?.seller?.nickname.length > 10 ? trade?.seller?.nickname.slice(0, 10) + "..." : trade?.seller?.nickname}
+                            {(() => {
+                              const name = trade?.seller?.nickname ?? '';
+                              if (!name) return '-';
+                              return name.length > 10 ? `${name.slice(0, 10)}...` : name;
+                            })()}
                             <br/>
                             {trade?.store?.bankInfo?.bankName}
                             <br/>

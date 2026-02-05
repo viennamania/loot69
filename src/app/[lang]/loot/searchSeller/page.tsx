@@ -249,6 +249,14 @@ export default function SearchSellerPage() {
                                     <span className="rounded-full border border-slate-700/70 bg-slate-900/60 px-2.5 py-1">
                                         상태 {seller.seller?.enabled ? '활성' : '비활성'}
                                     </span>
+                                    {seller.seller?.escrowWalletAddress && (
+                                      <Link
+                                        href={`/${lang}/loot/escorw/${seller.seller.escrowWalletAddress}`}
+                                        className="rounded-full border border-emerald-500/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100 underline decoration-emerald-300/60 underline-offset-4"
+                                      >
+                                        판매자에게 문의하기
+                                      </Link>
+                                    )}
                                 </div>
                                 {seller.seller?.promotionText && (
                                     <p className="mt-3 text-xs text-slate-400">
