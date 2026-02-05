@@ -12,6 +12,7 @@ import { client } from "@/app/client";
 
 import {
     getContract,
+    getContractEvents,
     sendAndConfirmTransaction,
 } from "thirdweb";
 
@@ -41,7 +42,7 @@ import GearSetupIcon from "@/components/gearSetupIcon";
 
 import Uploader from '@/components/uploader';
 
-import { balanceOf, transfer } from "thirdweb/extensions/erc20";
+import { balanceOf, transfer, transferEvent, decimals } from "thirdweb/extensions/erc20";
  
 
 import AppBarComponent from "@/components/Appbar/AppBar";
@@ -933,6 +934,7 @@ export default function SettingsPage({ params }: any) {
     const hasLoadedUsdtBalanceRef = useRef(false);
     const [escrowTopUpAmount, setEscrowTopUpAmount] = useState("");
     const [toppingUpEscrow, setToppingUpEscrow] = useState(false);
+    const [showTopUpModal, setShowTopUpModal] = useState(false);
 
     
     useEffect(() => {
@@ -973,6 +975,11 @@ export default function SettingsPage({ params }: any) {
         escrowBalance - (Number.isFinite(activeTradeUsdtAmount) ? activeTradeUsdtAmount : 0),
         0,
     );
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+    const [historyEvents, setHistoryEvents] = useState<any[]>([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [historyError, setHistoryError] = useState('');
 
 
     useEffect(() => {
@@ -1062,6 +1069,7 @@ export default function SettingsPage({ params }: any) {
 
             setEscrowTopUpAmount("");
             toast.success('에스크로 지갑으로 USDT가 전송되었습니다.');
+            setShowTopUpModal(false);
         } catch (error) {
             console.error(error);
             const message = error instanceof Error
@@ -1072,6 +1080,129 @@ export default function SettingsPage({ params }: any) {
             toast.error(`충전에 실패했습니다: ${message}`);
         } finally {
             setToppingUpEscrow(false);
+        }
+    };
+
+    const fetchEscrowHistory = async () => {
+        if (!seller?.escrowWalletAddress) return;
+        setHistoryError('');
+        setLoadingHistory(true);
+        try {
+            // 이력은 BSC 체인 기준으로 고정 조회
+            const historyContract = getContract({
+                client,
+                chain: bsc,
+                address: bscContractAddressUSDT,
+            });
+
+            const preparedIn = transferEvent({ to: seller.escrowWalletAddress });
+            const preparedOut = transferEvent({ from: seller.escrowWalletAddress });
+
+            // Try progressively broader queries to avoid missing older history or indexer hiccups.
+            const queryPlans: Array<{
+                blockRange?: bigint;
+                fromBlock?: bigint;
+                toBlock?: bigint;
+            }> = [
+                { blockRange: 500000n },      // fast recent window
+                { blockRange: 2000000n },     // wider recent window
+                { fromBlock: 0n },            // full history (indexer/RPC may be slower)
+            ];
+
+            let incoming: any[] = [];
+            let outgoing: any[] = [];
+            let lastError: unknown = null;
+
+            for (const plan of queryPlans) {
+                try {
+                    const [inc, out] = await Promise.all([
+                        getContractEvents({
+                            contract: historyContract,
+                            events: [preparedIn],
+                            useIndexer: true,
+                            ...plan,
+                        }),
+                        getContractEvents({
+                            contract: historyContract,
+                            events: [preparedOut],
+                            useIndexer: true,
+                            ...plan,
+                        }),
+                    ]);
+                    incoming = inc;
+                    outgoing = out;
+                    if (inc.length + out.length > 0) break;
+                } catch (err) {
+                    lastError = err;
+                    // fall through to next plan
+                }
+            }
+
+            if (incoming.length + outgoing.length === 0 && lastError) {
+                console.error('Escrow history query error', lastError);
+            }
+
+            const tokenDecimals =
+                (await decimals({ contract: historyContract }).catch(() => null)) ?? 18;
+            const normalize = (events: any[], direction: 'in' | 'out') =>
+                events.map((evt) => {
+                    const value = (evt as any)?.data?.value ?? 0n;
+                    const amount = Number(value) / 10 ** tokenDecimals;
+                    const counterparty =
+                        direction === 'in'
+                            ? (evt as any)?.data?.from
+                            : (evt as any)?.data?.to;
+                    const txHash =
+                        (evt as any)?.transaction?.transactionHash ||
+                        (evt as any)?.transactionHash ||
+                        '';
+                    const blockNumberRaw =
+                        (evt as any)?.transaction?.blockNumber ??
+                        (evt as any)?.blockNumber ??
+                        0n;
+                    const blockNumber =
+                        typeof blockNumberRaw === 'bigint'
+                            ? Number(blockNumberRaw)
+                            : Number(blockNumberRaw || 0);
+                    const logIndex =
+                        typeof (evt as any)?.logIndex === 'bigint'
+                            ? Number((evt as any)?.logIndex)
+                            : Number((evt as any)?.logIndex || 0);
+                    return {
+                        direction,
+                        amount,
+                        counterparty,
+                        txHash,
+                        blockNumber,
+                        logIndex,
+                    };
+                });
+
+            const merged = [...normalize(incoming, 'in'), ...normalize(outgoing, 'out')]
+                .filter((item) => Number.isFinite(item.amount))
+                // de-duplicate possible overlaps (e.g., self transfers)
+                .reduce((acc: any[], item) => {
+                    const key = `${item.txHash}-${item.logIndex}-${item.direction}`;
+                    if (!acc.some((i) => i._key === key)) {
+                        acc.push({ ...item, _key: key });
+                    }
+                    return acc;
+                }, [])
+                .sort((a, b) => (b.blockNumber || 0) - (a.blockNumber || 0))
+                .slice(0, 120);
+
+            if (merged.length === 0) {
+                setHistoryEvents([]);
+                setHistoryError('거래내역이 없습니다. 체인/토큰을 확인하거나 더 최근에 발생한 거래인지 확인하세요.');
+            } else {
+                setHistoryEvents(merged);
+                setHistoryError('');
+            }
+        } catch (error) {
+            console.error('Failed to fetch escrow history', error);
+            setHistoryError('거래내역을 불러오지 못했습니다.');
+        } finally {
+            setLoadingHistory(false);
         }
     };
 
@@ -1322,6 +1453,7 @@ export default function SettingsPage({ params }: any) {
             return;
         }
         toast.success('판매자 에스크로 지갑 잔액 전부 회수 요청이 완료되었습니다.');
+        setShowWithdrawModal(false);
     };
 
 
@@ -2094,30 +2226,41 @@ export default function SettingsPage({ params }: any) {
                                     에스크로 지갑에 잔액이 있어야 구매주문을 자동으로 처리할 수 있습니다.
                                 </div>
 
-                                <div className="flex flex-row items-center gap-2">
-                                    <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                    <span className="text-sm font-semibold text-slate-300">
-                                        에스크로 지갑 주소
-                                    </span>
-                                </div>
+                            <div className="flex flex-row items-center gap-2">
+                                <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
+                                <span className="text-sm font-semibold text-slate-300">
+                                    에스크로 지갑 주소
+                                </span>
+                            </div>
 
                                 <div className='w-full flex flex-col gap-3'>
-                                    <div className="flex w-full flex-row items-center gap-2">
-                                        <Image
-                                            src="/icon-smart-wallet.png"
-                                            alt="Smart Wallet"
-                                            width={50}
-                                            height={50}
-                                            className='w-8 h-8'
-                                        />
+                                    <div className="flex w-full flex-row items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <Image
+                                                src="/icon-smart-wallet.png"
+                                                alt="Smart Wallet"
+                                                width={50}
+                                                height={50}
+                                                className='w-8 h-8'
+                                            />
+                                            <button
+                                                className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(seller?.escrowWalletAddress || "");
+                                                    toast.success("에스크로 지갑 주소가 복사되었습니다" );
+                                                } }
+                                            >
+                                                {seller?.escrowWalletAddress.slice(0, 6)}...{seller?.escrowWalletAddress.slice(-4)}
+                                            </button>
+                                        </div>
                                         <button
-                                            className="text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4"
+                                            className="rounded-full border border-slate-300/50 bg-slate-800/70 px-3 py-1.5 text-xs font-semibold text-slate-100 shadow-sm transition hover:border-emerald-300/60 hover:text-emerald-100"
                                             onClick={() => {
-                                                navigator.clipboard.writeText(seller?.escrowWalletAddress || "");
-                                                toast.success("에스크로 지갑 주소가 복사되었습니다" );
-                                            } }
+                                                setShowHistoryDrawer(true);
+                                                fetchEscrowHistory();
+                                            }}
                                         >
-                                            {seller?.escrowWalletAddress.slice(0, 6)}...{seller?.escrowWalletAddress.slice(-4)}
+                                            에스크로 입출금내역
                                         </button>
                                     </div>
                                 </div>
@@ -2152,73 +2295,33 @@ export default function SettingsPage({ params }: any) {
                                         회수 가능 잔액: {withdrawableEscrowBalance.toFixed(6)} USDT
                                     </div>
                                 </div>
-                                {/* 잔액 회수하기 버튼 */}
-                                <div className='w-full flex flex-col gap-2 items-start sm:flex-row sm:items-center sm:justify-end'>
-
-                                    {/* if escrowBalance is 0, disable the button */}
-                                    <button
-                                        onClick={() => {
-                                            if (window.confirm('에스크로 지갑 잔액을 전부 회수하시겠습니까?')) {
-                                                clearSellerEscrowWalletBalance();
-                                            }
-                                        }}
-                                        className={`
-                                            ${clearingSellerEscrowWalletBalance ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
-                                            w-full px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
-                                        `}
-                                        disabled={clearingSellerEscrowWalletBalance || withdrawableEscrowBalance <= 0}
-                                    >
-                                        {clearingSellerEscrowWalletBalance ? '회수중...' : '잔액 전부 회수하기'}
-                                    </button>
-
-                                </div>
-
-                                <div className="mt-4 flex w-full flex-col gap-2">
-                                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-300 sm:text-right">
-                                        <span>내 지갑 보유 USDT: {usdtBalance.toFixed(6)}</span>
-                                        {loadingUsdtBalance && (
-                                            <span
-                                                className="inline-flex h-2 w-2 rounded-full bg-emerald-300/70 animate-pulse"
-                                                aria-label="갱신 중"
-                                            />
-                                        )}
-                                    </div>
-                                    <div className="flex w-full flex-col gap-2 sm:flex-row">
-                                        <input
-                                            className="w-full flex-1 rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-right"
-                                            placeholder="USDT 수량"
-                                            value={escrowTopUpAmount}
-                                            type="text"
-                                            inputMode="decimal"
-                                            onChange={(e) => {
-                                                const sanitized = e.target.value.replace(/[^0-9.]/g, '');
-                                                const normalized = sanitized.replace(/(\..*)\./g, '$1');
-                                                if (normalized === '' || normalized === '.') {
-                                                    setEscrowTopUpAmount(normalized);
-                                                    return;
-                                                }
-                                                const nextValue = Number(normalized);
-                                                if (!Number.isFinite(nextValue)) {
-                                                    return;
-                                                }
-                                                if (!loadingUsdtBalance && nextValue > usdtBalance) {
-                                                    setEscrowTopUpAmount(usdtBalance.toFixed(6));
-                                                    return;
-                                                }
-                                                setEscrowTopUpAmount(normalized);
-                                            }}
-                                        />
+                                    {/* 잔액 회수하기 버튼 */}
+                                    <div className='w-full flex flex-col gap-2 items-start sm:flex-row sm:items-center sm:justify-end'>
                                         <button
-                                            onClick={topUpEscrowWallet}
+                                            onClick={() => {
+                                                if (withdrawableEscrowBalance <= 0) {
+                                                    toast.error('거래중 수량을 제외하면 회수 가능한 잔액이 없습니다.');
+                                                    return;
+                                                }
+                                                setShowWithdrawModal(true);
+                                            }}
                                             className={`
-                                                ${toppingUpEscrow ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
-                                                w-full px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition whitespace-nowrap sm:w-auto
+                                                ${clearingSellerEscrowWalletBalance ? 'bg-slate-200 text-slate-400' : 'bg-emerald-600 text-white'}
+                                                w-full px-4 py-2 rounded-full text-sm font-semibold shadow-sm transition sm:w-auto
                                             `}
-                                            disabled={toppingUpEscrow || !escrowTopUpAmount || Number(escrowTopUpAmount) <= 0}
+                                            disabled={clearingSellerEscrowWalletBalance || withdrawableEscrowBalance <= 0}
                                         >
-                                            {toppingUpEscrow ? '충전중...' : '충전하기'}
+                                            {clearingSellerEscrowWalletBalance ? '회수중...' : '잔액 전부 회수하기'}
                                         </button>
                                     </div>
+
+                                <div className="mt-4 flex w-full justify-end">
+                                    <button
+                                        onClick={() => setShowTopUpModal(true)}
+                                        className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition sm:w-auto"
+                                    >
+                                        내 지갑에서 충전하기
+                                    </button>
                                 </div>
 
 
@@ -2516,6 +2619,261 @@ export default function SettingsPage({ params }: any) {
                 )}
 
             </div>
+            {showWithdrawModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    <div
+                        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+                        onClick={() => {
+                            if (!clearingSellerEscrowWalletBalance) {
+                                setShowWithdrawModal(false);
+                            }
+                        }}
+                    />
+                    <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200/70 bg-slate-900/90 p-6 shadow-2xl">
+                        <div className="flex items-center justify-start">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-sky-200/70">에스크로 잔액 회수</p>
+                                <h3 className="mt-1 text-lg font-bold text-white">잔액 전부 회수하기</h3>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2 rounded-xl border border-slate-200/40 bg-slate-800/60 p-4 text-sm text-slate-200">
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-300">에스크로 잔액</span>
+                                <span className="font-semibold text-emerald-200">{escrowBalance.toFixed(6)} USDT</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-300">거래중 수량</span>
+                                <span className="font-semibold text-amber-200">{activeTradeUsdtAmount.toFixed(6)} USDT</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-slate-700/80 pt-2">
+                                <span className="text-slate-100">회수 가능 잔액</span>
+                                <span className="text-xl font-bold text-white">{withdrawableEscrowBalance.toFixed(6)} USDT</span>
+                            </div>
+                        </div>
+
+                        <p className="mt-3 text-xs text-slate-400">
+                            회수된 금액은 연결된 내 지갑 ({address?.slice(0, 6)}...{address?.slice(-4)}) 으로 전송됩니다.
+                        </p>
+                        {clearingSellerEscrowWalletBalance && (
+                            <p className="mt-2 rounded-lg border border-amber-300/50 bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-100">
+                                처리중입니다. 창을 닫지 말아주세요.
+                            </p>
+                        )}
+
+                        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                            <button
+                                className="w-full rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+                                onClick={() => setShowWithdrawModal(false)}
+                                disabled={clearingSellerEscrowWalletBalance}
+                            >
+                                취소
+                            </button>
+                            <button
+                                className={`
+                                    ${clearingSellerEscrowWalletBalance ? 'bg-slate-400 text-slate-800' : 'bg-emerald-600 text-white'}
+                                    w-full rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition sm:w-auto
+                                `}
+                                onClick={clearSellerEscrowWalletBalance}
+                                disabled={clearingSellerEscrowWalletBalance}
+                            >
+                                {clearingSellerEscrowWalletBalance ? '처리중...' : '확인 후 회수하기'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showTopUpModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    <div
+                        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+                        onClick={() => {
+                            if (!toppingUpEscrow) {
+                                setShowTopUpModal(false);
+                            }
+                        }}
+                    />
+                    <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200/70 bg-slate-900/90 p-6 shadow-2xl">
+                        <div className="flex items-center justify-start">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-sky-200/70">에스크로 충전</p>
+                                <h3 className="mt-1 text-lg font-bold text-white">내 지갑에서 충전하기</h3>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2 rounded-xl border border-slate-200/40 bg-slate-800/60 p-4 text-sm text-slate-200">
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-300">내 지갑 보유 USDT</span>
+                                <div className="flex items-center gap-2">
+                                    {loadingUsdtBalance && (
+                                        <span
+                                            className="inline-flex h-2 w-2 rounded-full bg-emerald-300/70 animate-pulse"
+                                            aria-label="갱신 중"
+                                        />
+                                    )}
+                                    <span className="font-semibold text-emerald-200">
+                                        {usdtBalance.toFixed(6)} USDT
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-slate-300" htmlFor="topup-amount">
+                                    전송할 USDT 수량
+                                </label>
+                                <input
+                                    id="topup-amount"
+                                    className="w-full rounded-xl border border-slate-200/80 bg-slate-900/80 px-3 py-2 text-sm font-semibold text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-right"
+                                    placeholder="예: 25.5"
+                                    value={escrowTopUpAmount}
+                                    type="text"
+                                    inputMode="decimal"
+                                    onChange={(e) => {
+                                        const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                                        const normalized = sanitized.replace(/(\..*)\./g, '$1');
+                                        if (normalized === '' || normalized === '.') {
+                                            setEscrowTopUpAmount(normalized);
+                                            return;
+                                        }
+                                        const nextValue = Number(normalized);
+                                        if (!Number.isFinite(nextValue)) {
+                                            return;
+                                        }
+                                        if (!loadingUsdtBalance && nextValue > usdtBalance) {
+                                            setEscrowTopUpAmount(usdtBalance.toFixed(6));
+                                            return;
+                                        }
+                                        setEscrowTopUpAmount(normalized);
+                                    }}
+                                    disabled={toppingUpEscrow}
+                                />
+                            </div>
+                        </div>
+
+                        {toppingUpEscrow && (
+                            <p className="mt-3 rounded-lg border border-emerald-300/50 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100">
+                                전송중입니다. 창을 닫지 말아주세요.
+                            </p>
+                        )}
+
+                        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                            <button
+                                className="w-full rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+                                onClick={() => setShowTopUpModal(false)}
+                                disabled={toppingUpEscrow}
+                            >
+                                취소
+                            </button>
+                            <button
+                                className={`
+                                    ${toppingUpEscrow ? 'bg-slate-400 text-slate-800' : 'bg-emerald-600 text-white'}
+                                    w-full rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition sm:w-auto
+                                `}
+                                onClick={topUpEscrowWallet}
+                                disabled={toppingUpEscrow || !escrowTopUpAmount || Number(escrowTopUpAmount) <= 0}
+                            >
+                                {toppingUpEscrow ? '전송중...' : '확인 후 전송'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showHistoryDrawer && (
+                <div className="fixed inset-0 z-50">
+                    <div
+                        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+                        onClick={() => {
+                            if (!loadingHistory) {
+                                setShowHistoryDrawer(false);
+                            }
+                        }}
+                    />
+                    <div className="drawer-panel absolute left-0 top-0 h-full w-full max-w-lg overflow-hidden border-r border-slate-200/60 bg-slate-950/95 p-5 shadow-2xl">
+                        <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-1">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-sky-200/70">History</p>
+                                <h3 className="text-lg font-bold text-white">에스크로 입출금내역</h3>
+                                <p className="text-xs text-slate-400">
+                                    에스크로 지갑: {seller?.escrowWalletAddress?.slice(0, 6)}...{seller?.escrowWalletAddress?.slice(-4)}
+                                </p>
+                                <p className="text-[11px] text-slate-500">
+                                    BSC 체인 기준 USDT 트랜잭션만 조회합니다. 최근 거래를 우선 조회하며 필요한 경우 전체 블록을 재조회합니다.
+                                </p>
+                            </div>
+                            <button
+                                className="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-emerald-400 hover:text-emerald-100 disabled:opacity-40"
+                                onClick={fetchEscrowHistory}
+                                disabled={loadingHistory}
+                            >
+                                {loadingHistory ? '불러오는 중...' : '새로고침'}
+                            </button>
+                        </div>
+
+                        <div className="mt-4 h-[calc(100%-90px)] overflow-y-auto pr-2">
+                            {historyError && (
+                                <div className="mb-3 rounded-lg border border-rose-400/50 bg-rose-500/15 px-3 py-2 text-xs font-semibold text-rose-100">
+                                    {historyError}
+                                </div>
+                            )}
+                            {loadingHistory && (
+                                <div className="flex h-24 items-center justify-center text-sm text-slate-300">
+                                    거래내역을 불러오는 중입니다...
+                                </div>
+                            )}
+                            {!loadingHistory && !historyError && historyEvents.length === 0 && (
+                                <div className="flex h-24 items-center justify-center text-sm text-slate-400">
+                                    거래내역이 없습니다.
+                                </div>
+                            )}
+                            {!loadingHistory && historyEvents.length > 0 && (
+                                <div className="flex flex-col gap-3">
+                                    {historyEvents.map((item, idx) => (
+                                        <div
+                                            key={item._key || `${item.txHash || 'tx'}-${idx}`}
+                                            className="rounded-xl border border-slate-200/40 bg-slate-900/80 p-3 shadow-sm"
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                        item.direction === 'in'
+                                                            ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-400/40'
+                                                            : 'bg-rose-500/15 text-rose-100 border border-rose-400/40'
+                                                    }`}
+                                                >
+                                                    {item.direction === 'in' ? '입금' : '출금'}
+                                                </span>
+                                                <span className="text-[11px] text-slate-400">
+                                                    블록 #{item.blockNumber || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 flex items-center justify-between">
+                                                <div className="flex flex-col gap-1 text-xs text-slate-300">
+                                                    <span className="font-semibold text-slate-100">
+                                                        {item.amount?.toFixed ? item.amount.toFixed(6) : '-'} USDT
+                                                    </span>
+                                                    <span className="text-slate-400">
+                                                        상대 지갑: {item.counterparty ? `${item.counterparty.slice(0, 6)}...${item.counterparty.slice(-4)}` : '-'}
+                                                    </span>
+                                                </div>
+                                                {item.txHash && (
+                                                    <button
+                                                        className="text-[11px] font-semibold text-emerald-200 underline underline-offset-4"
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(item.txHash || '');
+                                                            toast.success('트랜잭션 해시가 복사되었습니다.');
+                                                        }}
+                                                    >
+                                                        해시 복사
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         <style jsx global>{`
           .seller-shell {
             --seller-bg: #070b18;
@@ -2655,6 +3013,19 @@ export default function SettingsPage({ params }: any) {
 
           .seller-shell .escrow-summary--active .escrow-summary-sub {
             color: rgba(167, 243, 208, 0.92);
+          }
+
+          .drawer-panel {
+            animation: slideInFromLeft 180ms ease-out;
+          }
+
+          @keyframes slideInFromLeft {
+            from {
+              transform: translateX(-100%);
+            }
+            to {
+              transform: translateX(0%);
+            }
           }
 
           .seller-shell a,
