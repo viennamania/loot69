@@ -2136,6 +2136,12 @@ export default function Index({ params }: any) {
                   >
                     가맹점관리
                   </button>
+                  <button
+                    onClick={() => router.push(`/${params.lang}/administration/buyorder-management`)}
+                    className="bg-emerald-500 text-sm text-slate-900 px-4 py-2 rounded-lg font-semibold shadow hover:bg-emerald-400"
+                  >
+                    구매주문 관리
+                  </button>
                 </div>
 
               </div>
@@ -2532,7 +2538,7 @@ export default function Index({ params }: any) {
           ">
 
           <div className="text-sm text-slate-500 mt-2">
-            © 2025 GoodTether. All rights reserved.
+            © 2025 LOOT. All rights reserved.
           </div>
 
         </div>

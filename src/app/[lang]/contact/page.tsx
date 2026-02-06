@@ -5922,7 +5922,7 @@ const fetchBuyOrders = async () => {
               ">
 
               <div className="text-sm text-zinc-500 mt-2">
-                © 2025 GoodTether. All rights reserved.
+                © 2025 LOOT. All rights reserved.
               </div>
 
             </div>

@@ -117,6 +117,10 @@ export default function EscrowSellerPage() {
   const [cancelModalOrderId, setCancelModalOrderId] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [userLoading, setUserLoading] = useState(false);
+  const isBuyerSellerSame = useMemo(() => {
+    if (!address || !seller?.walletAddress) return false;
+    return address.toLowerCase() === seller.walletAddress.toLowerCase();
+  }, [address, seller?.walletAddress]);
 
   const pendingUsdtAmount = useMemo(() => {
     return sellerOrders
@@ -547,6 +551,49 @@ export default function EscrowSellerPage() {
     }
   };
 
+  if (isBuyerSellerSame) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1226] to-[#050915] text-slate-100">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-20 pt-12">
+          <div className="flex items-center gap-2 text-sm text-slate-300">
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
+            >
+              <Image src="/icon-back.png" alt="Back" width={18} height={18} className="rounded-full" />
+              돌아가기
+            </button>
+          </div>
+
+          <div className="rounded-3xl border border-amber-200/30 bg-amber-950/30 p-6 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/20 text-amber-200 ring-2 ring-amber-300/40">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 9v4m0 4h.01M4.93 19.07a10 10 0 1 1 14.14 0A10 10 0 0 1 4.93 19.07Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-amber-200/80">안내</p>
+                <h1 className="text-xl font-bold text-white sm:text-2xl">판매자와 구매자 지갑이 동일합니다</h1>
+                <p className="mt-2 text-sm text-amber-100/90">
+                  본인 계정으로는 이 판매자 상품을 구매할 수 없습니다. 다른 지갑으로 접속하거나 다른 판매자를
+                  선택해 주세요.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1226] to-[#050915] text-slate-100">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pb-20 pt-10">
@@ -814,17 +861,16 @@ export default function EscrowSellerPage() {
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
                             let numeric = Number(sanitized);
-                            if (
-                              Number.isFinite(numeric) &&
-                              availableUsdtToBuy > 0 &&
-                              numeric > availableUsdtToBuy
-                            ) {
+                            if (Number.isFinite(numeric) && numeric > availableUsdtToBuy) {
                               numeric = availableUsdtToBuy;
                             }
-                            setBuyAmount(sanitized);
+                            const display = Number.isFinite(numeric) && numeric > 0 ? String(numeric) : '';
+                            setBuyAmount(display);
                             if (seller?.seller?.usdtToKrwRate && Number.isFinite(numeric)) {
                               const calc = Math.floor(numeric * seller.seller.usdtToKrwRate);
                               setBuyKrwAmount(calc ? String(calc) : '');
+                            } else {
+                              setBuyKrwAmount('');
                             }
                           }}
                           placeholder={availableUsdtToBuy > 0 ? '예: 100' : '구매 가능 수량 없음'}
@@ -846,12 +892,19 @@ export default function EscrowSellerPage() {
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9]/g, '');
                             const numeric = Number(sanitized);
-                            setBuyKrwAmount(sanitized);
-                            if (seller?.seller?.usdtToKrwRate && Number.isFinite(numeric)) {
-                              const usdt = numeric / seller.seller.usdtToKrwRate;
-                              const trimmed = usdt > 0 ? usdt.toFixed(6).replace(/0+$/,'').replace(/\.$/,'') : '';
-                              setBuyAmount(trimmed);
+                            if (!seller?.seller?.usdtToKrwRate || !Number.isFinite(numeric)) {
+                              setBuyKrwAmount(sanitized);
+                              setBuyAmount('');
+                              return;
                             }
+                            let usdt = numeric / seller.seller.usdtToKrwRate;
+                            if (usdt > availableUsdtToBuy) {
+                              usdt = availableUsdtToBuy;
+                            }
+                            const adjustedKrw = Math.floor(usdt * seller.seller.usdtToKrwRate);
+                            const usdtStr = usdt > 0 ? usdt.toFixed(6).replace(/0+$/,'').replace(/\.$/,'') : '';
+                            setBuyAmount(usdtStr);
+                            setBuyKrwAmount(adjustedKrw ? String(adjustedKrw) : '');
                           }}
                           placeholder={seller?.seller?.usdtToKrwRate ? '예: 1500000' : '환율 정보 필요'}
                           inputMode="numeric"

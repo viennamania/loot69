@@ -267,14 +267,16 @@ const BuyerSupportChatWidgetGlobal = () => {
                 {loading ? '채팅을 준비 중입니다.' : '채팅을 불러오는 중입니다.'}
               </div>
             ) : (
-              <SendbirdProvider
-                appId={SENDBIRD_APP_ID}
-                userId={address}
-                accessToken={sessionToken}
-                theme="light"
-              >
-                <GroupChannel channelUrl={channelUrl} />
-              </SendbirdProvider>
+              <div className="buyer-chat-uikit h-full">
+                <SendbirdProvider
+                  appId={SENDBIRD_APP_ID}
+                  userId={address}
+                  accessToken={sessionToken}
+                  theme="light"
+                >
+                  <GroupChannel channelUrl={channelUrl} />
+                </SendbirdProvider>
+              </div>
             )}
           </div>
         </div>
@@ -299,6 +301,47 @@ const BuyerSupportChatWidgetGlobal = () => {
         </span>
         고객센터
       </button>
+      <style jsx global>{`
+        .buyer-chat-uikit .sendbird-conversation {
+          background: linear-gradient(160deg, #0b1221 0%, #04070f 100%);
+        }
+        .buyer-chat-uikit .sendbird-conversation__messages {
+          background: transparent;
+        }
+        .buyer-chat-uikit .sendbird-message-content__text-balloon {
+          max-width: 82%;
+          border-radius: 18px;
+          padding: 10px 12px;
+          box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+        }
+        .buyer-chat-uikit .sendbird-message-content--outgoing .sendbird-message-content__text-balloon {
+          background: linear-gradient(135deg, #22d3ee, #6366f1);
+          color: #0b1221;
+          font-weight: 600;
+        }
+        .buyer-chat-uikit .sendbird-message-content--incoming .sendbird-message-content__text-balloon {
+          background: #0f172a;
+          color: #e2e8f0;
+        }
+        .buyer-chat-uikit .sendbird-message-content__middle {
+          color: #9ca3af;
+        }
+        .buyer-chat-uikit .sendbird-conversation__footer {
+          background: #060a14;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .buyer-chat-uikit .sendbird-message-input {
+          background: #0a0f1d;
+          border: 1px solid #1f2937;
+          border-radius: 12px;
+        }
+        .buyer-chat-uikit .sendbird-message-input--textarea {
+          color: #f8fafc;
+        }
+        .buyer-chat-uikit .sendbird-message-input--placeholder {
+          color: #6b7280;
+        }
+      `}</style>
     </div>
   );
 };

@@ -137,8 +137,8 @@ export default function Index({ params }: any) {
       
       /*
       appMetadata: {
-        name: "GoodTether",
-        description: "GoodTether",
+        name: "LOOT",
+        description: "LOOT",
         url: "https://gold.goodtether.com",
         //icons: ["https://gold.goodtether.com/logo.png"],
       },
