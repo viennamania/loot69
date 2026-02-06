@@ -828,22 +828,29 @@ export default function SellerDashboardPage() {
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">정산 계좌</p>
             <p className="mt-2 text-sm text-white">
-              {sellerUser?.seller?.bankInfo?.bankName ||
-                sellerUser?.store?.bankInfo?.bankName ||
-                '-'}{' '}
-              /{' '}
-              {sellerUser?.seller?.bankInfo?.accountHolder ||
-                sellerUser?.store?.bankInfo?.accountHolder ||
-                '-'}
+              {sellerUser?.seller?.bankInfo?.bankName || '-'} /{' '}
+              {sellerUser?.seller?.bankInfo?.accountHolder || '-'}
             </p>
             <p className="font-mono text-sm text-emerald-200">
-              {sellerUser?.seller?.bankInfo?.accountNumber ||
-                sellerUser?.store?.bankInfo?.accountNumber ||
-                '-'}
+              {sellerUser?.seller?.bankInfo?.accountNumber || '-'}
             </p>
             <p className="mt-2 text-[11px] text-slate-500">
               입금 정보는 고객 화면의 “판매자 입금 계좌”에 표시됩니다.
             </p>
+            {!sellerUser?.seller?.bankInfo && (
+              <p className="mt-1 text-[11px] text-amber-200">
+                정산 계좌가 없습니다. 설정 후 거래 정산이 가능합니다.
+              </p>
+            )}
+            {!sellerUser?.seller?.bankInfo && (
+              <button
+                type="button"
+                onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
+                className="mt-3 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+              >
+                정산 계좌 설정하기
+              </button>
+            )}
           </div>
         </section>
 

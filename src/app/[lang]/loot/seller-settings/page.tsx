@@ -46,6 +46,7 @@ export default function SellerSettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [sellerNickname, setSellerNickname] = useState('');
   const [userExists, setUserExists] = useState(false);
+  const [bankInfo, setBankInfo] = useState<{ bankName?: string; accountHolder?: string; accountNumber?: string }>({});
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -68,6 +69,7 @@ export default function SellerSettingsPage() {
 
           setNickname(userNick); // keep empty if none
           setSellerNickname(sellerNick);
+          setBankInfo(data.result.seller?.bankInfo || {});
           setNeedsNickname(shouldNeedNickname);
           setNewNickname('');
           setAvatar(data.result.avatar || '/profile-default.png');
@@ -116,12 +118,13 @@ export default function SellerSettingsPage() {
       }
       setNickname(trimmed);
       setSellerNickname(trimmed);
-      setEscrowAddress(data?.result?.escrowWalletAddress || '');
-      setNeedsNickname(false);
-      setSaveSuccess('닉네임이 저장되었습니다.');
-    } catch (error: any) {
-      setSaveError(error?.message || '닉네임 저장에 실패했습니다.');
-    } finally {
+          setEscrowAddress(data?.result?.escrowWalletAddress || '');
+          setBankInfo({});
+          setNeedsNickname(false);
+          setSaveSuccess('닉네임이 저장되었습니다.');
+        } catch (error: any) {
+          setSaveError(error?.message || '닉네임 저장에 실패했습니다.');
+        } finally {
       setSaveLoading(false);
     }
   };
@@ -296,6 +299,29 @@ export default function SellerSettingsPage() {
                 </div>
               </div>
             )}
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400">정산 계좌</p>
+                  <p className="mt-2 text-sm text-white">
+                    {bankInfo?.bankName || '-'} / {bankInfo?.accountHolder || '-'}
+                  </p>
+                  <p className="font-mono text-sm text-emerald-200">
+                    {bankInfo?.accountNumber || '-'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
+                  className="rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                >
+                  {bankInfo?.bankName ? '정산 계좌 수정' : '정산 계좌 설정'}
+                </button>
+              </div>
+              <p className="mt-2 text-[11px] text-slate-500">
+                정산 계좌 정보는 거래 정산 및 고객 안내에 사용됩니다.
+              </p>
+            </div>
           </section>
         )}
       </div>
