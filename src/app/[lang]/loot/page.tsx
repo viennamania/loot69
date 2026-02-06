@@ -1568,7 +1568,7 @@ export default function Loot69Page() {
                                 <div className="relative inline-flex items-center justify-center rounded-3xl border border-white/15 bg-white/10 px-6 py-5 shadow-[0_20px_50px_-24px_rgba(2,6,23,0.9)]">
                                     <span className="pointer-events-none absolute -inset-3 rounded-[28px] bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.35),transparent_70%)] blur-2xl" />
                                     <Image
-                                        src="/logo-loot.png"
+                                        src="/logo-loot.webp"
                                         alt="Loot69"
                                         width={320}
                                         height={96}
@@ -1578,7 +1578,7 @@ export default function Loot69Page() {
                                 </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
-                                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.6)] md:h-10 md:w-10">
+                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.6)] md:h-10 md:w-10">
                                     <svg
                                         width="24"
                                         height="24"
@@ -1602,15 +1602,15 @@ export default function Loot69Page() {
                                         />
                                     </svg>
                                 </span>
-                                <h1 className="font-[var(--font-display)] text-2xl leading-tight text-[color:var(--ink)] whitespace-nowrap sm:text-4xl md:text-5xl">
+                                <h1 className="font-[var(--font-display)] text-xl leading-tight text-[color:var(--ink)] whitespace-nowrap sm:text-3xl md:text-4xl">
                                     신뢰로 완성된 USDT 마켓
                                 </h1>
                             </div>
-                            <p className="text-lg text-slate-300 md:text-xl">
+                            <p className="text-base text-slate-300 md:text-lg">
                             KYC·에스크로·분쟁조정까지 한 번에, 안전한 거래만 남깁니다.
                             </p>
 
-                            <div className="flex flex-col gap-4 sm:flex-row sm:gap-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:gap-3">
                                 {!hasWallet && (
                                     <div className="flex w-full items-center justify-center sm:w-auto sm:min-w-[240px]">
                                         <ConnectButton
@@ -1641,14 +1641,14 @@ export default function Loot69Page() {
                                 )}
                                 <Link
                                     href={searchSellerHref}
-                                    className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-[color:var(--accent)] px-8 py-3.5 text-base font-semibold text-[color:var(--accent)] shadow-[0_18px_45px_-26px_rgba(34,211,238,0.45)] transition hover:bg-[color:var(--accent)] hover:text-slate-900 sm:w-auto sm:min-w-[220px]"
+                                    className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent)] shadow-[0_18px_45px_-26px_rgba(34,211,238,0.45)] transition hover:bg-[color:var(--accent)] hover:text-slate-900 sm:w-auto sm:min-w-[180px]"
                                 >
                                     안전 구매 시작
                                 </Link>
                                 {canStartSeller ? (
                                     <Link
                                         href={sellerPageHref}
-                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-700/70 bg-slate-900/70 px-8 py-3.5 text-base font-semibold text-slate-200 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.6)] transition hover:border-emerald-400/40 sm:w-auto sm:min-w-[240px]"
+                                        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-slate-700/70 bg-slate-900/70 px-6 py-3 text-base font-semibold text-slate-200 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.6)] transition hover:border-emerald-400/40 sm:w-auto sm:min-w-[180px]"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="inline-block">
                                             <path d="M12 2l7 7-7 7-7-7 7-7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1661,13 +1661,13 @@ export default function Loot69Page() {
                                         {needsSellerSetup ? (
                                             <Link
                                                 href={sellerSetupHref}
-                                                className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-8 py-3.5 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[240px]"
-                                            >
+                                            className="accent-cta inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-slate-900 shadow-[0_18px_45px_-22px_rgba(34,211,238,0.6)] transition hover:brightness-110 sm:w-auto sm:min-w-[180px]"
+                                        >
                                                 판매자 설정
                                             </Link>
                                         ) : (
                                             <span
-                                                className={`relative inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border px-8 py-3.5 text-base font-semibold tracking-tight sm:w-auto sm:min-w-[240px] ${sellerCtaTone}`}
+                                            className={`relative inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border px-6 py-3 text-base font-semibold tracking-tight sm:w-auto sm:min-w-[180px] ${sellerCtaTone}`}
                                             >
                                                 {!hasWallet && (
                                                     <span className="pointer-events-none absolute -right-6 -top-4 h-10 w-10 rounded-full bg-orange-300/40 blur-2xl" />
@@ -2536,7 +2536,7 @@ export default function Loot69Page() {
                 <div className="mx-auto flex max-w-[672px] flex-col items-center gap-6">
                     <div className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-4 shadow-[0_16px_40px_-28px_rgba(2,6,23,0.9)]">
                         <Image
-                            src="/logo-loot.png"
+                            src="/logo-loot.webp"
                             alt="Loot69"
                             width={260}
                             height={80}

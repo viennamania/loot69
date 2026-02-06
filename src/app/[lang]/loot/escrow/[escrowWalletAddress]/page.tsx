@@ -23,7 +23,7 @@ import { ethereum, polygon, arbitrum, bsc } from 'thirdweb/chains';
 
 const STORECODE = 'admin';
 const SENDBIRD_APP_ID =
-  process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+  process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || '';
 
 type SellerLite = {
   id?: number;

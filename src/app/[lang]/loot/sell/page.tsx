@@ -4366,7 +4366,7 @@ const fetchBuyOrders = async () => {
 
             >
               <Image
-                src="/logo-loot.png"
+                src="/logo-loot.webp"
                 alt="logo"
                 width={100}
                 height={100}

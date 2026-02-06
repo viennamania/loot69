@@ -81,7 +81,7 @@ export default function LootPage() {
         <header className="px-4 pt-2.5">
           <div className="flex justify-center items-center h-14 mt-1.5 mb-1">
             <Image
-              src="/logo-loot.png"
+              src="/logo-loot.webp"
               alt="돈벼락 로고"
               width={200}
               height={36}

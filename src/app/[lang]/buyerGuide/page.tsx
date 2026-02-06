@@ -165,7 +165,7 @@ export default async function BuyerGuidePage({ params }: { params: { lang?: stri
                             </div>
                             <div className="flex items-center gap-3">
                                 <Image
-                                    src="/logo-loot.png"
+                                    src="/logo-loot.webp"
                                     alt="Loot69"
                                     width={140}
                                     height={44}
@@ -464,7 +464,7 @@ export default async function BuyerGuidePage({ params }: { params: { lang?: stri
             <footer className="relative z-10 border-t border-white/10 bg-[#1f1f1f] px-6 py-14 text-center text-slate-200">
                 <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
                     <Image
-                        src="/logo-loot.png"
+                        src="/logo-loot.webp"
                         alt="Loot69"
                         width={180}
                         height={56}

@@ -65,7 +65,7 @@ export default async function TermsOfServicePage({ params }: { params: { lang?: 
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Image
-                  src="/logo-loot.png"
+                  src="/logo-loot.webp"
                   alt="Loot69"
                   width={140}
                   height={44}

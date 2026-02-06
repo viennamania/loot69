@@ -50,7 +50,7 @@ export default async function NoticePage({ params }: { params: { lang?: string }
               </div>
               <div className="flex items-center gap-3">
                 <Image
-                  src="/logo-loot.png"
+                  src="/logo-loot.webp"
                   alt="Loot69"
                   width={140}
                   height={44}

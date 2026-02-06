@@ -4501,7 +4501,7 @@ const fetchBuyOrders = async () => {
                   bg-orange-50/80 px-4 py-2 shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-100/80 hover:shadow-md"
                 >
                   <Image
-                    src="/logo-loot.png"
+                    src="/logo-loot.webp"
                     alt="logo"
                     width={100}
                     height={100}
