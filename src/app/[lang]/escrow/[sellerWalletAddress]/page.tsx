@@ -207,7 +207,7 @@ type SellerChatItem = {
 
 const walletAuthOptions = ["google", "email", "phone"];
 
-const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || '';
 
 type BannerAd = {
   id: string;

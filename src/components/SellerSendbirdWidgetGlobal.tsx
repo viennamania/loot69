@@ -10,7 +10,7 @@ import GroupChannelList from '@sendbird/uikit-react/GroupChannelList';
 import ChannelAvatar from '@sendbird/uikit-react/ui/ChannelAvatar';
 import Badge from '@sendbird/uikit-react/ui/Badge';
 
-const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || '';
 const OWNER_WALLET_STORAGE_KEY = 'sellerOwnerWalletAddress';
 const OWNER_WALLET_EVENT = 'seller-owner-wallet-address';
 const USER_STORECODE = 'admin';

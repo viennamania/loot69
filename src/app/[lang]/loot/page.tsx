@@ -25,7 +25,11 @@ const bodyFont = Space_Grotesk({
     variable: '--font-body',
 });
 
-const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+// Use APP ID, not API token, for Sendbird widgets
+const SENDBIRD_APP_ID =
+  process.env.NEXT_PUBLIC_SENDBIRD_APP_ID ||
+  process.env.SENDBIRD_APP_ID ||
+  '';
 const SUPPORT_ADMIN_ID = 'lootManager';
 const SUPPORT_REQUEST_TIMEOUT_MS = 12000;
 

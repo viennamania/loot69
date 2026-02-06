@@ -6,7 +6,7 @@ import SendbirdProvider from '@sendbird/uikit-react/SendbirdProvider';
 import GroupChannel from '@sendbird/uikit-react/GroupChannel';
 import GroupChannelList from '@sendbird/uikit-react/GroupChannelList';
 
-const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || '';
 const ADMIN_CHAT_ID = 'lootManager';
 
 const AdminSupportChatWidget = () => {
