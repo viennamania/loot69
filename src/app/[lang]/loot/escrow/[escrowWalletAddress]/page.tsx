@@ -116,6 +116,7 @@ export default function EscrowSellerPage() {
   const [, forceTick] = useState(0);
   const [cancelModalOrderId, setCancelModalOrderId] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [userLoading, setUserLoading] = useState(false);
 
   const pendingUsdtAmount = useMemo(() => {
     return sellerOrders
@@ -318,6 +319,7 @@ export default function EscrowSellerPage() {
         setBuyerAvatar('');
         return;
       }
+      setUserLoading(true);
       try {
         const response = await fetch('/api/user/getUser', {
           method: 'POST',
@@ -342,6 +344,8 @@ export default function EscrowSellerPage() {
           setBuyerAvatar('');
           setBuyerProfile(null);
         }
+      } finally {
+        if (active) setUserLoading(false);
       }
     };
     fetchBuyerProfile();
@@ -574,6 +578,33 @@ export default function EscrowSellerPage() {
             {renderEnabledBadge(seller?.seller?.enabled)}
           </div>
         </header>
+
+        <div className="rounded-3xl border border-emerald-300/20 bg-emerald-900/20 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1 break-words">
+              <p className="text-xs text-emerald-100/80">내 구매자 정보</p>
+              <h2 className="text-lg font-bold text-white">
+                {buyerNickname || (userLoading ? '불러오는 중...' : '닉네임 없음')}
+              </h2>
+              <p className="text-sm text-emerald-100/80">
+                입금자명:{' '}
+                {buyerProfile?.buyer?.bankInfo?.accountHolder ||
+                  buyerProfile?.buyer?.depositName ||
+                  (userLoading ? '...' : '미설정')}
+              </p>
+              <div className="text-sm text-emerald-100/80 space-y-1">
+                <p>USDT 받을 지갑주소:</p>
+                <p className="font-mono text-[13px] break-all text-emerald-50">
+                  {buyerProfile?.buyer?.receiveWalletAddress
+                    ? buyerProfile.buyer.receiveWalletAddress
+                    : userLoading
+                    ? '...'
+                    : '미설정'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <section className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-3xl border border-white/5 bg-white/5 p-5 shadow-xl backdrop-blur">
@@ -889,6 +920,7 @@ export default function EscrowSellerPage() {
                                     accountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
                                     accountHolder: buyerProfile?.buyer?.depositName || buyerNickname || '',
                                   },
+                                  receiveWalletAddress: buyerProfile?.buyer?.receiveWalletAddress || '',
                                 },
                                 seller: {
                                   walletAddress: seller.walletAddress,
