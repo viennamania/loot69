@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const APPLICATION_ID = 'CCD67D05-55A6-4CA2-A6B1-187A5B62EC9D';
+const APPLICATION_ID = process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || 'CCD67D05-55A6-4CA2-A6B1-187A5B62EC9D';
 const API_BASE = `https://api-${APPLICATION_ID}.sendbird.com/v3`;
 
 const getHeaders = () => {

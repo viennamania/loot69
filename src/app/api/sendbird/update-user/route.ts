@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 
-const APPLICATION_ID = 'CCD67D05-55A6-4CA2-A6B1-187A5B62EC9D';
+const APPLICATION_ID =
+  process.env.NEXT_PUBLIC_SENDBIRD_APP_ID ||
+  process.env.SENDBIRD_APP_ID ||
+  'CCD67D05-55A6-4CA2-A6B1-187A5B62EC9D';
 const API_BASE = `https://api-${APPLICATION_ID}.sendbird.com/v3`;
 const DEFAULT_PROFILE_URL = 'https://crypto-ex-vienna.vercel.app/logo.png';
 
@@ -84,7 +87,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, user: created, created: true });
     }
 
-    return NextResponse.json({ error: error?.message || 'Failed to update Sendbird user.' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'Failed to update Sendbird user.', status: response.status },
+      { status: response.status || 500 },
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update Sendbird user.';
     return NextResponse.json({ error: message }, { status: 500 });

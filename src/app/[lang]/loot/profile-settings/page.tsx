@@ -1,6 +1,6 @@
 // nickname settings
 'use client';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 
 
@@ -18,24 +18,19 @@ import {
 import {
     polygon,
     arbitrum,
+    ethereum,
+    bsc,
 } from "thirdweb/chains";
 
 import {
     ConnectButton,
     useActiveAccount,
-    useActiveWallet,
-
-    useConnectedWallets,
-    useSetActiveWallet,
 } from "thirdweb/react";
 
 
-import {
-  inAppWallet,
-  createWallet,
-} from "thirdweb/wallets";
-
 import { getUserPhoneNumber } from "thirdweb/wallets/in-app";
+import { useClientWallets } from '@/lib/useClientWallets';
+import { chain as chainId } from '@/app/config/contractAddresses';
 
 
 import Image from 'next/image';
@@ -56,18 +51,20 @@ import { getDictionary } from "../../../dictionaries";
 
 const storecode = "admin";
 
-
-
-const wallets = [
-  inAppWallet({
-    auth: {
-      options: [
-        "google",
-        "email",
-      ],
-    },
-  }),
-];
+const activeChainId = chainId || 'bsc';
+const getChainObject = () => {
+  switch (activeChainId) {
+    case 'ethereum':
+      return ethereum;
+    case 'polygon':
+      return polygon;
+    case 'arbitrum':
+      return arbitrum;
+    case 'bsc':
+    default:
+      return bsc;
+  }
+};
 
 
 const contractAddress = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"; // USDT on Polygon
@@ -263,26 +260,8 @@ export default function SettingsPage({ params }: any) {
 
 
     const router = useRouter();
-
-
-
-  // get the active wallet
-  const activeWallet = useActiveWallet();
-
-  const setActiveAccount = useSetActiveWallet();
- 
-  const connectWallets = useConnectedWallets();
-
-  //console.log('connectWallets', connectWallets);
-
-  const smartConnectWallet = connectWallets?.[0];
-  const inAppConnectWallet = connectWallets?.[1];
-
-
-
-
-
-
+    const { wallets } = useClientWallets();
+    const chainObj = useMemo(() => getChainObject(), []);
     const smartAccount = useActiveAccount();
 
     const address = smartAccount?.address;
@@ -447,11 +426,14 @@ export default function SettingsPage({ params }: any) {
 
             if (!response.ok) {
                 const error = await response.json().catch(() => null);
-                throw new Error(error?.error || 'Sendbird nickname update failed');
+                throw new Error(error?.error || `Sendbird nickname update failed (status ${response.status})`);
             }
         } catch (error) {
             console.error('Sendbird nickname update failed', error);
-            toast.error('채팅 닉네임 변경에 실패했습니다.');
+            toast.error(
+              error instanceof Error ? error.message : '채팅 닉네임 변경에 실패했습니다.',
+              { id: 'profile-save' }
+            );
         }
     };
 
@@ -460,6 +442,9 @@ export default function SettingsPage({ params }: any) {
 
 
     const setUserData = async () => {
+
+
+        toast.loading('저장 중...', { id: 'profile-save' });
 
 
         // check nickname length and alphanumeric
@@ -508,11 +493,11 @@ export default function SettingsPage({ params }: any) {
                 setNicknameEdit(false);
                 setEditedNickname('');
 
-                toast.success('채팅 닉네임도 변경됨');
+                toast.success('채팅 닉네임도 변경됨', { id: 'profile-save' });
 
             } else {
 
-                toast.error('아이디 저장에 실패했습니다');
+                toast.error('아이디 저장에 실패했습니다', { id: 'profile-save' });
             }
 
 
@@ -548,12 +533,14 @@ export default function SettingsPage({ params }: any) {
                 setNicknameEdit(false);
                 setEditedNickname('');
 
-                toast.success('채팅 닉네임도 변경됨');
+                toast.success('채팅 닉네임도 변경됨', { id: 'profile-save' });
 
             } else {
-                toast.error('아이디 저장에 실패했습니다');
+                toast.error('아이디 저장에 실패했습니다', { id: 'profile-save' });
             }
         }
+
+        toast.dismiss('profile-save');
 
 
         
@@ -661,20 +648,63 @@ export default function SettingsPage({ params }: any) {
 
     const [escrowWalletAddress, setEscrowWalletAddress] = useState('');
 
+    if (!address) {
+        return (
+            <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 px-4 py-12 text-slate-100 flex items-center justify-center">
+                <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl space-y-4">
+                    <div>
+                        <p className="text-sm text-emerald-100/80">프로필 설정</p>
+                        <h1 className="text-2xl font-bold text-white">지갑을 연결해주세요</h1>
+                        <p className="mt-2 text-sm text-slate-300">
+                            Web3 로그인을 먼저 진행하면 프로필 정보를 수정할 수 있습니다.
+                        </p>
+                    </div>
+                    <ConnectButton
+                        client={client}
+                        wallets={wallets}
+                        chain={chainObj}
+                        theme="dark"
+                        connectButton={{
+                            label: '웹3 로그인',
+                            style: {
+                                height: 48,
+                                borderRadius: 9999,
+                                background: '#0f172a',
+                                color: '#e2e8f0',
+                                fontWeight: 700,
+                                border: '1px solid rgba(94,234,212,0.4)',
+                                width: '100%',
+                            },
+                        }}
+                        connectModal={{ size: 'wide', showThirdwebBranding: false }}
+                        locale="ko_KR"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => window.history.back()}
+                        className="inline-flex items-center justify-center rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-700"
+                    >
+                        ← 돌아가기
+                    </button>
+                </div>
+            </main>
+        );
+    }
+
     return (
 
-        <main className="p-4 pb-28 min-h-[100vh] flex items-start justify-center container max-w-screen-sm mx-auto bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800">
+        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 px-4 py-10 text-slate-100 flex items-start justify-center">
 
-            <div className="py-0 w-full">
+            <div className="w-full max-w-3xl space-y-6">
         
 
-                <div className="w-full flex flex-row gap-2 items-center justify-between text-slate-600 text-sm"
+                <div className="w-full flex flex-row gap-2 items-center justify-between text-slate-200 text-sm"
                 >
                     {/* go back button */}
                     <div className="flex justify-start items-center gap-2">
                         <button
                             onClick={() => window.history.back()}
-                            className="flex items-center justify-center rounded-full border border-slate-200/70 bg-white/90 p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            className="flex items-center justify-center rounded-full border border-white/20 bg-slate-900/70 p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <Image
                                 src="/icon-back.png"
                                 alt="Back"
@@ -684,7 +714,7 @@ export default function SettingsPage({ params }: any) {
                             />
                         </button>
                         {/* title */}
-                        <span className="text-sm text-slate-600 font-semibold">
+                        <span className="text-sm text-slate-100 font-semibold">
                             돌아가기
                         </span>
                     </div>
@@ -721,15 +751,14 @@ export default function SettingsPage({ params }: any) {
 
                     {/* 회원코드(id) */}
                     {userCode && (
-                        <div className='flex flex-row gap-2 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm'>
+                        <div className='flex flex-row gap-2 items-center justify-between rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-lg'>
                             <div className="flex flex-row items-center gap-2">
-                                {/* dot */}
-                                <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                <span className="text-sm font-semibold text-slate-600">
+                                <div className='w-2 h-2 bg-emerald-400 rounded-full'></div>
+                                <span className="text-sm font-semibold text-slate-100">
                                     회원코드
                                 </span>
                             </div>
-                            <span className="text-lg font-semibold text-slate-700">
+                            <span className="text-lg font-semibold text-emerald-100">
                                 {userCode}
                             </span>
                             <button
@@ -737,7 +766,7 @@ export default function SettingsPage({ params }: any) {
                                     navigator.clipboard.writeText(userCode);
                                     toast.success('회원코드가 복사되었습니다');
                                 }}
-                                className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                                className="rounded-full border border-emerald-300/50 bg-emerald-500/20 px-4 py-1.5 text-xs font-semibold text-emerald-50 shadow-sm transition hover:bg-emerald-400/30"
                             >
                                 복사하기
                             </button>
@@ -750,19 +779,19 @@ export default function SettingsPage({ params }: any) {
                     <div className='w-full  flex flex-col gap-5 '>
 
                         {userCode && (
-                            <div className='flex flex-row gap-2 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm'>
+                            <div className='flex flex-row gap-2 items-center justify-between rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-lg'>
 
 
                                 <div className="flex flex-row items-center gap-2">
                                     {/* dot */}
-                                    <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                    <span className="text-sm font-semibold text-slate-600">
+                                    <div className='w-2 h-2 bg-emerald-400 rounded-full'></div>
+                                    <span className="text-sm font-semibold text-slate-100">
                                         나의 아이디
                                     </span>
                                 </div>
 
 
-                                <span className="text-lg font-semibold text-slate-700">
+                                <span className="text-lg font-semibold text-emerald-100">
                                     {nickname}
                                 </span>
 
@@ -775,7 +804,7 @@ export default function SettingsPage({ params }: any) {
                                         nicknameEdit ? setNicknameEdit(false) : setNicknameEdit(true);
 
                                     } }
-                                    className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                                    className="rounded-full border border-emerald-300/50 bg-emerald-500/20 px-4 py-1.5 text-xs font-semibold text-emerald-50 shadow-sm transition hover:bg-emerald-400/30"
                                 >
                                     {nicknameEdit ? '취소하기' : '수정하기'}
                                 </button>
@@ -795,13 +824,13 @@ export default function SettingsPage({ params }: any) {
 
 
                         { (address && (nicknameEdit || !userCode)) && (
-                            <div className=' flex flex-col xl:flex-row gap-3 items-center justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm'>
+                            <div className=' flex flex-col xl:flex-row gap-3 items-center justify-between rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-lg'>
 
 
                                 <div className="flex flex-row items-center gap-2">
                                     {/* dot */}
-                                    <div className='w-2 h-2 bg-emerald-500 rounded-full'></div>
-                                    <span className="text-sm font-semibold text-slate-600">
+                                    <div className='w-2 h-2 bg-emerald-400 rounded-full'></div>
+                                    <span className="text-sm font-semibold text-slate-100">
                                         {nicknameEdit ? "내 아이디 수정" : "내 아이디 설정"}
                                     </span>
                                 </div>
@@ -810,7 +839,7 @@ export default function SettingsPage({ params }: any) {
                                 <div className='flex flex-col gap-2'>
                                     <input
                                         disabled={!address}
-                                        className="w-full rounded-2xl border border-slate-200/80 bg-white px-6 py-5 text-2xl font-black text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                                        className="w-full rounded-2xl border-2 border-emerald-300/40 bg-slate-950/70 px-6 py-5 text-2xl font-black text-emerald-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60"
                                         placeholder={Enter_your_nickname}
                                         
                                         //value={nickname}
@@ -839,14 +868,14 @@ export default function SettingsPage({ params }: any) {
 
                                     />
                                     <div className='flex flex-row gap-2 items-center justify-between'>
-                                        <span className='text-xs font-semibold text-slate-500'>
+                                        <span className='text-xs font-semibold text-slate-300'>
                                             {Nickname_should_be_5_10_characters}
                                         </span>
                                     </div>
                                 </div>
                                 <button
                                     disabled={!address}
-                                    className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+                                    className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-emerald-300 disabled:opacity-60"
                                     onClick={() => {
                                         setUserData();
                                     }}
@@ -884,52 +913,52 @@ export default function SettingsPage({ params }: any) {
 
                 </div>
 
-                <div className="mt-8 w-full rounded-2xl border border-slate-200/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(241,245,249,0.9))] p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.35)]">
+                <div className="mt-8 w-full rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-xl">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex flex-col gap-1">
-                                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">Profile Guide</span>
-                                <p className="text-base font-semibold text-slate-900">프로필을 최신 상태로 유지하세요</p>
-                                <p className="text-xs text-slate-600">
+                                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Profile Guide</span>
+                                <p className="text-base font-semibold text-white">프로필을 최신 상태로 유지하세요</p>
+                                <p className="text-xs text-slate-300">
                                     빠른 거래 승인과 안전한 정산을 위해 기본 정보를 최신화해 주세요.
                                 </p>
                             </div>
-                            <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm ring-1 ring-slate-200/70">
+                            <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-white shadow-sm ring-1 ring-emerald-300/40">
                                 <Image
                                     src="/icon-shield.png"
                                     alt="Guide"
                                     width={24}
                                     height={24}
-                                    className="h-6 w-6 brightness-0 invert opacity-95"
+                                    className="h-6 w-6 opacity-95"
                                 />
                             </div>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
                                     <Image src="/icon-user.png" alt="Profile" width={18} height={18} className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-slate-700">닉네임</span>
-                                    <span className="text-[11px] text-slate-500">실사용 닉네임 유지</span>
+                                    <span className="text-xs font-semibold text-slate-100">닉네임</span>
+                                    <span className="text-[11px] text-slate-400">실사용 닉네임 유지</span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
                                     <Image src="/icon-bank-check.png" alt="Verification" width={18} height={18} className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-slate-700">인증 정보</span>
-                                    <span className="text-[11px] text-slate-500">계좌/연락처 확인</span>
+                                    <span className="text-xs font-semibold text-slate-100">인증 정보</span>
+                                    <span className="text-[11px] text-slate-400">계좌/연락처 확인</span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
                                     <Image src="/icon-chat.png" alt="Support" width={18} height={18} className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-slate-700">문의 대응</span>
-                                    <span className="text-[11px] text-slate-500">알림/채팅 확인</span>
+                                    <span className="text-xs font-semibold text-slate-100">문의 대응</span>
+                                    <span className="text-[11px] text-slate-400">알림/채팅 확인</span>
                                 </div>
                             </div>
                         </div>

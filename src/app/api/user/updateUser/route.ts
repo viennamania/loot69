@@ -5,7 +5,7 @@ import {
   getOneByWalletAddress,
 } from '@lib/api/user';
 
-const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_API_TOKEN || process.env.SENDBIRD_API_TOKEN || '';
+const SENDBIRD_APP_ID = process.env.NEXT_PUBLIC_SENDBIRD_APP_ID || process.env.SENDBIRD_APP_ID || '';
 const SENDBIRD_API_BASE = `https://api-${SENDBIRD_APP_ID}.sendbird.com/v3`;
 
 const syncSendbirdUser = async (userId: string, nickname: string, profileUrl?: string | null) => {
