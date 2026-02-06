@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
 
     const transaction = transfer({
       contract,
-      to: buyer?.walletAddress || walletAddress,
+      to: buyer?.receiveWalletAddress || buyer?.walletAddress || walletAddress,
       amount: usdtAmount,
     });
 

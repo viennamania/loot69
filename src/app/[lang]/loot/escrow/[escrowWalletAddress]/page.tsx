@@ -593,7 +593,7 @@ export default function EscrowSellerPage() {
                   (userLoading ? '...' : '미설정')}
               </p>
               <div className="text-sm text-emerald-100/80 space-y-1">
-                <p>USDT 받을 지갑주소:</p>
+                <p>USDT 수령 지갑:</p>
                 <p className="font-mono text-[13px] break-all text-emerald-50">
                   {buyerProfile?.buyer?.receiveWalletAddress
                     ? buyerProfile.buyer.receiveWalletAddress

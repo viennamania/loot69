@@ -193,7 +193,7 @@ export default function SearchSellerPage() {
                                 입금자명: {buyerInfo.depositName || (userLoading ? '...' : '미설정')}
                             </p>
                             <div className="text-sm text-emerald-100/80 space-y-1">
-                                <p>USDT 받을 지갑주소:</p>
+                                <p>USDT 수령 지갑:</p>
                                 <p className="font-mono text-[13px] break-all text-emerald-50">
                                     {buyerInfo.receiveWallet
                                         ? buyerInfo.receiveWallet
@@ -238,7 +238,7 @@ export default function SearchSellerPage() {
                                         onClick={() => router.push(`/${lang}/loot/buyer-receive-wallet-settings`)}
                                         className="w-full rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
                                     >
-                                        USDT 받을 지갑주소 설정
+                                        USDT 수령 지갑 설정
                                     </button>
                                 </>
                             )}

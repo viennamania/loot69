@@ -74,7 +74,7 @@ export default function BuyerReceiveWalletSettingsPage() {
     if (!address) return;
     const trimmed = receiveWallet.trim();
     if (!trimmed) {
-      setError('USDT 받을 지갑주소를 입력해주세요.');
+      setError('USDT 수령 지갑를 입력해주세요.');
       return;
     }
     setSaving(true);
@@ -94,7 +94,7 @@ export default function BuyerReceiveWalletSettingsPage() {
       if (!res.ok || data?.error) {
         throw new Error(data?.error || '저장에 실패했습니다.');
       }
-      setSuccess('USDT 받을 지갑주소가 저장되었습니다.');
+      setSuccess('USDT 수령 지갑가 저장되었습니다.');
       await loadData();
     } catch (e: any) {
       setError(e?.message || '저장에 실패했습니다.');
@@ -107,7 +107,7 @@ export default function BuyerReceiveWalletSettingsPage() {
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 px-4 py-12 text-slate-100">
         <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
-          <h1 className="text-2xl font-bold text-white">USDT 받을 지갑주소</h1>
+          <h1 className="text-2xl font-bold text-white">USDT 수령 지갑</h1>
           <p className="mt-2 text-sm text-slate-300">지갑을 연결한 후 주소를 설정할 수 있습니다.</p>
           <div className="mt-4">
             <ConnectButton
@@ -141,7 +141,7 @@ export default function BuyerReceiveWalletSettingsPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-emerald-100/80">구매자 수취 지갑</p>
-            <h1 className="text-2xl font-bold text-white">USDT 받을 지갑주소 설정</h1>
+            <h1 className="text-2xl font-bold text-white">USDT 수령 지갑 설정</h1>
             <p className="text-sm text-slate-300">입금 확인 후 이 주소로 전송됩니다.</p>
           </div>
           <button
@@ -155,7 +155,7 @@ export default function BuyerReceiveWalletSettingsPage() {
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur">
           <div className="space-y-2">
-            <label className="text-xs text-emerald-100/80">USDT 받을 지갑주소</label>
+            <label className="text-xs text-emerald-100/80">USDT 수령 지갑</label>
             <input
               value={receiveWallet}
               onChange={(e) => setReceiveWallet(e.target.value)}

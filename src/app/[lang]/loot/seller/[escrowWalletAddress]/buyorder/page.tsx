@@ -705,7 +705,11 @@ export default function SellerBuyOrderListPage() {
               <div className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 p-3 text-[12px] text-emerald-50">
                 <div className="font-semibold">USDT 수령 지갑</div>
                 <div className="mt-1 font-mono text-[11px] text-emerald-100">
-                  {shortAddr(confirmingOrder.buyer?.walletAddress || confirmingOrder.walletAddress)}
+                  {shortAddr(
+                    confirmingOrder.buyer?.receiveWalletAddress ||
+                      confirmingOrder.buyer?.walletAddress ||
+                      confirmingOrder.walletAddress,
+                  )}
                 </div>
               </div>
               {(confirmingOrder.seller?.bankInfo || confirmingOrder.store?.bankInfo) && (
