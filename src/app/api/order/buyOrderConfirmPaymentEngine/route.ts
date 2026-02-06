@@ -54,13 +54,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Order not found', result: null }, { status: 404 });
     }
 
-    const buyerWallet = order.walletAddress;
+    const recipient = order.buyer?.receiveWalletAddress?.trim?.() || '';
     const sellerEscrow = order.seller?.escrowWalletAddress || order.seller?.walletAddress;
     const usdtAmount = order.usdtAmount || 0;
     const usedAmount = Number.isFinite(paymentAmount) && paymentAmount > 0 ? paymentAmount : usdtAmount;
 
-    if (!buyerWallet || !sellerEscrow || usedAmount <= 0) {
-      return NextResponse.json({ error: 'Invalid order data', result: null }, { status: 400 });
+    if (!sellerEscrow || usedAmount <= 0 || !recipient) {
+      return NextResponse.json(
+        { error: 'Invalid order data: missing escrow or receive wallet.', result: null },
+        { status: 400 },
+      );
     }
 
     const mongo = await clientPromise;
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     const transaction = transfer({
       contract,
-      to: buyerWallet,
+      to: recipient,
       amount: usedAmount,
     });
 
