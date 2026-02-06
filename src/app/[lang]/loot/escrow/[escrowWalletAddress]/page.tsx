@@ -117,6 +117,8 @@ export default function EscrowSellerPage() {
   const [cancelModalOrderId, setCancelModalOrderId] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [userLoading, setUserLoading] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [pendingOrderInfo, setPendingOrderInfo] = useState<{ amount: number; krw: number } | null>(null);
   const isBuyerSellerSame = useMemo(() => {
     if (!address || !seller?.walletAddress) return false;
     return address.toLowerCase() === seller.walletAddress.toLowerCase();
@@ -892,8 +894,8 @@ export default function EscrowSellerPage() {
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9]/g, '');
                             const numeric = Number(sanitized);
+                            setBuyKrwAmount(sanitized);
                             if (!seller?.seller?.usdtToKrwRate || !Number.isFinite(numeric)) {
-                              setBuyKrwAmount(sanitized);
                               setBuyAmount('');
                               return;
                             }
@@ -901,10 +903,11 @@ export default function EscrowSellerPage() {
                             if (usdt > availableUsdtToBuy) {
                               usdt = availableUsdtToBuy;
                             }
-                            const adjustedKrw = Math.floor(usdt * seller.seller.usdtToKrwRate);
-                            const usdtStr = usdt > 0 ? usdt.toFixed(6).replace(/0+$/,'').replace(/\.$/,'') : '';
+                            const usdtStr =
+                              usdt > 0
+                                ? usdt.toFixed(6).replace(/0+$/, '').replace(/\.$/, '')
+                                : '';
                             setBuyAmount(usdtStr);
-                            setBuyKrwAmount(adjustedKrw ? String(adjustedKrw) : '');
                           }}
                           placeholder={seller?.seller?.usdtToKrwRate ? '예: 1500000' : '환율 정보 필요'}
                           inputMode="numeric"
@@ -930,7 +933,7 @@ export default function EscrowSellerPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={async () => {
+                        onClick={() => {
                           if (!isLoggedIn) {
                             toast.error('지갑을 먼저 연결해주세요.');
                             return;
@@ -939,7 +942,11 @@ export default function EscrowSellerPage() {
                             toast.error('판매자 정보가 부족합니다.');
                             return;
                           }
-                          const amount = Number(buyAmount) || (seller?.seller?.usdtToKrwRate ? Number(buyKrwAmount || 0) / seller.seller.usdtToKrwRate : NaN);
+                          const amount =
+                            Number(buyAmount) ||
+                            (seller?.seller?.usdtToKrwRate
+                              ? Number(buyKrwAmount || 0) / seller.seller.usdtToKrwRate
+                              : NaN);
                           if (!Number.isFinite(amount) || amount <= 0) {
                             toast.error('구매 수량을 올바르게 입력하세요.');
                             return;
@@ -948,69 +955,10 @@ export default function EscrowSellerPage() {
                             toast.error('구매 가능 수량을 초과할 수 없습니다.');
                             return;
                           }
-                          setPlacingOrder(true);
-                          try {
-                            const rate = seller.seller.usdtToKrwRate;
-                            const krwAmount = buyKrwAmount
-                              ? Number(buyKrwAmount)
-                              : Math.round(amount * rate);
-                            const response = await fetch('/api/order/setBuyOrderForUser', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                lang,
-                                storecode: STORECODE,
-                                walletAddress: address,
-                                nickname: buyerNickname,
-                                usdtAmount: amount,
-                                krwAmount,
-                                rate,
-                                privateSale: false,
-                                buyer: {
-                                  depositBankName: buyerProfile?.buyer?.depositBankName || '',
-                                  depositBankAccountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
-                                  depositName: buyerProfile?.buyer?.depositName || buyerNickname || '',
-                                  bankInfo: {
-                                    bankName: buyerProfile?.buyer?.depositBankName || '',
-                                    accountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
-                                    accountHolder: buyerProfile?.buyer?.depositName || buyerNickname || '',
-                                  },
-                                  receiveWalletAddress: buyerProfile?.buyer?.receiveWalletAddress || '',
-                                },
-                                seller: {
-                                  walletAddress: seller.walletAddress,
-                                  escrowWalletAddress: seller.seller?.escrowWalletAddress,
-                                  bankInfo: {
-                                    bankName: seller.seller?.bankInfo?.bankName || '',
-                                    accountNumber: seller.seller?.bankInfo?.accountNumber || '',
-                                    accountHolder: seller.seller?.bankInfo?.accountHolder || seller.nickname || '',
-                                  },
-                                },
-                              }),
-                            });
-                            const data = await response.json().catch(() => ({}));
-                            if (!response.ok || !data?.result?._id) {
-                              throw new Error(data?.error || '구매 요청에 실패했습니다.');
-                            }
-                            toast.success('구매 요청이 접수되었습니다.');
-                            const insertedId = normalizeId(data.result._id);
-                            // 주문 생성 후 목록 및 상태 갱신
-                            setLastOrderId(null);
-                            setLastOrderStatus(null);
-                            setLastOrderDetail(null);
-                            // 최신 주문 목록 즉시 반영
-                            // fetchOrders는 effect 안에 정의되어 있어 여기서 직접 접근 불가하므로 강제 리프레시를 위해 상태를 토글
-                            forceTick((v) => v + 1);
-                            const summaryMsg = `구매 요청: ${amount} USDT (약 ${krwAmount.toLocaleString('ko-KR')}원), 환율 ${seller.seller.usdtToKrwRate.toLocaleString('ko-KR')}원/USDT`;
-                            notifySellerChannel(summaryMsg);
-                            setBuyAmount('');
-                          } catch (error) {
-                            toast.error(
-                              error instanceof Error ? error.message : '구매 요청 중 오류가 발생했습니다.',
-                            );
-                          } finally {
-                            setPlacingOrder(false);
-                          }
+                          const rate = seller.seller.usdtToKrwRate;
+                          const krwAmount = buyKrwAmount ? Number(buyKrwAmount) : Math.round(amount * rate);
+                          setPendingOrderInfo({ amount, krw: krwAmount });
+                          setConfirmModalOpen(true);
                         }}
                         disabled={
                           placingOrder ||
@@ -1222,6 +1170,138 @@ export default function EscrowSellerPage() {
             )}
           </div>
         </section>
+
+        {confirmModalOpen && pendingOrderInfo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => (!placingOrder ? setConfirmModalOpen(false) : null)}
+            />
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-emerald-200/40 bg-slate-950/90 p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-white">구매 정보를 확인해주세요</h3>
+              <div className="mt-4 space-y-3 text-sm text-emerald-50">
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <span className="text-slate-200">구매 수량</span>
+                  <span className="font-semibold text-emerald-200">
+                    {pendingOrderInfo.amount.toFixed(6)} USDT
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <span className="text-slate-200">결제 금액</span>
+                  <span className="font-semibold text-emerald-200">
+                    {pendingOrderInfo.krw.toLocaleString('ko-KR')} 원
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <span className="text-slate-200">적용 환율</span>
+                  <span className="font-semibold text-emerald-200">
+                    {seller?.seller?.usdtToKrwRate
+                      ? `${seller.seller.usdtToKrwRate.toLocaleString('ko-KR')} 원/USDT`
+                      : '-'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                  <span className="text-slate-200">입금자명</span>
+                  <span className="font-semibold text-emerald-100">
+                    {buyerProfile?.buyer?.bankInfo?.accountHolder ||
+                      buyerProfile?.buyer?.depositName ||
+                      buyerNickname ||
+                      '-'}
+                  </span>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-emerald-100">
+                  <p className="text-slate-200">USDT 수령 지갑</p>
+                  <p className="mt-1 font-mono text-[12px] break-all text-emerald-50">
+                    {buyerProfile?.buyer?.receiveWalletAddress || '미설정'}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-amber-300/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                  확인 버튼을 누르면 구매 요청이 전송됩니다. 수량과 금액을 다시 한번 점검하세요.
+                </div>
+              </div>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => (!placingOrder ? setConfirmModalOpen(false) : null)}
+                  className="w-full rounded-full border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+                  disabled={placingOrder}
+                >
+                  돌아가기
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!pendingOrderInfo) return;
+                    if (!seller?.walletAddress || !seller?.seller?.usdtToKrwRate || !address) return;
+                    setPlacingOrder(true);
+                    try {
+                      const rate = seller.seller.usdtToKrwRate;
+                      const response = await fetch('/api/order/setBuyOrderForUser', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          lang,
+                          storecode: STORECODE,
+                          walletAddress: address,
+                          nickname: buyerNickname,
+                          usdtAmount: pendingOrderInfo.amount,
+                          krwAmount: pendingOrderInfo.krw,
+                          rate,
+                          privateSale: false,
+                          buyer: {
+                            depositBankName: buyerProfile?.buyer?.depositBankName || '',
+                            depositBankAccountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
+                            depositName: buyerProfile?.buyer?.depositName || buyerNickname || '',
+                            bankInfo: {
+                              bankName: buyerProfile?.buyer?.depositBankName || '',
+                              accountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
+                              accountHolder: buyerProfile?.buyer?.depositName || buyerNickname || '',
+                            },
+                            receiveWalletAddress: buyerProfile?.buyer?.receiveWalletAddress || '',
+                          },
+                          seller: {
+                            walletAddress: seller.walletAddress,
+                            escrowWalletAddress: seller.seller?.escrowWalletAddress,
+                            bankInfo: {
+                              bankName: seller.seller?.bankInfo?.bankName || '',
+                              accountNumber: seller.seller?.bankInfo?.accountNumber || '',
+                              accountHolder: seller.seller?.bankInfo?.accountHolder || seller.nickname || '',
+                            },
+                          },
+                        }),
+                      });
+                      const data = await response.json().catch(() => ({}));
+                      if (!response.ok || !data?.result?._id) {
+                        throw new Error(data?.error || '구매 요청에 실패했습니다.');
+                      }
+                      toast.success('구매 요청이 접수되었습니다.');
+                      setLastOrderId(null);
+                      setLastOrderStatus(null);
+                      setLastOrderDetail(null);
+                      forceTick((v) => v + 1);
+                      const summaryMsg = `구매 요청: ${pendingOrderInfo.amount} USDT (약 ${pendingOrderInfo.krw.toLocaleString(
+                        'ko-KR',
+                      )}원), 환율 ${seller.seller.usdtToKrwRate.toLocaleString('ko-KR')}원/USDT`;
+                      notifySellerChannel(summaryMsg);
+                      setBuyAmount('');
+                      setBuyKrwAmount('');
+                      setConfirmModalOpen(false);
+                      setPendingOrderInfo(null);
+                    } catch (error) {
+                      toast.error(error instanceof Error ? error.message : '구매 요청 중 오류가 발생했습니다.');
+                    } finally {
+                      setPlacingOrder(false);
+                    }
+                  }}
+                  className="w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg hover:bg-emerald-300 disabled:opacity-50 sm:w-auto"
+                  disabled={placingOrder}
+                >
+                  {placingOrder ? '전송 중...' : '확인 후 요청'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {renderCancelModal()}
       </div>
