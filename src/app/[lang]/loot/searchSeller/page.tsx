@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { ConnectButton, useActiveAccount } from 'thirdweb/react';
+import { client } from '@/app/client';
+import { useClientWallets } from '@/lib/useClientWallets';
+import { chain as chainId } from '@/app/config/contractAddresses';
+import { ethereum, polygon, arbitrum, bsc } from 'thirdweb/chains';
 
 type SellerRecord = {
     id?: number;
@@ -20,6 +25,19 @@ type SellerRecord = {
 };
 
 const storecode = 'admin';
+const activeChainId = chainId || 'bsc';
+const chainObj = (() => {
+    switch (activeChainId) {
+        case 'ethereum':
+            return ethereum;
+        case 'polygon':
+            return polygon;
+        case 'arbitrum':
+            return arbitrum;
+        default:
+            return bsc;
+    }
+})();
 
 function formatNumber(value?: number) {
     if (!Number.isFinite(value)) return '-';
@@ -34,6 +52,10 @@ function formatWallet(address?: string) {
 export default function SearchSellerPage() {
     const params = useParams<{ lang: string }>();
     const lang = Array.isArray(params?.lang) ? params.lang[0] : params?.lang ?? 'ko';
+    const router = useRouter();
+    const { wallets } = useClientWallets();
+    const activeAccount = useActiveAccount();
+    const address = activeAccount?.address;
 
     const [sellers, setSellers] = useState<SellerRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -42,6 +64,8 @@ export default function SearchSellerPage() {
     const [minRate, setMinRate] = useState('');
     const [maxRate, setMaxRate] = useState('');
     const [refreshIndex, setRefreshIndex] = useState(0);
+    const [buyerInfo, setBuyerInfo] = useState<{ nickname?: string; depositName?: string; receiveWallet?: string }>({});
+    const [userLoading, setUserLoading] = useState(false);
 
     useEffect(() => {
         let ignore = false;
@@ -104,6 +128,35 @@ export default function SearchSellerPage() {
         };
     }, [refreshIndex]);
 
+    useEffect(() => {
+        let cancelled = false;
+        const loadUser = async () => {
+            if (!address) return;
+            setUserLoading(true);
+            try {
+                const res = await fetch('/api/user/getUser', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ storecode, walletAddress: address }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!cancelled && data?.result) {
+                    setBuyerInfo({
+                        nickname: data.result.nickname || '',
+                        depositName: data.result.buyer?.bankInfo?.accountHolder || data.result.buyer?.depositName || '',
+                        receiveWallet: data.result.buyer?.receiveWalletAddress || '',
+                    });
+                }
+            } finally {
+                if (!cancelled) setUserLoading(false);
+            }
+        };
+        loadUser();
+        return () => {
+            cancelled = true;
+        };
+    }, [address]);
+
     const filteredSellers = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
         const minValue = Number(minRate);
@@ -129,6 +182,69 @@ export default function SearchSellerPage() {
     return (
         <main className="min-h-[100vh] bg-[#05070f] px-4 pb-16 pt-10 text-slate-100">
             <div className="mx-auto w-full max-w-[780px]">
+                <div className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-900/20 p-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-1 break-words">
+                            <p className="text-xs text-emerald-100/80">내 구매자 정보</p>
+                            <h2 className="text-lg font-bold text-white">
+                                {buyerInfo.nickname || (userLoading ? '불러오는 중...' : '닉네임 없음')}
+                            </h2>
+                            <p className="text-sm text-emerald-100/80">
+                                입금자명: {buyerInfo.depositName || (userLoading ? '...' : '미설정')}
+                            </p>
+                            <div className="text-sm text-emerald-100/80 space-y-1">
+                                <p>USDT 받을 지갑주소:</p>
+                                <p className="font-mono text-[13px] break-all text-emerald-50">
+                                    {buyerInfo.receiveWallet
+                                        ? buyerInfo.receiveWallet
+                                        : userLoading
+                                        ? '...'
+                                        : '미설정'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[180px]">
+                            {!address ? (
+                                <ConnectButton
+                                    client={client}
+                                    wallets={wallets}
+                                    chain={chainObj}
+                                    theme="dark"
+                                    connectButton={{
+                                        label: '웹3 로그인',
+                                        style: {
+                                            height: 44,
+                                            borderRadius: 12,
+                                            background: '#0f172a',
+                                            color: '#e2e8f0',
+                                            fontWeight: 700,
+                                            border: '1px solid rgba(94,234,212,0.4)',
+                                            width: '100%',
+                                        },
+                                    }}
+                                    locale={lang === 'ko' ? 'ko_KR' : 'en_US'}
+                                />
+                            ) : (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push(`/${lang}/loot/buyer-bankinfo-settings`)}
+                                        className="w-full rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                                    >
+                                        구매자 입금은행 정보 설정
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push(`/${lang}/loot/buyer-receive-wallet-settings`)}
+                                        className="w-full rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                                    >
+                                        USDT 받을 지갑주소 설정
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search</p>

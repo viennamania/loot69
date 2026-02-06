@@ -61,6 +61,11 @@ type SellerUser = {
     kyc?: {
       status?: string;
     };
+    bankInfo?: {
+      bankName?: string;
+      accountNumber?: string;
+      accountHolder?: string;
+    };
   };
   store?: {
     bankInfo?: {
