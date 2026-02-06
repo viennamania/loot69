@@ -495,10 +495,10 @@ export default function SellerDashboardPage() {
     const isOn = status === 'confirmed' || status === 'enabled';
     return (
       <span
-        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
           isOn
-            ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-300/60'
-            : 'bg-amber-500/15 text-amber-100 border border-amber-300/60'
+            ? 'border border-emerald-300/60 bg-slate-900/60 text-emerald-200'
+            : 'border border-amber-300/60 bg-slate-900/60 text-amber-200'
         }`}
       >
         <span className="h-2 w-2 rounded-full bg-current" />
@@ -716,8 +716,6 @@ export default function SellerDashboardPage() {
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">에스크로 지갑</p>
             <p className="mt-1 font-mono text-sm text-emerald-100 break-all">{escrowWalletAddress}</p>
-            <p className="mt-3 text-xs text-slate-400">체인</p>
-            <p className="text-lg font-semibold text-white uppercase">{activeChainId}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-emerald-50 shadow">
                 <span className="h-2 w-2 rounded-full bg-emerald-300" />
@@ -754,9 +752,9 @@ export default function SellerDashboardPage() {
                     setTxPanelOpen(true);
                     loadEscrowTx();
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
                 >
-                  충/환전 내역 보기
+                  내역보기
                 </button>
               </div>
             </div>
@@ -794,10 +792,10 @@ export default function SellerDashboardPage() {
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   판매 활성화/중지
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${
+                    className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
                       sellerUser?.seller?.status === 'confirmed'
-                        ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-300/60'
-                        : 'bg-amber-500/15 text-amber-100 border border-amber-300/60'
+                        ? 'border border-emerald-300/60 bg-slate-900/60 text-emerald-200'
+                        : 'border border-amber-300/60 bg-slate-900/60 text-amber-200'
                     }`}
                   >
                     <span className="h-2 w-2 rounded-full bg-current" />
@@ -809,10 +807,10 @@ export default function SellerDashboardPage() {
                 type="button"
                 onClick={handleStatusToggle}
                 disabled={updatingStatus}
-                className={`rounded-full px-4 py-2 text-sm font-semibold shadow ${
+                className={`rounded-full px-4 py-2 text-sm font-bold shadow-lg ${
                   sellerUser?.seller?.status === 'confirmed'
-                    ? 'bg-rose-500 text-white hover:bg-rose-400'
-                    : 'bg-emerald-400 text-slate-900 hover:bg-emerald-300'
+                    ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white hover:from-rose-400 hover:to-rose-500'
+                    : 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-slate-900 hover:from-emerald-300 hover:to-emerald-400'
                 } disabled:opacity-60`}
               >
                 {updatingStatus

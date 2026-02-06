@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 
@@ -37,9 +36,15 @@ export default function SellerSettingsPage() {
 
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState('/profile-default.png');
-   const [escrowAddress, setEscrowAddress] = useState('');
+  const [escrowAddress, setEscrowAddress] = useState('');
   const [loading, setLoading] = useState(false);
-   const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [needsNickname, setNeedsNickname] = useState(false);
+  const [newNickname, setNewNickname] = useState('');
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [sellerNickname, setSellerNickname] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -53,18 +58,69 @@ export default function SellerSettingsPage() {
         });
         const data = await res.json().catch(() => ({}));
         if (data?.result) {
-          setNickname(data.result.nickname || '판매자');
+          const rawNick = data.result.nickname || '';
+          const userNick = rawNick.trim();
+          const sellerNick = data.result.seller?.nickname?.trim?.() || '';
+          const escrow = data.result.seller?.escrowWalletAddress || '';
+          const shouldNeedNickname = !userNick || !sellerNick || !escrow;
+
+          setNickname(userNick || '미설정');
+          setSellerNickname(sellerNick);
+          setNeedsNickname(shouldNeedNickname);
+          setNewNickname('');
           setAvatar(data.result.avatar || '/profile-default.png');
-          setEscrowAddress(data.result.seller?.escrowWalletAddress || '');
+          setEscrowAddress(escrow || '');
+        } else {
+          // No user data returned
+          setNeedsNickname(true);
+          setNickname('미설정');
         }
       } catch (e) {
-        /* ignore */
+        // If fetching fails, allow nickname registration to appear
+        setNeedsNickname(true);
       } finally {
         setLoading(false);
       }
     };
     fetchUser();
   }, [address]);
+
+  const handleSaveNickname = async () => {
+    if (!address) return;
+    const trimmed = newNickname.trim();
+    const isValid = /^[a-z0-9]{3,20}$/.test(trimmed);
+    if (!isValid) {
+      setSaveError('영문 소문자와 숫자 3~20자로 입력해주세요.');
+      return;
+    }
+    setSaveError(null);
+    setSaveSuccess(null);
+    setSaveLoading(true);
+    try {
+      const res = await fetch('/api/user/registerSellerWithEscrow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storecode: STORECODE,
+          walletAddress: address,
+          nickname: trimmed,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data?.error) {
+        throw new Error(data?.error || '닉네임 저장에 실패했습니다.');
+      }
+      setNickname(trimmed);
+      setSellerNickname(trimmed);
+      setEscrowAddress(data?.result?.escrowWalletAddress || '');
+      setNeedsNickname(false);
+      setSaveSuccess('닉네임이 저장되었습니다.');
+    } catch (error: any) {
+      setSaveError(error?.message || '닉네임 저장에 실패했습니다.');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 px-4 py-10 text-slate-100">
@@ -119,7 +175,54 @@ export default function SellerSettingsPage() {
           </div>
         )}
 
-        {address && (
+        {address && needsNickname && (
+          <section className="rounded-3xl border border-emerald-400/30 bg-emerald-900/30 p-6 shadow-xl backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-white">판매자 아이디 등록</h3>
+                <p className="text-sm text-emerald-100/80">
+                  영문 소문자와 숫자만 3~20자로 입력해주세요.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              <label className="text-xs text-emerald-100/80" htmlFor="nicknameInput">
+                닉네임
+              </label>
+              <input
+                id="nicknameInput"
+                value={newNickname}
+                onChange={(e) => {
+                  const v = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  setNewNickname(v);
+                  setSaveError(null);
+                  setSaveSuccess(null);
+                }}
+                className="w-full rounded-2xl border border-emerald-400/40 bg-slate-950/70 px-4 py-3 text-lg font-semibold text-emerald-50 outline-none ring-2 ring-transparent focus:border-emerald-300 focus:ring-emerald-400/40"
+                placeholder="예: myshop123"
+                maxLength={20}
+              />
+              <p className="text-[11px] text-emerald-100/70">사용 가능한 문자: a-z, 0-9</p>
+              {saveError && <p className="text-sm text-rose-200">{saveError}</p>}
+              {saveSuccess && <p className="text-sm text-emerald-200">{saveSuccess}</p>}
+            </div>
+            <button
+              type="button"
+              disabled={
+                saveLoading ||
+                newNickname.length < 3 ||
+                newNickname.length > 20 ||
+                /^[a-z0-9]{3,20}$/.test(newNickname) === false
+              }
+              onClick={handleSaveNickname}
+              className="mt-5 w-full rounded-2xl bg-emerald-400 px-4 py-3 text-center text-sm font-bold text-emerald-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-500/50"
+            >
+              {saveLoading ? '저장 중...' : '닉네임 등록하기'}
+            </button>
+          </section>
+        )}
+
+        {address && !needsNickname && (
           <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur">
             <h3 className="text-base font-semibold text-white">판매자 프로필</h3>
             <p className="text-sm text-slate-300">판매자 상태/활동 표시 없이 프로필만 확인합니다.</p>
@@ -130,6 +233,9 @@ export default function SellerSettingsPage() {
               </div>
               <div className="leading-tight">
                 <p className="text-lg font-bold text-white">{nickname || '판매자'}</p>
+                {sellerNickname && (
+                  <p className="text-[11px] font-semibold text-emerald-200">판매자 아이디: {sellerNickname}</p>
+                )}
                 <p className="text-xs text-slate-300">지갑 주소: {address.slice(0, 6)}...{address.slice(-4)}</p>
               </div>
             </div>
