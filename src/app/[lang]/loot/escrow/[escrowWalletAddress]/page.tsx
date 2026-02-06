@@ -864,7 +864,10 @@ export default function EscrowSellerPage() {
                           }
                           setPlacingOrder(true);
                           try {
-                            const krwAmount = amount * seller.seller.usdtToKrwRate;
+                            const rate = seller.seller.usdtToKrwRate;
+                            const krwAmount = buyKrwAmount
+                              ? Number(buyKrwAmount)
+                              : Math.round(amount * rate);
                             const response = await fetch('/api/order/setBuyOrderForUser', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
@@ -875,7 +878,7 @@ export default function EscrowSellerPage() {
                                 nickname: buyerNickname,
                                 usdtAmount: amount,
                                 krwAmount,
-                                rate: seller.seller.usdtToKrwRate,
+                                rate,
                                 privateSale: false,
                                 buyer: {
                                   depositBankName: buyerProfile?.buyer?.depositBankName || '',
