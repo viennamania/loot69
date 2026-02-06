@@ -226,6 +226,8 @@ export default function EscrowSellerPage() {
     typeof value === 'string'
       ? value
       : value?.$oid || value?.oid || value?._id || '';
+  const shortAddr = (addr?: string) =>
+    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '-';
 
   useEffect(() => {
     if (!escrowWalletAddress) {
@@ -1110,6 +1112,14 @@ export default function EscrowSellerPage() {
                             <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">
                               내 주문
                             </span>
+                          )}
+                        </span>
+                        <span className="text-[11px] text-emerald-100">
+                          USDT 수령 지갑:{' '}
+                          {shortAddr(
+                            order?.buyer?.receiveWalletAddress ||
+                              order?.buyer?.walletAddress ||
+                              order?.walletAddress,
                           )}
                         </span>
                         {order?.status === 'paymentRequested' && order?.createdAt && (

@@ -39,6 +39,7 @@ type BuyOrder = {
     nickname?: string;
     avatar?: string;
     walletAddress?: string;
+    receiveWalletAddress?: string;
     depositName?: string;
     depositBankName?: string;
     depositBankAccountNumber?: string;
@@ -550,10 +551,10 @@ export default function SellerBuyOrderListPage() {
                             {buyerNick}
                             <span className="ml-2 font-mono text-[11px] text-emerald-100">{shortAddr(buyerWallet)}</span>
                           </div>
-                          {order.buyer?.depositName && (
+                          {order.buyer?.bankInfo?.accountHolder && (
                             <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-1 text-[11px] font-semibold text-emerald-50 border border-emerald-300/50">
                               입금자명
-                              <span className="text-white">{order.buyer.depositName}</span>
+                              <span className="text-white">{order.buyer.bankInfo.accountHolder}</span>
                             </span>
                           )}
                         </div>
@@ -567,14 +568,14 @@ export default function SellerBuyOrderListPage() {
                       <p className="text-[11px] text-slate-400">
                         신청 시각: {order.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}
                       </p>
-                      {order.buyer?.depositName && (
+                      {order.buyer?.bankInfo?.accountHolder && (
                         <p className="text-[11px] text-slate-200">
-                          입금자명: <span className="font-bold text-white">{order.buyer.depositName}</span>
+                          입금자명: <span className="font-bold text-white">{order.buyer.bankInfo.accountHolder}</span>
                         </p>
                       )}
-                      {(order.buyer?.depositBankName || order.buyer?.depositBankAccountNumber) && (
+                      {(order.buyer?.bankInfo?.bankName || order.buyer?.bankInfo?.accountNumber) && (
                         <p className="text-[11px] text-slate-300">
-                          입금계좌: {order.buyer?.depositBankName || '-'} / {order.buyer?.depositBankAccountNumber || '-'}
+                          입금계좌: {order.buyer?.bankInfo?.bankName || '-'} / {order.buyer?.bankInfo?.accountNumber || '-'}
                         </p>
                       )}
                       {remain !== null && (
@@ -604,9 +605,9 @@ export default function SellerBuyOrderListPage() {
                         <div className="w-64 rounded-xl border border-sky-300/40 bg-sky-500/10 px-3 py-2 text-[11px] text-sky-50">
                           <div className="font-semibold">구매자 입금 정보</div>
                           <div className="mt-1 space-y-0.5">
-                            <div>은행: {order.buyer.bankInfo.bankName || order.buyer.depositBankName || '-'}</div>
-                            <div>계좌: {order.buyer.bankInfo.accountNumber || order.buyer.depositBankAccountNumber || '-'}</div>
-                            <div>예금주: {order.buyer.bankInfo.accountHolder || order.buyer.depositName || '-'}</div>
+                            <div>은행: {order.buyer.bankInfo.bankName || '-'}</div>
+                            <div>계좌: {order.buyer.bankInfo.accountNumber || '-'}</div>
+                            <div>예금주: {order.buyer.bankInfo.accountHolder || '-'}</div>
                           </div>
                         </div>
                       )}
@@ -697,9 +698,9 @@ export default function SellerBuyOrderListPage() {
               <div className="rounded-xl border border-sky-300/30 bg-sky-500/10 p-3 text-[12px] text-sky-50">
                 <div className="font-semibold">구매자 입금 정보</div>
                 <div className="mt-1 space-y-0.5">
-                  <div>은행: {confirmingOrder.buyer?.bankInfo?.bankName || confirmingOrder.buyer?.depositBankName || '-'}</div>
-                  <div>계좌: {confirmingOrder.buyer?.bankInfo?.accountNumber || confirmingOrder.buyer?.depositBankAccountNumber || '-'}</div>
-                  <div>예금주: {confirmingOrder.buyer?.bankInfo?.accountHolder || confirmingOrder.buyer?.depositName || '-'}</div>
+                  <div>은행: {confirmingOrder.buyer?.bankInfo?.bankName || '-'}</div>
+                  <div>계좌: {confirmingOrder.buyer?.bankInfo?.accountNumber || '-'}</div>
+                  <div>예금주: {confirmingOrder.buyer?.bankInfo?.accountHolder || '-'}</div>
                 </div>
               </div>
               <div className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 p-3 text-[12px] text-emerald-50">

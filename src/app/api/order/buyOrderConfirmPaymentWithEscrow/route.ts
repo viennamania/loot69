@@ -186,9 +186,20 @@ export async function POST(request: NextRequest) {
       executionOptions: { type: "auto", from: seller?.escrowWalletAddress || sellerWalletAddress },
     });
 
+    const recipient = buyer?.receiveWalletAddress?.trim?.() || '';
+
+    console.log("recipient", recipient);
+
+    if (!recipient) {
+      return NextResponse.json({
+        result: null,
+        error: 'buyer_receive_wallet_missing',
+      }, { status: 400 });
+    }
+
     const transaction = transfer({
       contract,
-      to: buyer?.receiveWalletAddress || buyer?.walletAddress || walletAddress,
+      to: recipient,
       amount: usdtAmount,
     });
 
