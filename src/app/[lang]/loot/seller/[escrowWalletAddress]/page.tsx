@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { ConnectButton, useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { getContract } from 'thirdweb';
@@ -70,6 +70,7 @@ type SellerUser = {
 
 export default function SellerDashboardPage() {
   const params = useParams<{ lang?: string; escrowWalletAddress?: string }>();
+  const router = useRouter();
   const langParam = params?.lang;
   const lang = Array.isArray(langParam) ? langParam[0] : langParam || 'ko';
   const escrowParam = params?.escrowWalletAddress;
@@ -357,6 +358,13 @@ export default function SellerDashboardPage() {
             >
               ← 돌아가기
             </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/${lang}/loot/seller/${sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress}/buyorder`)}
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-400/70 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+            >
+              구매 신청 내역 보러가기
+            </button>
           </div>
         </header>
 
@@ -388,7 +396,7 @@ export default function SellerDashboardPage() {
                 disabled={updatingRate}
                 className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60"
               >
-                {updatingRate ? '저장중...' : '저장'}
+                {updatingRate ? '저장중...' : '저장하기'}
               </button>
             </div>
             <p className="mt-1 text-[11px] text-slate-500">
@@ -402,7 +410,19 @@ export default function SellerDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-slate-400">판매 상태</p>
-                <h3 className="text-lg font-bold text-white">판매 활성화/중지</h3>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  판매 활성화/중지
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${
+                      sellerUser?.seller?.status === 'confirmed'
+                        ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-300/60'
+                        : 'bg-amber-500/15 text-amber-100 border border-amber-300/60'
+                    }`}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-current" />
+                    {sellerUser?.seller?.status === 'confirmed' ? '활성' : '대기/중지'}
+                  </span>
+                </h3>
               </div>
               <button
                 type="button"
@@ -417,8 +437,8 @@ export default function SellerDashboardPage() {
                 {updatingStatus
                   ? '변경중...'
                   : sellerUser?.seller?.status === 'confirmed'
-                  ? '판매 중지'
-                  : '판매 시작'}
+                  ? '판매 중지하기'
+                  : '판매 시작하기'}
               </button>
             </div>
             <p className="mt-3 text-sm text-slate-300">
