@@ -1423,6 +1423,7 @@ export default function Index({ params }: any) {
                             {(() => {
                               const name = trade?.seller?.nickname ?? '';
                               if (!name) return '-';
+                              if (!name) return '-';
                               return name.length > 10 ? `${name.slice(0, 10)}...` : name;
                             })()}
                             <br/>
@@ -1834,7 +1835,10 @@ export default function Index({ params }: any) {
                           <td className="
                             hidden xl:block
                             px-4 py-2 text-slate-900 font-medium">
-                            {trade?.seller?.nickname.length > 10 ? trade?.seller?.nickname.slice(0, 10) + "..." : trade?.seller?.nickname}
+                            {(() => {
+                              const nick = trade?.seller?.nickname || '';
+                              return nick.length > 10 ? `${nick.slice(0, 10)}...` : nick || '-';
+                            })()}
                             <br/>
                             {trade?.store?.bankInfo?.bankName}
                             <br/>
@@ -2057,7 +2061,10 @@ export default function Index({ params }: any) {
                           <td className="
                             hidden xl:block
                             px-4 py-2">
-                            {trade?.seller?.nickname.length > 10 ? trade?.seller?.nickname.slice(0, 10) + "..." : trade?.seller?.nickname}
+                            {(() => {
+                              const nick = trade?.seller?.nickname || '';
+                              return nick.length > 10 ? `${nick.slice(0, 10)}...` : nick || '-';
+                            })()}
                             <br/>
                             {trade?.seller?.bankInfo?.bankName}
                             <br/>
@@ -2474,7 +2481,7 @@ export default function Index({ params }: any) {
                     </tr>
                   </thead>
                   <tbody>
-                    {totalSummary.totalNumberOfBuyers > 0 && totalSummary.latestBuyers.length === 0 && (
+                    {totalSummary.totalNumberOfBuyers > 0 && (totalSummary.latestBuyers?.length || 0) === 0 && (
                       <tr>
                         <td colSpan={4} className="px-4 py-2 text-center">
                           최근 구매회원이 없습니다.
