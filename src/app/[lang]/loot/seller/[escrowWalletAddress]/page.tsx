@@ -828,11 +828,18 @@ export default function SellerDashboardPage() {
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">정산 계좌</p>
             <p className="mt-2 text-sm text-white">
-              {sellerUser?.store?.bankInfo?.bankName || '-'} /{' '}
-              {sellerUser?.store?.bankInfo?.accountHolder || '-'}
+              {sellerUser?.seller?.bankInfo?.bankName ||
+                sellerUser?.store?.bankInfo?.bankName ||
+                '-'}{' '}
+              /{' '}
+              {sellerUser?.seller?.bankInfo?.accountHolder ||
+                sellerUser?.store?.bankInfo?.accountHolder ||
+                '-'}
             </p>
             <p className="font-mono text-sm text-emerald-200">
-              {sellerUser?.store?.bankInfo?.accountNumber || '-'}
+              {sellerUser?.seller?.bankInfo?.accountNumber ||
+                sellerUser?.store?.bankInfo?.accountNumber ||
+                '-'}
             </p>
             <p className="mt-2 text-[11px] text-slate-500">
               입금 정보는 고객 화면의 “판매자 입금 계좌”에 표시됩니다.
