@@ -1236,34 +1236,54 @@ export default function EscrowSellerPage() {
                     setPlacingOrder(true);
                     try {
                       const rate = seller.seller.usdtToKrwRate;
-                      const response = await fetch('/api/order/setBuyOrderForUser', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          lang,
-                          storecode: STORECODE,
-                          walletAddress: address,
-                          nickname: buyerNickname,
-                          usdtAmount: pendingOrderInfo.amount,
-                          krwAmount: pendingOrderInfo.krw,
-                          rate,
-                          privateSale: false,
-                          buyer: {
-                            depositBankName: buyerProfile?.buyer?.depositBankName || '',
-                            depositBankAccountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
-                            depositName: buyerProfile?.buyer?.depositName || buyerNickname || '',
-                            bankInfo: {
-                              bankName: buyerProfile?.buyer?.depositBankName || '',
-                              accountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
-                              accountHolder: buyerProfile?.buyer?.depositName || buyerNickname || '',
-                            },
-                            receiveWalletAddress: buyerProfile?.buyer?.receiveWalletAddress || '',
-                          },
-                          seller: {
-                            walletAddress: seller.walletAddress,
-                            escrowWalletAddress: seller.seller?.escrowWalletAddress,
-                            bankInfo: {
-                              bankName: seller.seller?.bankInfo?.bankName || '',
+                          const response = await fetch('/api/order/setBuyOrderForUser', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              lang,
+                              storecode: STORECODE,
+                              walletAddress: address,
+                              nickname: buyerNickname,
+                              usdtAmount: pendingOrderInfo.amount,
+                              krwAmount: pendingOrderInfo.krw,
+                              rate,
+                              privateSale: false,
+                              buyer: {
+                                depositBankName:
+                                  buyerProfile?.buyer?.bankInfo?.bankName ||
+                                  buyerProfile?.buyer?.depositBankName ||
+                                  '',
+                                depositBankAccountNumber:
+                                  buyerProfile?.buyer?.bankInfo?.accountNumber ||
+                                  buyerProfile?.buyer?.depositBankAccountNumber ||
+                                  '',
+                                depositName:
+                                  buyerProfile?.buyer?.bankInfo?.accountHolder ||
+                                  buyerProfile?.buyer?.depositName ||
+                                  buyerNickname ||
+                                  '',
+                                bankInfo: {
+                                  bankName:
+                                    buyerProfile?.buyer?.bankInfo?.bankName ||
+                                    buyerProfile?.buyer?.depositBankName ||
+                                    '',
+                                  accountNumber:
+                                    buyerProfile?.buyer?.bankInfo?.accountNumber ||
+                                    buyerProfile?.buyer?.depositBankAccountNumber ||
+                                    '',
+                                  accountHolder:
+                                    buyerProfile?.buyer?.bankInfo?.accountHolder ||
+                                    buyerProfile?.buyer?.depositName ||
+                                    buyerNickname ||
+                                    '',
+                                },
+                                receiveWalletAddress: buyerProfile?.buyer?.receiveWalletAddress || '',
+                              },
+                              seller: {
+                                walletAddress: seller.walletAddress,
+                                escrowWalletAddress: seller.seller?.escrowWalletAddress,
+                                bankInfo: {
+                                  bankName: seller.seller?.bankInfo?.bankName || '',
                               accountNumber: seller.seller?.bankInfo?.accountNumber || '',
                               accountHolder: seller.seller?.bankInfo?.accountHolder || seller.nickname || '',
                             },
