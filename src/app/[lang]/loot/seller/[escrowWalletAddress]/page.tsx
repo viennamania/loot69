@@ -736,7 +736,7 @@ export default function SellerDashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400">USDT 잔액 (온체인)</p>
-                  <p className="mt-2 text-3xl font-extrabold text-emerald-100">{onchainBalance} USDT</p>
+                  <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-emerald-100">{onchainBalance}</p>
                   <p className="mt-1 text-[11px] text-slate-400">계좌에 입금된 에스크로 토큰 잔액</p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -847,15 +847,13 @@ export default function SellerDashboardPage() {
                 정산 계좌가 없습니다. 설정 후 거래 정산이 가능합니다.
               </p>
             )}
-            {!sellerUser?.seller?.bankInfo && (
-              <button
-                type="button"
-                onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
-                className="mt-3 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
-              >
-                정산 계좌 설정하기
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
+              className="mt-3 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+            >
+              정산 계좌 설정하기
+            </button>
           </div>
         </section>
 
