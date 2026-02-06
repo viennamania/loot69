@@ -38,6 +38,11 @@ type SellerLite = {
     priceSettingMethod?: string;
     market?: string;
     escrowWalletAddress?: string;
+    bankInfo?: {
+      bankName?: string;
+      accountNumber?: string;
+      accountHolder?: string;
+    };
   };
   currentUsdtBalance?: number;
 };
@@ -94,6 +99,7 @@ export default function EscrowSellerPage() {
 
   const [buyerNickname, setBuyerNickname] = useState('');
   const [buyerAvatar, setBuyerAvatar] = useState('');
+  const [buyerProfile, setBuyerProfile] = useState<any | null>(null);
   const [channelUrl, setChannelUrl] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
@@ -327,11 +333,13 @@ export default function EscrowSellerPage() {
         if (active) {
           setBuyerNickname(data?.result?.nickname || address);
           setBuyerAvatar(data?.result?.avatar || '');
+          setBuyerProfile(data?.result || null);
         }
       } catch {
         if (active) {
           setBuyerNickname(address);
           setBuyerAvatar('');
+          setBuyerProfile(null);
         }
       }
     };
@@ -837,10 +845,24 @@ export default function EscrowSellerPage() {
                                 krwAmount,
                                 rate: seller.seller.usdtToKrwRate,
                                 privateSale: false,
-                                buyer: { depositBankName: '', depositName: '' },
+                                buyer: {
+                                  depositBankName: buyerProfile?.buyer?.depositBankName || '',
+                                  depositBankAccountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
+                                  depositName: buyerProfile?.buyer?.depositName || buyerNickname || '',
+                                  bankInfo: {
+                                    bankName: buyerProfile?.buyer?.depositBankName || '',
+                                    accountNumber: buyerProfile?.buyer?.depositBankAccountNumber || '',
+                                    accountHolder: buyerProfile?.buyer?.depositName || buyerNickname || '',
+                                  },
+                                },
                                 seller: {
                                   walletAddress: seller.walletAddress,
                                   escrowWalletAddress: seller.seller?.escrowWalletAddress,
+                                  bankInfo: {
+                                    bankName: seller.seller?.bankInfo?.bankName || '',
+                                    accountNumber: seller.seller?.bankInfo?.accountNumber || '',
+                                    accountHolder: seller.seller?.bankInfo?.accountHolder || seller.nickname || '',
+                                  },
                                 },
                               }),
                             });

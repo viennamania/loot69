@@ -24,15 +24,8 @@ import { create } from "domain";
 
 import {
   createThirdwebClient,
-  eth_getTransactionByHash,
   getContract,
-  sendAndConfirmTransaction,
-  
   sendTransaction,
-  sendBatchTransaction,
-  eth_maxPriorityFeePerGas,
-
-
 } from "thirdweb";
 
 //import { polygonAmoy } from "thirdweb/chains";
@@ -43,24 +36,8 @@ import {
   bsc,
  } from "thirdweb/chains";
 
-import {
-  privateKeyToAccount,
-  smartWallet,
-  getWalletBalance,
-  
- } from "thirdweb/wallets";
-
-
-import {
-  mintTo,
-  totalSupply,
-  transfer,
-  
-  getBalance,
-
-  balanceOf,
-
-} from "thirdweb/extensions/erc20";
+import { serverWallet, waitForTransactionHash } from "thirdweb/engine";
+import { transfer } from "thirdweb/extensions/erc20";
 
 
 
@@ -68,11 +45,7 @@ import {
 // NEXT_PUBLIC_CHAIN
 const chain = process.env.NEXT_PUBLIC_CHAIN || "arbitrum";
 
-import {
-  bscContractAddressMKRW,
-} from "../../../config/contractAddresses";
-
-
+// USDT addresses are inlined per chain below
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 
@@ -165,15 +138,6 @@ export async function POST(request: NextRequest) {
 
 
 
-    const escrowWalletPrivateKey = order.escrowWallet.privateKey;
-
-    if (!escrowWalletPrivateKey) {
-      return NextResponse.json({
-        result: null,
-      });
-    }
-
-
     const client = createThirdwebClient({
       secretKey: process.env.THIRDWEB_SECRET_KEY || "",
     });
@@ -181,63 +145,58 @@ export async function POST(request: NextRequest) {
     if (!client) {
       return NextResponse.json({
         result: null,
+        error: 'thirdweb_client_missing',
       });
     }
 
-
-    const personalAccount = privateKeyToAccount({
-      client,
-      privateKey: escrowWalletPrivateKey,
-    });
-  
-    if (!personalAccount) {
-      return NextResponse.json({
-        result: null,
-      });
-    }
-
-
-    const wallet = smartWallet({
-      chain: chain === "bsc" ? bsc : chain === "arbitrum" ? arbitrum : polygon,
-      sponsorGas: false,
-    });
-
-    // Connect the smart wallet
-    const account = await wallet.connect({
-      client: client,
-      personalAccount: personalAccount,
-    });
-
-    if (!account) {
-      return NextResponse.json({
-        result: null,
-      });
-    }
+    const chainObj = chain === "bsc" ? bsc : chain === "arbitrum" ? arbitrum : polygon;
 
 
     //const escrowWalletAddress = account.address;
 
 
 
+    // send USDT from seller escrow (engine server wallet) to buyer wallet
     const contract = getContract({
       client,
-      chain: chain === "bsc" ? bsc : chain === "arbitrum" ? arbitrum : polygon,
-      address: bscContractAddressMKRW, // MKRW on BSC
+      chain: chainObj,
+      address:
+        chain === "bsc"
+          ? "0x55d398326f99059fF775485246999027B3197955"
+          : chain === "arbitrum"
+          ? "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+          : chain === "polygon"
+          ? "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+          : "0xdAC17F958D2ee523a2206206994597C13D831ec7", // ethereum USDT
+    });
+
+    const vaultAccessToken = process.env.THIRDWEB_ENGINE_VAULT_TOKEN;
+    if (!vaultAccessToken) {
+      return NextResponse.json({
+        result: null,
+        error: 'engine_vault_token_missing',
+      });
+    }
+
+    const account = serverWallet({
+      client,
+      address: seller?.escrowWalletAddress || sellerWalletAddress,
+      chain: chainObj,
+      vaultAccessToken,
+      executionOptions: { type: "auto" },
     });
 
     const transaction = transfer({
       contract,
-      to: sellerWalletAddress,
-      amount: paymentAmount,
+      to: buyer?.walletAddress || walletAddress,
+      amount: usdtAmount,
     });
 
-
-    const transferReault = await sendTransaction({
-      account: account,
-      transaction: transaction,
+    const { transactionId } = await account.enqueueTransaction({ transaction });
+    const { transactionHash: escrowTransactionHash } = await waitForTransactionHash({
+      client,
+      transactionId,
     });
-
-    const escrowTransactionHash = transferReault.transactionHash;
 
 
     console.log("escrowTransactionHash", escrowTransactionHash);
@@ -253,7 +212,7 @@ export async function POST(request: NextRequest) {
       
       queueId: queueId,
 
-      transactionHash: transactionHash,
+      transactionHash: transactionHash || escrowTransactionHash,
 
       escrowTransactionHash: escrowTransactionHash,
 
