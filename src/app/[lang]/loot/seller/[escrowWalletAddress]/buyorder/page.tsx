@@ -42,6 +42,11 @@ type BuyOrder = {
     depositName?: string;
     depositBankName?: string;
     depositBankAccountNumber?: string;
+    bankInfo?: {
+      bankName?: string;
+      accountNumber?: string;
+      accountHolder?: string;
+    };
   };
   escrowBalance?: number;
   paymentConfirmedAt?: string;
@@ -109,18 +114,19 @@ function normalizeId(value: any) {
 }
 
 function statusBadge(status?: string) {
-  const base = 'inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold';
+  const base =
+    'inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold border';
   switch (status) {
     case 'paymentConfirmed':
-      return `${base} bg-emerald-500/15 text-emerald-100 border border-emerald-300/60`;
+      return `${base} bg-emerald-900/40 text-emerald-100 border-emerald-400/70 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]`;
     case 'paymentRequested':
-      return `${base} bg-amber-500/15 text-amber-100 border border-amber-300/60`;
+      return `${base} bg-amber-900/40 text-amber-100 border-amber-300/70 shadow-[0_0_0_1px_rgba(251,191,36,0.5)]`;
     case 'accepted':
-      return `${base} bg-sky-500/15 text-sky-100 border border-sky-300/60`;
+      return `${base} bg-sky-900/40 text-sky-100 border-sky-300/70 shadow-[0_0_0_1px_rgba(56,189,248,0.4)]`;
     case 'cancelled':
-      return `${base} bg-rose-500/15 text-rose-100 border border-rose-300/60`;
+      return `${base} bg-rose-900/40 text-rose-100 border-rose-300/70 shadow-[0_0_0_1px_rgba(248,113,113,0.4)]`;
     default:
-      return `${base} bg-slate-500/15 text-slate-100 border border-slate-300/30`;
+      return `${base} bg-slate-900/40 text-slate-100 border-slate-500/50`;
   }
 }
 
@@ -151,6 +157,14 @@ export default function SellerBuyOrderListPage() {
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [confirmTx, setConfirmTx] = useState<string | null>(null);
   const [confirmDone, setConfirmDone] = useState(false);
+  const [keyword, setKeyword] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'progress' | 'done' | 'cancelled'>('all');
+  const [minUsdt, setMinUsdt] = useState('');
+  const [maxUsdt, setMaxUsdt] = useState('');
+  const [minKrw, setMinKrw] = useState('');
+  const [maxKrw, setMaxKrw] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const candidateEscrows = useMemo(() => {
     const list = [
@@ -162,18 +176,53 @@ export default function SellerBuyOrderListPage() {
   }, [sellerUser]);
 
   const filteredOrders = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    const minU = Number(minUsdt);
+    const maxU = Number(maxUsdt);
+    const minK = Number(minKrw);
+    const maxK = Number(maxKrw);
+    const from = fromDate ? new Date(fromDate).getTime() : null;
+    const to = toDate ? new Date(toDate).getTime() : null;
+
     return orders
       .filter(
         (order) =>
           (order?.seller?.escrowWalletAddress || order?.seller?.walletAddress || '').toLowerCase() ===
           escrowWalletAddress,
       )
+      .filter((order) => {
+        if (kw) {
+          const bag = [
+            order.tradeId,
+            order.walletAddress,
+            order.buyer?.walletAddress,
+            order.buyer?.nickname,
+            order.nickname,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          if (!bag.includes(kw)) return false;
+        }
+        const u = Number(order.usdtAmount || 0);
+        const k = Number(order.krwAmount || 0);
+        if (minUsdt && Number.isFinite(minU) && u < minU) return false;
+        if (maxUsdt && Number.isFinite(maxU) && u > maxU) return false;
+        if (minKrw && Number.isFinite(minK) && k < minK) return false;
+        if (maxKrw && Number.isFinite(maxK) && k > maxK) return false;
+        if (from && order.createdAt && new Date(order.createdAt).getTime() < from) return false;
+        if (to && order.createdAt && new Date(order.createdAt).getTime() > to) return false;
+        if (statusFilter === 'progress' && ['paymentConfirmed', 'cancelled'].includes(order.status || '')) return false;
+        if (statusFilter === 'done' && order.status !== 'paymentConfirmed') return false;
+        if (statusFilter === 'cancelled' && order.status !== 'cancelled') return false;
+        return true;
+      })
       .sort((a, b) => {
         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return bTime - aTime;
       });
-  }, [orders, escrowWalletAddress]);
+  }, [orders, escrowWalletAddress, keyword, minUsdt, maxUsdt, minKrw, maxKrw, fromDate, toDate, statusFilter]);
 
   const loadOrders = async () => {
     if (!escrowWalletAddress) return;
@@ -364,6 +413,97 @@ export default function SellerBuyOrderListPage() {
           </div>
         </header>
 
+        <section className="rounded-2xl border border-slate-800/70 bg-slate-950/70 p-4 shadow-inner space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <input
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="지갑주소 / 주문번호 / 닉네임 검색"
+              className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            >
+              <option value="all">전체 상태</option>
+              <option value="progress">진행 중 (요청/승인)</option>
+              <option value="done">결제 완료</option>
+              <option value="cancelled">취소</option>
+            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                value={minUsdt}
+                onChange={(e) => setMinUsdt(e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'))}
+                placeholder="USDT 최소"
+                inputMode="decimal"
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+              <input
+                value={maxUsdt}
+                onChange={(e) => setMaxUsdt(e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'))}
+                placeholder="USDT 최대"
+                inputMode="decimal"
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                value={minKrw}
+                onChange={(e) => setMinKrw(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="KRW 최소"
+                inputMode="numeric"
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+              <input
+                value={maxKrw}
+                onChange={(e) => setMaxKrw(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="KRW 최대"
+                inputMode="numeric"
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full rounded-xl border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+            <div className="flex gap-2 sm:col-span-3">
+              <button
+                type="button"
+                onClick={loadOrders}
+                className="flex-1 rounded-xl bg-emerald-500 px-3 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-400"
+              >
+                목록 다시 불러오기
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setKeyword('');
+                  setStatusFilter('all');
+                  setMinUsdt('');
+                  setMaxUsdt('');
+                  setMinKrw('');
+                  setMaxKrw('');
+                  setFromDate('');
+                  setToDate('');
+                }}
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-800"
+              >
+                필터 초기화
+              </button>
+            </div>
+          </div>
+        </section>
         <section className="space-y-3">
           {loading && (
             <div className="rounded-2xl border border-slate-800/70 bg-slate-950/70 p-4 text-sm text-slate-300">
@@ -418,7 +558,7 @@ export default function SellerBuyOrderListPage() {
                           )}
                         </div>
                       </div>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-xl font-extrabold text-white leading-tight">
                         {order.usdtAmount} USDT / {formatNumber(order.krwAmount)}원
                       </p>
                       <p className="text-[11px] text-emerald-100/80">
@@ -455,7 +595,7 @@ export default function SellerBuyOrderListPage() {
                             setConfirmDone(false);
                             setConfirmingOrder(order);
                           }}
-                          className="rounded-full border border-emerald-300/60 bg-emerald-400/20 px-3 py-1.5 text-[11px] font-semibold text-emerald-50 hover:bg-emerald-400/30"
+                          className="rounded-full bg-emerald-400 px-3 py-1.5 text-[11px] font-bold text-slate-900 shadow hover:bg-emerald-300 transition"
                         >
                           결제 확인하기
                         </button>
@@ -532,12 +672,12 @@ export default function SellerBuyOrderListPage() {
               </div>
               <div className="flex justify-between">
                 <span>구매 수량</span>
-                <span className="font-semibold text-white">{confirmingOrder.usdtAmount} USDT</span>
+                <span className="text-xl font-extrabold text-white">{confirmingOrder.usdtAmount} USDT</span>
               </div>
               <div className="flex justify-between">
                 <span>결제 금액</span>
-                <span className="font-semibold text-white">
-                  {formatNumber(confirmingOrder.krwAmount)} 원 (환율 {formatNumber(confirmingOrder.rate)})
+                <span className="text-xl font-extrabold text-white">
+                  {formatNumber(confirmingOrder.krwAmount)} 원
                 </span>
               </div>
               <div className="flex justify-between">

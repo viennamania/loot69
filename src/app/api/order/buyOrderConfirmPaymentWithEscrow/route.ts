@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
       address: seller?.escrowWalletAddress || sellerWalletAddress,
       chain: chainObj,
       vaultAccessToken,
-      executionOptions: { type: "auto" },
+      executionOptions: { type: "auto", from: seller?.escrowWalletAddress || sellerWalletAddress },
     });
 
     const transaction = transfer({

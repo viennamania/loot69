@@ -106,6 +106,7 @@ export default function EscrowSellerPage() {
   const [chatError, setChatError] = useState<string | null>(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [buyAmount, setBuyAmount] = useState('');
+  const [buyKrwAmount, setBuyKrwAmount] = useState('');
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
   const [lastOrderStatus, setLastOrderStatus] = useState<string | null>(null);
   const [lastOrderDetail, setLastOrderDetail] = useState<any | null>(null);
@@ -779,16 +780,19 @@ export default function EscrowSellerPage() {
                           disabled={!isLoggedIn || availableUsdtToBuy <= 0 || placingOrder}
                           onChange={(e) => {
                             const sanitized = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
-                            const numeric = Number(sanitized);
+                            let numeric = Number(sanitized);
                             if (
                               Number.isFinite(numeric) &&
                               availableUsdtToBuy > 0 &&
                               numeric > availableUsdtToBuy
                             ) {
-                              setBuyAmount(availableUsdtToBuy.toString());
-                              return;
+                              numeric = availableUsdtToBuy;
                             }
                             setBuyAmount(sanitized);
+                            if (seller?.seller?.usdtToKrwRate && Number.isFinite(numeric)) {
+                              const calc = Math.floor(numeric * seller.seller.usdtToKrwRate);
+                              setBuyKrwAmount(calc ? String(calc) : '');
+                            }
                           }}
                           placeholder={availableUsdtToBuy > 0 ? '예: 100' : '구매 가능 수량 없음'}
                           inputMode="decimal"
@@ -799,12 +803,40 @@ export default function EscrowSellerPage() {
                               : 'border-slate-700 bg-slate-900/60 text-slate-500 cursor-not-allowed'
                           }`}
                         />
-                        <p className={`text-sm font-semibold ${availableUsdtToBuy > 0 ? 'text-emerald-100/85' : 'text-rose-200/85'}`}>
-                          진행 중: {pendingUsdtAmount.toFixed(6)} USDT · 구매 가능: {availableUsdtToBuy.toFixed(6)} USDT
-                        </p>
+                        <label className="text-sm font-semibold text-emerald-50" htmlFor="buy-krw">
+                          결제할 금액 (KRW)
+                        </label>
+                        <input
+                          id="buy-krw"
+                          value={buyKrwAmount}
+                          disabled={!isLoggedIn || availableUsdtToBuy <= 0 || placingOrder || !seller?.seller?.usdtToKrwRate}
+                          onChange={(e) => {
+                            const sanitized = e.target.value.replace(/[^0-9]/g, '');
+                            const numeric = Number(sanitized);
+                            setBuyKrwAmount(sanitized);
+                            if (seller?.seller?.usdtToKrwRate && Number.isFinite(numeric)) {
+                              const usdt = numeric / seller.seller.usdtToKrwRate;
+                              const trimmed = usdt > 0 ? usdt.toFixed(6).replace(/0+$/,'').replace(/\.$/,'') : '';
+                              setBuyAmount(trimmed);
+                            }
+                          }}
+                          placeholder={seller?.seller?.usdtToKrwRate ? '예: 1500000' : '환율 정보 필요'}
+                          inputMode="numeric"
+                          className={`w-full rounded-2xl border-2 px-4 py-3 text-lg font-semibold shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-300/80 text-right ${
+                            isLoggedIn && availableUsdtToBuy > 0 && seller?.seller?.usdtToKrwRate
+                              ? 'border-emerald-300/70 bg-slate-950/70 text-emerald-50'
+                              : 'border-slate-700 bg-slate-900/60 text-slate-500 cursor-not-allowed'
+                          }`}
+                        />
+                        <div className={`rounded-xl px-3 py-2 text-sm font-semibold shadow-inner ${availableUsdtToBuy > 0 ? 'bg-emerald-500/10 text-emerald-100' : 'bg-rose-500/10 text-rose-100'}`}>
+                          <div>진행 중: {pendingUsdtAmount.toFixed(6)} USDT</div>
+                          <div className="mt-0.5">구매 가능: {availableUsdtToBuy.toFixed(6)} USDT</div>
+                        </div>
                         <p className="text-sm font-semibold text-emerald-100/80">
                           예상 결제 금액:{' '}
-                          {buyAmount && seller?.seller?.usdtToKrwRate
+                          {buyKrwAmount
+                            ? Number(buyKrwAmount || 0).toLocaleString('ko-KR')
+                            : buyAmount && seller?.seller?.usdtToKrwRate
                             ? (Number(buyAmount || 0) * seller.seller.usdtToKrwRate).toLocaleString('ko-KR')
                             : '-'}{' '}
                           원
@@ -821,7 +853,7 @@ export default function EscrowSellerPage() {
                             toast.error('판매자 정보가 부족합니다.');
                             return;
                           }
-                          const amount = Number(buyAmount);
+                          const amount = Number(buyAmount) || (seller?.seller?.usdtToKrwRate ? Number(buyKrwAmount || 0) / seller.seller.usdtToKrwRate : NaN);
                           if (!Number.isFinite(amount) || amount <= 0) {
                             toast.error('구매 수량을 올바르게 입력하세요.');
                             return;
