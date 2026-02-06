@@ -89,6 +89,18 @@ export default function SellerDashboardPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [updatingRate, setUpdatingRate] = useState(false);
   const [rateInput, setRateInput] = useState('');
+  const [txPanelOpen, setTxPanelOpen] = useState(false);
+  const [txLoading, setTxLoading] = useState(false);
+  const [txError, setTxError] = useState<string | null>(null);
+  const [txList, setTxList] = useState<any[]>([]);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [transferTab, setTransferTab] = useState<'deposit' | 'withdraw'>('deposit');
+  const [transferAmount, setTransferAmount] = useState('');
+  const [transferLoading, setTransferLoading] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
+  const [walletUsdtBalance, setWalletUsdtBalance] = useState<number | null>(null);
+  const [recentDone, setRecentDone] = useState<any[]>([]);
+  const [recentLoading, setRecentLoading] = useState(false);
 
   const chainObj = useMemo(() => getChainObject(), []);
   const usdtAddress = useMemo(() => getUsdtAddress(), []);
@@ -185,6 +197,7 @@ export default function SellerDashboardPage() {
 
   useEffect(() => {
     fetchOnchainBalance();
+    loadRecentCompleted();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [escrowWalletAddress]);
 
@@ -246,6 +259,116 @@ export default function SellerDashboardPage() {
       toast.error(error instanceof Error ? error.message : '환율 업데이트 중 오류가 발생했습니다.');
     } finally {
       setUpdatingRate(false);
+    }
+  };
+
+  const loadEscrowTx = async () => {
+    if (!escrowWalletAddress) return;
+    setTxLoading(true);
+    setTxError(null);
+    try {
+      const res = await fetch('/api/escrow/listTransactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: escrowWalletAddress, limit: 25 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || '거래 내역을 불러오지 못했습니다.');
+      setTxList(data?.result || []);
+    } catch (error) {
+      setTxError(error instanceof Error ? error.message : '거래 내역을 불러오지 못했습니다.');
+    } finally {
+      setTxLoading(false);
+    }
+  };
+
+  const fetchWalletUsdtBalance = async () => {
+    if (!address) {
+      setWalletUsdtBalance(null);
+      return;
+    }
+    try {
+      const contract = getContract({ client, chain: chainObj, address: usdtAddress });
+      const bal = await balanceOf({ contract, address: address as `0x${string}` });
+      const dec = activeChainId === 'bsc' ? 18 : 6;
+      const val =
+        typeof bal === 'bigint'
+          ? Number(bal) / 10 ** dec
+          : Number(bal || 0);
+      setWalletUsdtBalance(val);
+    } catch {
+      setWalletUsdtBalance(null);
+    }
+  };
+
+  const submitTransfer = async () => {
+    if (!transferAmount || Number(transferAmount) <= 0) {
+      setTransferError('올바른 수량을 입력하세요.');
+      return;
+    }
+    setTransferLoading(true);
+    setTransferError(null);
+    try {
+      const amount = Number(transferAmount);
+      const from =
+        transferTab === 'deposit'
+          ? sellerUser?.walletAddress || address
+          : sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress;
+      const to =
+        transferTab === 'deposit'
+          ? sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress
+          : sellerUser?.walletAddress || address;
+
+      const res = await fetch('/api/escrow/selfTransfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, to, amount }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.result) {
+        throw new Error(data?.error || '전송에 실패했습니다.');
+      }
+      toast.success('전송이 요청되었습니다.');
+      setTransferModalOpen(false);
+      setTransferAmount('');
+      loadEscrowTx();
+      fetchOnchainBalance();
+    } catch (error) {
+      setTransferError(error instanceof Error ? error.message : '전송 중 오류가 발생했습니다.');
+    } finally {
+      setTransferLoading(false);
+    }
+  };
+
+  const loadRecentCompleted = async () => {
+    if (!escrowWalletAddress) return;
+    setRecentLoading(true);
+    try {
+      const res = await fetch('/api/order/getAllBuyOrdersForSeller', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storecode: STORECODE,
+          limit: 5,
+          page: 1,
+          walletAddress: address,
+          searchMyOrders: false,
+          searchOrderStatusCancelled: false,
+          searchOrderStatusCompleted: true,
+          fromDate: '2000-01-01T00:00:00.000Z',
+          toDate: new Date().toISOString(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setRecentDone(data?.result?.orders || []);
+      } else {
+        setRecentDone([]);
+      }
+    } catch {
+      setRecentDone([]);
+    } finally {
+      setRecentLoading(false);
     }
   };
 
@@ -374,11 +497,48 @@ export default function SellerDashboardPage() {
             <p className="mt-1 font-mono text-sm text-emerald-100 break-all">{escrowWalletAddress}</p>
             <p className="mt-3 text-xs text-slate-400">체인</p>
             <p className="text-lg font-semibold text-white uppercase">{activeChainId}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-emerald-50 shadow">
+                <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                스마트 어카운트
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-100 shadow">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                MPC
+              </span>
+            </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
-            <p className="text-xs text-slate-400">USDT 잔액 (온체인)</p>
-            <p className="mt-2 text-2xl font-bold text-emerald-200">{onchainBalance} USDT</p>
-            <p className="mt-1 text-[11px] text-slate-500">계좌에 입금된 에스크로 토큰 잔액</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-400">USDT 잔액 (온체인)</p>
+                <p className="mt-2 text-2xl font-bold text-emerald-200">{onchainBalance} USDT</p>
+                <p className="mt-1 text-[11px] text-slate-500">계좌에 입금된 에스크로 토큰 잔액</p>
+              </div>
+              <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTransferTab('deposit');
+                  fetchWalletUsdtBalance();
+                  setTransferModalOpen(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+              >
+                충/환전하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTxPanelOpen(true);
+                    loadEscrowTx();
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                >
+                  충/환전 내역 보기
+                </button>
+              </div>
+            </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">판매 환율 (원/USDT)</p>
@@ -460,7 +620,200 @@ export default function SellerDashboardPage() {
             </p>
           </div>
         </section>
+
+        <section className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-400">최근 거래 완료</p>
+              <h3 className="text-lg font-bold text-white">결제 완료된 주문 (최신 5건)</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/${lang}/loot/seller/${sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress}/buyorder`)
+              }
+              className="rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-400/30"
+            >
+              더보기
+            </button>
+          </div>
+          {recentLoading ? (
+            <p className="mt-3 text-sm text-slate-300">불러오는 중...</p>
+          ) : recentDone.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-400">완료된 거래가 없습니다.</p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {recentDone.map((o) => (
+                <div key={o._id || o.tradeId} className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-white">
+                      {o.usdtAmount} USDT / {Number(o.krwAmount || 0).toLocaleString('ko-KR')}원
+                    </div>
+                    <span className="rounded-full border border-emerald-300/60 bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-50">
+                      완료
+                    </span>
+                  </div>
+                  <div className="mt-1 text-[11px] text-slate-300">
+                    주문번호: {o.tradeId || '-'} · {o.createdAt ? new Date(o.createdAt).toLocaleString() : '-'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
+
+      {txPanelOpen && (
+        <div className="fixed inset-0 z-50 flex justify-start">
+          <div className="relative w-full max-w-lg bg-slate-950/95 border-r border-emerald-300/30 shadow-2xl overflow-y-auto">
+            <div className="sticky top-0 flex items-center justify-between bg-slate-900/80 px-4 py-3 border-b border-emerald-300/20 backdrop-blur">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-emerald-200/80">Escrow</p>
+                <h3 className="text-lg font-bold text-white">입출금 내역</h3>
+                <p className="text-[11px] text-slate-400 break-all">{escrowWalletAddress}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTxPanelOpen(false)}
+                className="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 hover:bg-slate-700"
+              >
+                닫기
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              {txLoading && (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-slate-300">
+                  입출금 내역을 불러오는 중입니다...
+                </div>
+              )}
+              {txError && (
+                <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-100">
+                  {txError}
+                </div>
+              )}
+              {!txLoading && !txError && txList.length === 0 && (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-slate-300">
+                  거래 내역이 없습니다.
+                </div>
+              )}
+              {txList.map((tx, idx) => (
+                <div
+                  key={`${tx?.hash || idx}`}
+                  className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-3 text-sm text-emerald-50"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-mono text-[11px] break-all text-emerald-100">
+                      {tx?.hash || '-'}
+                    </div>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                        tx?.value && Number(tx.value) > 0
+                          ? 'bg-emerald-400/20 border border-emerald-300/60 text-emerald-50'
+                          : 'bg-sky-400/20 border border-sky-300/60 text-sky-50'
+                      }`}
+                    >
+                      {tx?.value && Number(tx.value) > 0 ? '출금' : '입금'}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between text-[11px] text-emerald-100/80">
+                    <span>{tx?.timestamp ? new Date(tx.timestamp * 1000).toLocaleString() : '-'}</span>
+                    <span>{tx?.value ? Number(tx.value).toLocaleString('ko-KR') : '0'} WEI</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div
+            className="flex-1 bg-black/40"
+            onClick={() => setTxPanelOpen(false)}
+          />
+        </div>
+      )}
+
+      {transferModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => (!transferLoading ? setTransferModalOpen(false) : null)} />
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-emerald-300/30 bg-slate-950/90 p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">충/환전</h3>
+              <button
+                type="button"
+                className="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200"
+                onClick={() => setTransferModalOpen(false)}
+                disabled={transferLoading}
+              >
+                닫기
+              </button>
+            </div>
+              <div className="mt-3 grid grid-cols-2 rounded-xl border border-emerald-300/40 bg-slate-900/70 p-1">
+                {[ 
+                  { key: 'deposit', label: '충전하기' },
+                  { key: 'withdraw', label: '환전하기' },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => {
+                      setTransferTab(tab.key as 'deposit' | 'withdraw');
+                      if (tab.key === 'deposit') fetchWalletUsdtBalance();
+                    }}
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                      transferTab === tab.key
+                        ? 'bg-emerald-400 text-slate-900 shadow'
+                        : 'text-slate-200 hover:bg-slate-800'
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 space-y-2 text-sm text-slate-200">
+              <div className="flex justify-between">
+                <span>방향</span>
+                <span className="font-semibold text-white">
+                  {transferTab === 'deposit' ? '내 지갑 → 에스크로' : '에스크로 → 내 지갑'}
+                </span>
+              </div>
+              {transferTab === 'deposit' && (
+                <div className="flex justify-between text-[12px] text-slate-300">
+                  <span>내 지갑 잔액</span>
+                  <span className="font-semibold text-emerald-100">
+                    {walletUsdtBalance !== null ? walletUsdtBalance.toFixed(6) : '-'} USDT
+                  </span>
+                </div>
+              )}
+              <label className="text-xs text-slate-400">수량 (USDT)</label>
+              <input
+                value={transferAmount}
+                onChange={(e) => {
+                  const sanitized = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                  let numeric = Number(sanitized);
+                  if (
+                    transferTab === 'deposit' &&
+                    walletUsdtBalance !== null &&
+                    Number.isFinite(numeric) &&
+                    numeric > walletUsdtBalance
+                  ) {
+                    numeric = walletUsdtBalance;
+                  }
+                  setTransferAmount(Number.isFinite(numeric) ? String(numeric) : sanitized);
+                }}
+                inputMode="decimal"
+                className="w-full rounded-xl border border-emerald-300/40 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+              />
+              {transferError && <p className="text-xs text-rose-300">{transferError}</p>}
+              <button
+                type="button"
+                onClick={submitTransfer}
+                disabled={transferLoading}
+                className="mt-2 w-full rounded-xl bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60"
+              >
+                {transferLoading ? '처리 중...' : '실행'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
