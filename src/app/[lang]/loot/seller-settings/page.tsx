@@ -45,6 +45,7 @@ export default function SellerSettingsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [sellerNickname, setSellerNickname] = useState('');
+  const [userExists, setUserExists] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -58,13 +59,14 @@ export default function SellerSettingsPage() {
         });
         const data = await res.json().catch(() => ({}));
         if (data?.result) {
+          setUserExists(true);
           const rawNick = data.result.nickname || '';
           const userNick = rawNick.trim();
           const sellerNick = data.result.seller?.nickname?.trim?.() || '';
           const escrow = data.result.seller?.escrowWalletAddress || '';
-          const shouldNeedNickname = !userNick || !sellerNick || !escrow;
+          const shouldNeedNickname = !userNick;
 
-          setNickname(userNick || '미설정');
+          setNickname(userNick); // keep empty if none
           setSellerNickname(sellerNick);
           setNeedsNickname(shouldNeedNickname);
           setNewNickname('');
@@ -72,12 +74,14 @@ export default function SellerSettingsPage() {
           setEscrowAddress(escrow || '');
         } else {
           // No user data returned
+          setUserExists(false);
           setNeedsNickname(true);
-          setNickname('미설정');
+          setNickname('');
         }
       } catch (e) {
         // If fetching fails, allow nickname registration to appear
         setNeedsNickname(true);
+        setUserExists(false);
       } finally {
         setLoading(false);
       }
@@ -183,6 +187,11 @@ export default function SellerSettingsPage() {
                 <p className="text-sm text-emerald-100/80">
                   영문 소문자와 숫자만 3~20자로 입력해주세요.
                 </p>
+                {!userExists && (
+                  <p className="mt-1 text-[11px] text-amber-200">
+                    이 지갑 주소로 등록된 회원 정보가 없습니다. 닉네임을 등록하면 회원이 생성됩니다.
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-4 space-y-2">
@@ -273,6 +282,17 @@ export default function SellerSettingsPage() {
                     복사하기
                   </button>
                   {copied && <span className="text-[11px] text-emerald-200">복사되었습니다</span>}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      router.push(`/${lang}/loot/seller/${escrowAddress}`)
+                    }
+                    className="inline-flex items-center justify-center rounded-full border border-emerald-200/80 bg-emerald-500 text-sm font-bold text-emerald-950 px-4 py-2 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200/80"
+                  >
+                    나의 에스크로 관리하기
+                  </button>
                 </div>
               </div>
             )}
