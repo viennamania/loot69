@@ -110,6 +110,8 @@ export default function SellerDashboardPage() {
   const [escrowUsdtBalance, setEscrowUsdtBalance] = useState<number | null>(null);
   const [recentDone, setRecentDone] = useState<any[]>([]);
   const [recentLoading, setRecentLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [totalSummary, setTotalSummary] = useState({ count: 0, usdt: 0, krw: 0 });
   const [forceProfileSetup, setForceProfileSetup] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileNickname, setProfileNickname] = useState('');
@@ -388,32 +390,46 @@ export default function SellerDashboardPage() {
   const loadRecentCompleted = async () => {
     if (!escrowWalletAddress) return;
     setRecentLoading(true);
+    setSummaryLoading(true);
     try {
-      const res = await fetch('/api/order/getAllBuyOrdersForSeller', {
+      const res = await fetch('/api/order/getBuyOrdersByEscrow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          storecode: STORECODE,
-          limit: 5,
+          limit: 1000,
           page: 1,
-          walletAddress: address,
-          searchMyOrders: false,
-          searchOrderStatusCancelled: false,
-          searchOrderStatusCompleted: true,
-          fromDate: '2000-01-01T00:00:00.000Z',
-          toDate: new Date().toISOString(),
+          escrowWalletAddress,
+          includeCancelled: false,
+          includeCompleted: true,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setRecentDone(data?.result?.orders || []);
+        const orders: any[] = data?.result?.orders || [];
+        const confirmed = orders.filter((o) => o?.status === 'paymentConfirmed');
+        setRecentDone(confirmed.slice(0, 5));
+        const totals = confirmed.reduce(
+          (acc, o) => {
+            const u = Number(o?.usdtAmount || 0);
+            const k = Number(o?.krwAmount || 0);
+            acc.count += 1;
+            acc.usdt += Number.isFinite(u) ? u : 0;
+            acc.krw += Number.isFinite(k) ? k : 0;
+            return acc;
+          },
+          { count: 0, usdt: 0, krw: 0 },
+        );
+        setTotalSummary(totals);
       } else {
         setRecentDone([]);
+        setTotalSummary({ count: 0, usdt: 0, krw: 0 });
       }
     } catch {
       setRecentDone([]);
+      setTotalSummary({ count: 0, usdt: 0, krw: 0 });
     } finally {
       setRecentLoading(false);
+      setSummaryLoading(false);
     }
   };
 
@@ -766,22 +782,37 @@ export default function SellerDashboardPage() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">판매 환율 (원/USDT)</p>
-            <div className="mt-2 flex items-center gap-3">
-              <input
-                value={rateInput}
-                onChange={(e) => setRateInput(e.target.value.replace(/[^0-9.]/g, ''))}
-                className="flex-1 rounded-xl border border-emerald-300/40 bg-slate-950/70 px-3 py-2 text-sm font-semibold text-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-                inputMode="decimal"
-                placeholder="예: 1450"
-              />
-              <button
-                type="button"
-                onClick={handleRateUpdate}
-                disabled={updatingRate}
-                className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60"
-              >
-                {updatingRate ? '저장중...' : '저장하기'}
-              </button>
+            <div className="mt-2 grid gap-3">
+              <div>
+                <p className="text-[11px] text-emerald-100/80">현재 환율</p>
+                <p className="text-3xl font-extrabold text-white tracking-tight">
+                  {sellerUser?.seller?.usdtToKrwRate
+                    ? sellerUser.seller.usdtToKrwRate.toLocaleString('ko-KR')
+                    : '-'}
+                  <span className="ml-1 text-base font-semibold text-emerald-200">원/USDT</span>
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <input
+                  value={rateInput}
+                  onChange={(e) => setRateInput(e.target.value.replace(/[^0-9.]/g, ''))}
+                  className="flex-1 rounded-xl border border-emerald-300/40 bg-slate-950/70 px-3 py-3 text-lg font-semibold text-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+                  inputMode="decimal"
+                  placeholder="예: 1450"
+                />
+                <button
+                  type="button"
+                  onClick={handleRateUpdate}
+                  disabled={
+                    updatingRate ||
+                    !rateInput ||
+                    Number(rateInput) === Number(sellerUser?.seller?.usdtToKrwRate || 0)
+                  }
+                  className="min-w-[110px] rounded-full bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60"
+                >
+                  {updatingRate ? '저장중...' : '저장하기'}
+                </button>
+              </div>
             </div>
             <p className="mt-1 text-[11px] text-slate-500">
               환율을 조정하면 새로운 구매 요청에 즉시 반영됩니다.
@@ -832,11 +863,11 @@ export default function SellerDashboardPage() {
 
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-400">정산 계좌</p>
-            <p className="mt-2 text-sm text-white">
+            <p className="mt-2 text-lg font-semibold text-white">
               {sellerUser?.seller?.bankInfo?.bankName || '-'} /{' '}
               {sellerUser?.seller?.bankInfo?.accountHolder || '-'}
             </p>
-            <p className="font-mono text-sm text-emerald-200">
+            <p className="font-mono text-lg font-semibold text-emerald-200">
               {sellerUser?.seller?.bankInfo?.accountNumber || '-'}
             </p>
             <p className="mt-2 text-[11px] text-slate-500">
@@ -855,6 +886,42 @@ export default function SellerDashboardPage() {
               정산 계좌 설정하기
             </button>
           </div>
+        </section>
+
+        <section className="rounded-2xl border border-emerald-300/30 bg-emerald-900/30 p-5 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-emerald-200/80">누적 통계</p>
+              <h3 className="text-lg font-bold text-white">결제 완료 주문 합계</h3>
+            </div>
+            <span className="text-xs text-emerald-200/80">
+              {summaryLoading ? '집계 중...' : '실시간'}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-3">
+              <p className="text-[11px] text-emerald-100/80">총 거래수</p>
+              <p className="mt-1 text-xl font-bold text-white">
+                {summaryLoading ? '-' : totalSummary.count.toLocaleString('ko-KR')} 건
+              </p>
+            </div>
+            <div className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-3">
+              <p className="text-[11px] text-emerald-100/80">총 거래량</p>
+              <p className="mt-1 text-xl font-bold text-white">
+                {summaryLoading ? '-' : totalSummary.usdt.toFixed(6)} USDT
+              </p>
+            </div>
+            <div className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-3">
+              <p className="text-[11px] text-emerald-100/80">총 거래금액</p>
+              <p className="mt-1 text-xl font-bold text-white">
+                {summaryLoading ? '-' : totalSummary.krw.toLocaleString('ko-KR')} 원
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-emerald-100/80">
+            이 통계는 현재 에스크로 지갑({escrowWalletAddress.slice(0, 6)}...{escrowWalletAddress.slice(-4)})의
+            결제 완료된 주문을 기준으로 산출됩니다.
+          </p>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
@@ -889,8 +956,38 @@ export default function SellerDashboardPage() {
                       완료
                     </span>
                   </div>
-                  <div className="mt-1 text-[11px] text-slate-300">
-                    주문번호: {o.tradeId || '-'} · {o.createdAt ? new Date(o.createdAt).toLocaleString() : '-'}
+                  <div className="mt-1 text-[11px] text-slate-300 space-y-1">
+                    <div>주문번호: {o.tradeId || '-'}</div>
+                    <div>신청시각: {o.createdAt ? new Date(o.createdAt).toLocaleString() : '-'}</div>
+                    <div>
+                      결제완료 시각:{' '}
+                      {o.paymentConfirmedAt ? new Date(o.paymentConfirmedAt).toLocaleString() : '-'}
+                    </div>
+                    {(o.buyer?.bankInfo?.accountHolder || o.buyer?.depositName) && (
+                      <div>
+                        입금자명:{' '}
+                        <span className="font-semibold text-white">
+                          {o.buyer?.bankInfo?.accountHolder || o.buyer?.depositName}
+                        </span>
+                      </div>
+                    )}
+                    {(o.buyer?.bankInfo?.bankName || o.buyer?.bankInfo?.accountNumber) && (
+                      <div>
+                        입금계좌: {o.buyer?.bankInfo?.bankName || '-'} /{' '}
+                        {o.buyer?.bankInfo?.accountNumber || '-'}
+                      </div>
+                    )}
+                    {(o.buyer?.receiveWalletAddress || o.buyer?.walletAddress || o.walletAddress) && (
+                      <div className="font-mono text-[11px] text-emerald-50 break-all">
+                        USDT 수령 지갑:{' '}
+                        {o.buyer?.receiveWalletAddress || o.buyer?.walletAddress || o.walletAddress}
+                      </div>
+                    )}
+                    {o.escrowTransactionHash && (
+                      <div className="font-mono text-[11px] text-emerald-50 break-all">
+                        에스크로 Tx: {o.escrowTransactionHash}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

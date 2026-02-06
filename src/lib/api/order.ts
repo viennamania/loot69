@@ -3270,6 +3270,7 @@ export async function getBuyOrdersForSeller(
     limit,
     page,
     walletAddress,
+    escrowWalletAddress,
     searchMyOrders,
     searchOrderStatusCancelled,
     searchOrderStatusCompleted,
@@ -3280,6 +3281,7 @@ export async function getBuyOrdersForSeller(
     limit: number;
     page: number;
     walletAddress: string;
+    escrowWalletAddress?: string;
     searchMyOrders: boolean;
     searchOrderStatusCancelled: boolean;
     searchOrderStatusCompleted: boolean;
@@ -3337,6 +3339,7 @@ export async function getBuyOrdersForSeller(
 
         storecode:  storecode,
         walletAddress: walletAddress,
+        ...(escrowWalletAddress ? { 'seller.escrowWalletAddress': escrowWalletAddress } : {}),
         privateSale: { $ne: true },
 
         createdAt: {
@@ -3361,6 +3364,7 @@ export async function getBuyOrdersForSeller(
       {
         storecode: storecode,
         walletAddress: walletAddress,
+        ...(escrowWalletAddress ? { 'seller.escrowWalletAddress': escrowWalletAddress } : {}),
 
         privateSale: { $ne: true },
 
@@ -3396,6 +3400,7 @@ export async function getBuyOrdersForSeller(
         storecode: storecode,
         // exclude private sale
         privateSale: { $ne: true },
+        ...(escrowWalletAddress ? { 'seller.escrowWalletAddress': escrowWalletAddress } : {}),
 
         createdAt: {
           $gte: new Date(fromDate),
@@ -3418,6 +3423,7 @@ export async function getBuyOrdersForSeller(
       {
         storecode: storecode,
         privateSale: { $ne: true },
+        ...(escrowWalletAddress ? { 'seller.escrowWalletAddress': escrowWalletAddress } : {}),
 
         createdAt: {
           $gte: new Date(fromDate),
