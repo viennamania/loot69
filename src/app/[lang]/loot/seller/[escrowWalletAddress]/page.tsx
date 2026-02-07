@@ -94,8 +94,10 @@ export default function SellerDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [unauthorized, setUnauthorized] = useState(false);
   const [onchainBalance, setOnchainBalance] = useState<string>('-');
-  const [displayBalance, setDisplayBalance] = useState<string>('-'); // 애니메이션 표시용
+  const [displayBalance, setDisplayBalance] = useState<string>('0.000000'); // 애니메이션 표시용
+  const [displayRate, setDisplayRate] = useState<string>('0'); // 환율 애니메이션 표시용
   const balanceAnimRef = useRef<number | null>(null);
+  const rateAnimRef = useRef<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [updatingRate, setUpdatingRate] = useState(false);
   const [rateInput, setRateInput] = useState('');
@@ -276,6 +278,17 @@ export default function SellerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [escrowWalletAddress]);
 
+  // 판매 환율 10초 주기로 새로고침
+  useEffect(() => {
+    if (!address) return;
+    const timer = setInterval(() => {
+      fetchUser(); // sellerUser 안의 usdtToKrwRate 최신값 반영
+      fetchRateHistory();
+    }, 10000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, escrowWalletAddress]);
+
   // 잔액 변경 시 부드러운 카운트 애니메이션
   useEffect(() => {
     if (balanceAnimRef.current) {
@@ -287,7 +300,7 @@ export default function SellerDashboardPage() {
       return;
     }
     const target = Number(onchainBalance);
-    const start = Number(displayBalance === '-' ? target : Number(displayBalance));
+    const start = Number.isFinite(Number(displayBalance)) ? Number(displayBalance) : 0;
     const duration = 700;
     const startTime = performance.now();
 
@@ -309,6 +322,42 @@ export default function SellerDashboardPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainBalance]);
+
+  // 판매 환율 카운트 애니메이션
+  useEffect(() => {
+    const target = sellerUser?.seller?.usdtToKrwRate;
+    if (rateAnimRef.current) {
+      cancelAnimationFrame(rateAnimRef.current);
+      rateAnimRef.current = null;
+    }
+    if (target === undefined || target === null) {
+      setDisplayRate('-');
+      return;
+    }
+    const formatter = new Intl.NumberFormat('ko-KR');
+    const currentNumeric = Number(String(displayRate).replace(/,/g, ''));
+    const start = Number.isFinite(currentNumeric) ? currentNumeric : 0;
+    const duration = 700;
+    const startTime = performance.now();
+
+    const animate = (time: number) => {
+      const progress = Math.min((time - startTime) / duration, 1);
+      const value = start + (target - start) * progress;
+      setDisplayRate(formatter.format(Math.round(value)));
+      if (progress < 1) {
+        rateAnimRef.current = requestAnimationFrame(animate);
+      } else {
+        rateAnimRef.current = null;
+      }
+    };
+
+    rateAnimRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (rateAnimRef.current) cancelAnimationFrame(rateAnimRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sellerUser?.seller?.usdtToKrwRate]);
 
   useEffect(() => {
     if (address) {
@@ -912,7 +961,7 @@ export default function SellerDashboardPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-xs text-slate-300">USDT 잔액 (온체인)</p>
-                <p className="mt-2 font-mono text-3xl sm:text-4xl font-extrabold text-emerald-100">
+                <p className="mt-2 font-mono text-2xl sm:text-3xl font-extrabold text-emerald-100">
                   {displayBalance}
                 </p>
                 <p className="mt-1 text-[11px] text-slate-400">에스크로 지갑에 예치된 온체인 USDT</p>
@@ -944,11 +993,9 @@ export default function SellerDashboardPage() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
             <p className="text-xs text-slate-300">판매 환율 (원/USDT)</p>
-            <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <p className="font-mono text-3xl sm:text-4xl font-extrabold text-emerald-100 tracking-tight">
-                {sellerUser?.seller?.usdtToKrwRate
-                  ? sellerUser.seller.usdtToKrwRate.toLocaleString('ko-KR')
-                  : '-'}
+              <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <p className="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-100 tracking-tight">
+                {displayRate}
               </p>
               <div className="flex flex-col items-stretch gap-2 sm:items-end">
                 <button
