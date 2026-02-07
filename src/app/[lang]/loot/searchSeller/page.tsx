@@ -164,7 +164,11 @@ export default function SearchSellerPage() {
         };
     }, [refreshIndex]);
 
-    // 자동 새로고침 제거 (수동 새로고침 버튼만 사용)
+    // 10초마다 자동 새로고침
+    useEffect(() => {
+        const timer = setInterval(() => setRefreshIndex((prev) => prev + 1), 10000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -336,17 +340,20 @@ export default function SearchSellerPage() {
                 {/* 요약 대시보드 */}
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-emerald-300/50 bg-gradient-to-br from-emerald-900/50 via-emerald-800/40 to-slate-900/60 p-4 shadow-lg">
-                        <p className="text-xs text-emerald-100/80">전체 판매자 수</p>
-                        <p className="mt-1 text-2xl font-bold text-white">
-                            {summaryLoading ? '...' : summary.totalSellers.toLocaleString('ko-KR')} 명
-                        </p>
-                        <p className="mt-1 text-[12px] text-emerald-100/70">
-                            전체 에스크로 USDT 총액
-                        </p>
-                        <p className="mt-1 font-mono text-3xl font-extrabold text-emerald-200">
-                            {displayEscrow} USDT
-                        </p>
-                        <p className="text-[11px] text-emerald-100/70">10초마다 자동 갱신</p>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                            <div>
+                                <p className="text-xs text-emerald-100/80">전체 판매자 수</p>
+                                <p className="mt-1 text-2xl font-bold text-white">
+                                    {summaryLoading ? '...' : summary.totalSellers.toLocaleString('ko-KR')} 명
+                                </p>
+                            </div>
+                            <div className="text-left sm:text-right">
+                                <p className="text-[12px] text-emerald-100/70">전체 에스크로 USDT 총액</p>
+                                <p className="mt-1 font-mono text-3xl font-extrabold text-emerald-200">
+                                    {displayEscrow}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     <div className="rounded-2xl border border-emerald-300/30 bg-emerald-900/20 p-4 grid grid-cols-3 gap-3 text-center sm:text-left sm:grid-cols-3">
                         <div>
