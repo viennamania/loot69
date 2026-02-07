@@ -6,6 +6,7 @@ import {
   checkVaultWalletAddressExists,
   updateSellerVaultWallet,
 } from '@lib/api/user';
+import clientPromise, { dbName } from '@lib/mongodb';
 
 
 import {
@@ -23,6 +24,7 @@ import {
 
  import { ethers } from "ethers";
 
+export const runtime = 'nodejs';
 
 
 
@@ -30,19 +32,43 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const { storecode, walletAddress, usdtToKrwRate } = body;
+  const { storecode = 'admin', walletAddress, usdtToKrwRate } = body;
 
   //console.log('updateSellerUsdtToKrwRate body:', body);
 
+  if (!walletAddress || typeof usdtToKrwRate !== 'number' || usdtToKrwRate <= 0) {
+    return NextResponse.json({ result: null, error: 'walletAddress and valid usdtToKrwRate required' }, { status: 400 });
+  }
 
-  const result = await updateSellerUsdtToKrwRate({
-    storecode: storecode,
-    walletAddress: walletAddress,
-    usdtToKrwRate: usdtToKrwRate,
-  });
+  try {
+    const client = await clientPromise;
+    const users = client.db(dbName).collection('users');
+    const existing = await users.findOne({ storecode, walletAddress });
+    const prevRate = existing?.seller?.usdtToKrwRate ?? null;
 
+    const result = await updateSellerUsdtToKrwRate({
+      storecode: storecode,
+      walletAddress: walletAddress,
+      usdtToKrwRate: usdtToKrwRate,
+    });
 
-  return NextResponse.json({
-    result,
-  });
+    if (!result || result.modifiedCount === 0) {
+      return NextResponse.json({ result: null, error: 'Failed to update rate' }, { status: 500 });
+    }
+
+    await client.db(dbName).collection('sellerRateHistory').insertOne({
+      storecode,
+      walletAddress,
+      prevRate,
+      nextRate: usdtToKrwRate,
+      changedAt: new Date(),
+    });
+
+    return NextResponse.json({
+      result,
+    });
+  } catch (error) {
+    console.error('updateSellerUsdtToKrwRate error', error);
+    return NextResponse.json({ result: null, error: 'Server error updating rate' }, { status: 500 });
+  }
 }

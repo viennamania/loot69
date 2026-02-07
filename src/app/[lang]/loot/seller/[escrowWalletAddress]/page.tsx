@@ -119,9 +119,45 @@ export default function SellerDashboardPage() {
   const [profilePreview, setProfilePreview] = useState('/profile-default.png');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [rateModalOpen, setRateModalOpen] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusHistory, setStatusHistory] = useState<any[]>([]);
+  const [rateHistory, setRateHistory] = useState<any[]>([]);
 
   const chainObj = useMemo(() => getChainObject(), []);
   const usdtAddress = useMemo(() => getUsdtAddress(), []);
+  const btnPrimary =
+    'inline-flex items-center justify-center gap-2 rounded-full bg-emerald-400 px-4 py-2.5 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60 disabled:cursor-not-allowed transition whitespace-nowrap';
+  const btnSecondary =
+    'inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300/70 bg-emerald-500/15 px-4 py-2.5 text-sm font-semibold text-emerald-50 hover:bg-emerald-400/20 disabled:opacity-50 transition whitespace-nowrap';
+  const btnGhost =
+    'inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-white/10 transition';
+
+  const statusLabelKr = (v?: string) => {
+    switch ((v || '').toLowerCase()) {
+      case 'confirmed':
+      case 'enabled':
+        return '활성';
+      case 'pending':
+      case 'disabled':
+        return '대기';
+      default:
+        return v || '-';
+    }
+  };
+
+  const statusColorClass = (v?: string) => {
+    switch ((v || '').toLowerCase()) {
+      case 'confirmed':
+      case 'enabled':
+        return 'text-emerald-200';
+      case 'pending':
+      case 'disabled':
+        return 'text-amber-200';
+      default:
+        return 'text-slate-300';
+    }
+  };
 
   const fetchUser = async () => {
     if (!address) return;
@@ -223,8 +259,18 @@ export default function SellerDashboardPage() {
   useEffect(() => {
     fetchOnchainBalance();
     loadRecentCompleted();
+    fetchStatusHistory();
+    fetchRateHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [escrowWalletAddress]);
+
+  useEffect(() => {
+    if (address) {
+      fetchStatusHistory();
+      fetchRateHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   useEffect(() => {
     if (sellerUser) {
@@ -257,6 +303,7 @@ export default function SellerDashboardPage() {
           ? { ...prev, seller: { ...prev.seller, status: nextStatus } }
           : prev,
       );
+      fetchStatusHistory();
       toast.success(`판매 상태가 ${nextStatus === 'confirmed' ? '활성' : '대기'}로 변경되었습니다.`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '상태 변경 중 오류가 발생했습니다.');
@@ -287,6 +334,7 @@ export default function SellerDashboardPage() {
       setSellerUser((prev) =>
         prev ? { ...prev, seller: { ...prev.seller, usdtToKrwRate: Number(rateInput) } } : prev,
       );
+      fetchRateHistory();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '환율 업데이트 중 오류가 발생했습니다.');
     } finally {
@@ -359,6 +407,8 @@ export default function SellerDashboardPage() {
         await sendTransaction({
           account: activeAccount as any,
           transaction: tx,
+          // 스마트어카운트의 프리펀드 부족 오류(AA21)를 막기 위해 가스 스폰서 요청
+          sponsorGas: true,
         } as any);
         toast.success('충전이 완료되었습니다.');
       } else {
@@ -430,6 +480,48 @@ export default function SellerDashboardPage() {
     } finally {
       setRecentLoading(false);
       setSummaryLoading(false);
+    }
+  };
+
+  const fetchStatusHistory = async () => {
+    if (!address) return;
+    try {
+      const res = await fetch('/api/user/getSellerStatusHistory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storecode: STORECODE,
+          walletAddress: address,
+          limit: 3,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setStatusHistory(data?.result || []);
+      }
+    } catch {
+      // silently ignore
+    }
+  };
+
+  const fetchRateHistory = async () => {
+    if (!address) return;
+    try {
+      const res = await fetch('/api/user/getSellerRateHistory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storecode: STORECODE,
+          walletAddress: address,
+          limit: 3,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setRateHistory(data?.result || []);
+      }
+    } catch {
+      // ignore
     }
   };
 
@@ -719,23 +811,23 @@ export default function SellerDashboardPage() {
             <button
               type="button"
               onClick={() => history.back()}
-              className="mt-1 inline-flex items-center gap-2 rounded-full border border-slate-600/70 bg-slate-900/60 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-800"
-            >
-              ← 돌아가기
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/${lang}/loot/seller/${sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress}/buyorder`)}
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-400/70 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
-            >
-              구매 신청 내역 보러가기
-            </button>
+            className={btnGhost}
+          >
+            ← 돌아가기
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push(`/${lang}/loot/seller/${sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress}/buyorder`)}
+            className={btnSecondary}
+          >
+            구매 신청 내역 보러가기
+          </button>
           </div>
         </header>
 
         <section className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
-            <p className="text-xs text-slate-400">에스크로 지갑</p>
+            <p className="text-xs text-slate-300">에스크로 지갑</p>
             <p className="mt-1 font-mono text-sm text-emerald-100 break-all">{escrowWalletAddress}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-emerald-50 shadow">
@@ -749,23 +841,23 @@ export default function SellerDashboardPage() {
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-slate-400">USDT 잔액 (온체인)</p>
-                  <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-emerald-100">{onchainBalance}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">계좌에 입금된 에스크로 토큰 잔액</p>
-                </div>
-                <div className="flex flex-col gap-2">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs text-slate-300">USDT 잔액 (온체인)</p>
+                <p className="mt-2 text-4xl font-extrabold text-emerald-100">{onchainBalance}</p>
+                <p className="mt-1 text-[11px] text-slate-400">에스크로 지갑에 예치된 온체인 USDT</p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                  setTransferTab('deposit');
-                  fetchWalletUsdtBalance();
-                  setTransferModalOpen(true);
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
-              >
-                충/환전하기
+                    setTransferTab('deposit');
+                    fetchWalletUsdtBalance();
+                    setTransferModalOpen(true);
+                  }}
+                  className={btnPrimary}
+                >
+                  충/환전하기
                 </button>
                 <button
                   type="button"
@@ -773,7 +865,7 @@ export default function SellerDashboardPage() {
                     setTxPanelOpen(true);
                     loadEscrowTx();
                   }}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
+                  className={btnSecondary}
                 >
                   내역보기
                 </button>
@@ -781,25 +873,139 @@ export default function SellerDashboardPage() {
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
-            <p className="text-xs text-slate-400">판매 환율 (원/USDT)</p>
-            <div className="mt-2 grid gap-3">
-              <div>
-                <p className="text-[11px] text-emerald-100/80">현재 환율</p>
-                <p className="text-3xl font-extrabold text-white tracking-tight">
-                  {sellerUser?.seller?.usdtToKrwRate
-                    ? sellerUser.seller.usdtToKrwRate.toLocaleString('ko-KR')
-                    : '-'}
-                  <span className="ml-1 text-base font-semibold text-emerald-200">원/USDT</span>
-                </p>
+            <p className="text-xs text-slate-300">판매 환율 (원/USDT)</p>
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <p className="text-4xl font-extrabold text-emerald-100 tracking-tight">
+                {sellerUser?.seller?.usdtToKrwRate
+                  ? sellerUser.seller.usdtToKrwRate.toLocaleString('ko-KR')
+                  : '-'}
+              </p>
+              <div className="flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRateInput(
+                      sellerUser?.seller?.usdtToKrwRate
+                        ? String(sellerUser.seller.usdtToKrwRate)
+                        : '',
+                    );
+                    setRateModalOpen(true);
+                  }}
+                  className={btnPrimary}
+                >
+                  환율 수정하기
+                </button>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            </div>
+            <p className="mt-1 text-[11px] text-slate-400">
+              환율을 조정하면 새로운 구매 요청에 즉시 반영됩니다.
+            </p>
+            {rateHistory.length > 0 && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+                <p className="text-xs font-semibold text-slate-200">환율 변경 이력</p>
+                <div className="mt-2 space-y-2 text-[11px] text-slate-300">
+                  {rateHistory.map((h) => (
+                    <div key={h._id || h.changedAt} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-200">{h.prevRate ?? '-'}</span>
+                        <span className="text-slate-400">→</span>
+                        <span className="font-semibold text-emerald-100">{h.nextRate}</span>
+                        {typeof h.nextRate === 'number' && (h.prevRate || h.prevRate === 0) ? (
+                          (() => {
+                            const diff = Number(h.nextRate) - Number(h.prevRate || 0);
+                            const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+                            const color =
+                              diff > 0 ? 'text-emerald-200' : diff < 0 ? 'text-rose-200' : 'text-slate-200';
+                            return (
+                              <span className={`ml-1 font-semibold ${color}`}>
+                                {sign}
+                                {Math.abs(diff)}
+                              </span>
+                            );
+                          })()
+                        ) : null}
+                      </div>
+                      <span className="text-slate-400">
+                        {h.changedAt ? new Date(h.changedAt).toLocaleString() : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {statusModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => (!updatingStatus ? setStatusModalOpen(false) : null)}
+            />
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-emerald-200/40 bg-slate-950/90 p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-white">판매 상태 변경</h3>
+              <p className="mt-2 text-sm text-emerald-100/90">
+                {sellerUser?.seller?.status === 'confirmed'
+                  ? '판매를 중지하면 신규 구매 요청이 더 이상 접수되지 않습니다.'
+                  : '판매를 시작하면 신규 구매 요청을 받을 수 있습니다.'}
+              </p>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => (!updatingStatus ? setStatusModalOpen(false) : null)}
+                  className="w-full rounded-full border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+                  disabled={updatingStatus}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!updatingStatus) handleStatusToggle().finally(() => setStatusModalOpen(false));
+                  }}
+                  className="w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60 sm:w-auto"
+                  disabled={updatingStatus}
+                >
+                  {updatingStatus ? '변경중...' : '확인'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {rateModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => (!updatingRate ? setRateModalOpen(false) : null)}
+            />
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-emerald-200/40 bg-slate-950/90 p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-white">판매 환율 수정</h3>
+              <p className="mt-1 text-xs text-emerald-100/80">
+                현재 환율: {sellerUser?.seller?.usdtToKrwRate?.toLocaleString('ko-KR') || '-'} 원/USDT
+              </p>
+              <div className="mt-4 space-y-2">
+                <label className="text-sm font-semibold text-emerald-50" htmlFor="rate-input-modal">
+                  새 환율 입력
+                </label>
                 <input
+                  id="rate-input-modal"
                   value={rateInput}
                   onChange={(e) => setRateInput(e.target.value.replace(/[^0-9.]/g, ''))}
-                  className="flex-1 rounded-xl border border-emerald-300/40 bg-slate-950/70 px-3 py-3 text-lg font-semibold text-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+                  className="w-full rounded-xl border border-emerald-300/40 bg-slate-950/70 px-4 py-4 text-3xl font-extrabold text-emerald-50 text-right tracking-tight focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
                   inputMode="decimal"
                   placeholder="예: 1450"
                 />
+              </div>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => (!updatingRate ? setRateModalOpen(false) : null)}
+                  className="w-full rounded-full border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-40 sm:w-auto"
+                  disabled={updatingRate}
+                >
+                  닫기
+                </button>
                 <button
                   type="button"
                   onClick={handleRateUpdate}
@@ -808,23 +1014,20 @@ export default function SellerDashboardPage() {
                     !rateInput ||
                     Number(rateInput) === Number(sellerUser?.seller?.usdtToKrwRate || 0)
                   }
-                  className="min-w-[110px] rounded-full bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60"
+                  className="w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-900 shadow hover:bg-emerald-300 disabled:opacity-60 sm:w-auto"
                 >
                   {updatingRate ? '저장중...' : '저장하기'}
                 </button>
               </div>
             </div>
-            <p className="mt-1 text-[11px] text-slate-500">
-              환율을 조정하면 새로운 구매 요청에 즉시 반영됩니다.
-            </p>
           </div>
-        </section>
+        )}
 
         <section className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg md:col-span-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-400">판매 상태</p>
+                <p className="text-xs text-slate-300">판매 상태</p>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   판매 활성화/중지
                   <span
@@ -841,13 +1044,13 @@ export default function SellerDashboardPage() {
               </div>
               <button
                 type="button"
-                onClick={handleStatusToggle}
+                onClick={() => setStatusModalOpen(true)}
                 disabled={updatingStatus}
-                className={`rounded-full px-4 py-2 text-sm font-bold shadow-lg ${
+                className={`rounded-full px-4 py-2.5 text-sm font-bold shadow-lg whitespace-nowrap ${
                   sellerUser?.seller?.status === 'confirmed'
-                    ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white hover:from-rose-400 hover:to-rose-500'
-                    : 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-slate-900 hover:from-emerald-300 hover:to-emerald-400'
-                } disabled:opacity-60`}
+                    ? 'bg-rose-500 hover:bg-rose-400 text-white'
+                    : 'bg-emerald-400 hover:bg-emerald-300 text-slate-900'
+                } disabled:opacity-60 disabled:cursor-not-allowed transition`}
               >
                 {updatingStatus
                   ? '변경중...'
@@ -859,32 +1062,61 @@ export default function SellerDashboardPage() {
             <p className="mt-3 text-sm text-slate-300">
               판매 중지 시 신규 구매 요청이 접수되지 않습니다. 기존 요청은 정상적으로 처리됩니다.
             </p>
+            {statusHistory.length > 0 && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+                <p className="text-xs font-semibold text-slate-200">상태 변경 이력</p>
+                <div className="mt-2 space-y-2 text-[11px] text-slate-300">
+                  {statusHistory.map((h) => (
+                    <div key={h._id || h.changedAt} className="flex items-center justify-between gap-2">
+                      <span>
+                        <span className={statusColorClass(h.prevStatus)}>
+                          {statusLabelKr(h.prevStatus) || '없음'}
+                        </span>{' '}
+                        →{' '}
+                        <span className={`font-semibold ${statusColorClass(h.nextStatus)}`}>
+                          {statusLabelKr(h.nextStatus)}
+                        </span>
+                      </span>
+                      <span className="text-slate-400">
+                        {h.changedAt ? new Date(h.changedAt).toLocaleString() : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
-            <p className="text-xs text-slate-400">정산 계좌</p>
-            <p className="mt-2 text-lg font-semibold text-white">
-              {sellerUser?.seller?.bankInfo?.bankName || '-'} /{' '}
-              {sellerUser?.seller?.bankInfo?.accountHolder || '-'}
-            </p>
-            <p className="font-mono text-lg font-semibold text-emerald-200">
-              {sellerUser?.seller?.bankInfo?.accountNumber || '-'}
-            </p>
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="text-xs text-slate-300">정산 계좌</p>
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xl font-semibold text-white">
+                  {sellerUser?.seller?.bankInfo?.bankName || '-'} /{' '}
+                  {sellerUser?.seller?.bankInfo?.accountHolder || '-'}
+                </p>
+                <p className="font-mono text-xl font-semibold text-emerald-200">
+                  {sellerUser?.seller?.bankInfo?.accountNumber || '-'}
+                </p>
+            <p className="mt-2 text-[11px] text-slate-400">
               입금 정보는 고객 화면의 “판매자 입금 계좌”에 표시됩니다.
             </p>
-            {!sellerUser?.seller?.bankInfo && (
-              <p className="mt-1 text-[11px] text-amber-200">
-                정산 계좌가 없습니다. 설정 후 거래 정산이 가능합니다.
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
-              className="mt-3 rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/30"
-            >
-              정산 계좌 설정하기
-            </button>
+                {!sellerUser?.seller?.bankInfo && (
+                  <p className="mt-1 text-[11px] text-amber-200">
+                    정산 계좌가 없습니다. 설정 후 거래 정산이 가능합니다.
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/${lang}/loot/bankinfo-settings`)}
+                  className={btnPrimary}
+                >
+                  계좌 설정하기
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -927,7 +1159,7 @@ export default function SellerDashboardPage() {
         <section className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-400">최근 거래 완료</p>
+            <p className="text-xs text-slate-300">최근 거래 완료</p>
               <h3 className="text-lg font-bold text-white">결제 완료된 주문 (최신 5건)</h3>
             </div>
             <button
@@ -935,7 +1167,7 @@ export default function SellerDashboardPage() {
               onClick={() =>
                 router.push(`/${lang}/loot/seller/${sellerUser?.seller?.escrowWalletAddress || escrowWalletAddress}/buyorder`)
               }
-              className="rounded-full border border-emerald-300/60 bg-emerald-500/20 px-3 py-1.5 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-400/30"
+              className={btnSecondary}
             >
               더보기
             </button>

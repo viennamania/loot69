@@ -658,29 +658,10 @@ export async function updateSellerStatus(data: any) {
   const client = await clientPromise;
   const collection = client.db(dbName).collection('users');
 
-
-  // update and return updated user
-
-  if (!data.storecode || !data.walletAddress || !data.bankName || !data.accountNumber || !data.accountHolder) {
+  if (!data.storecode || !data.walletAddress) {
     return null;
   }
 
-
-  /*
-  // check data.accountNumber is exist from bankusers collection
-  const bankUsersCollection = client.db(dbName).collection('bankusers');
-  const checkBankUser = await bankUsersCollection.findOne(
-    {
-      bankAccountNumber: data.accountNumber,
-    }
-  );
-  if (checkBankUser) {
-    console.log('bank user already exists: ' + data.accountNumber);
-  }
-  */
-
-
-  // if user is exist, update seller info
   const existingUser = await collection.findOne(
     {
       storecode: data.storecode,
@@ -693,25 +674,37 @@ export async function updateSellerStatus(data: any) {
     return null;
   }
 
-  const sellerBankInfo = {
-    ...(existingUser as any)?.seller?.bankInfo,
-    bankName: data.bankName,
-    accountNumber: data.accountNumber,
-    accountHolder: data.accountHolder,
-  };
+  const updates: any = {};
 
+  if (data.sellerStatus) {
+    updates['seller.status'] = data.sellerStatus;
+  }
 
-  // update seller info
+  if (data.bankName || data.accountNumber || data.accountHolder) {
+    updates['seller.bankInfo'] = {
+      ...(existingUser as any)?.seller?.bankInfo,
+      ...(data.bankName ? { bankName: data.bankName } : {}),
+      ...(data.accountNumber ? { accountNumber: data.accountNumber } : {}),
+      ...(data.accountHolder ? { accountHolder: data.accountHolder } : {}),
+    };
+  }
+
+  if (data.nickname) {
+    updates.nickname = data.nickname;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return existingUser;
+  }
+
   const result = await collection.updateOne(
     {
       storecode: data.storecode,
       walletAddress: data.walletAddress
     },
     {
-      $set: {
-        'seller.bankInfo': sellerBankInfo,
-      }
-  }
+      $set: updates,
+    }
   );
 
   if (result.modifiedCount > 0) {
@@ -725,8 +718,6 @@ export async function updateSellerStatus(data: any) {
   } else {
     return null;
   }
-
-
 }
 
 

@@ -69,7 +69,7 @@ const resolveChain = (value: NetworkKey) => {
 };
 
 export function useClientWallets(options: UseClientWalletsOptions = {}) {
-  const { authOptions = [], sponsorGas = false } = options;
+  const { authOptions = [], sponsorGas = true } = options;
   const { chain, smartAccountEnabled } = useClientSettings();
   const activeChain = resolveChain(chain);
   const normalizedAuthOptions = useMemo(

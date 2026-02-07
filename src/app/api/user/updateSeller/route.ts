@@ -6,6 +6,7 @@ import {
   checkVaultWalletAddressExists,
   updateSellerVaultWallet,
 } from '@lib/api/user';
+import clientPromise, { dbName } from '@lib/mongodb';
 
 
 import {
@@ -172,14 +173,39 @@ export async function POST(request: NextRequest) {
   }
   */
 
-  const result = await updateSellerStatus({
-    storecode: storecode,
-    walletAddress: walletAddress,
-    nickname: nickname,
-    sellerStatus: sellerStatus,
-    bankName: bankName,
-    accountNumber: accountNumber,
-    accountHolder: accountHolder,
-  });
-  
+  try {
+    // fetch previous status for history
+    const client = await clientPromise;
+    const users = client.db(dbName).collection('users');
+    const existing = await users.findOne({ storecode, walletAddress });
+    const prevStatus = existing?.seller?.status || null;
+
+    const result = await updateSellerStatus({
+      storecode: storecode,
+      walletAddress: walletAddress,
+      nickname: nickname,
+      sellerStatus: sellerStatus,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      accountHolder: accountHolder,
+    });
+
+    if (!result) {
+      return NextResponse.json({ result: null, error: 'Failed to update seller status' }, { status: 500 });
+    }
+
+    // write history
+    await client.db(dbName).collection('sellerStatusHistory').insertOne({
+      storecode,
+      walletAddress,
+      prevStatus,
+      nextStatus: sellerStatus,
+      changedAt: new Date(),
+    });
+
+    return NextResponse.json({ result });
+  } catch (error: any) {
+    console.error('updateSeller error', error);
+    return NextResponse.json({ result: null, error: 'Server error updating seller status' }, { status: 500 });
+  }
 }
