@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ result: null, error: 'Failed to update seller status' }, { status: 500 });
     }
 
-    // write history
+    // write history (status)
     await client.db(dbName).collection('sellerStatusHistory').insertOne({
       storecode,
       walletAddress,
@@ -202,6 +202,20 @@ export async function POST(request: NextRequest) {
       nextStatus: sellerStatus,
       changedAt: new Date(),
     });
+
+    // write bank info history if changed
+    if (bankName || accountNumber || accountHolder) {
+      await client.db(dbName).collection('sellerBankInfoHistory').insertOne({
+        storecode,
+        walletAddress,
+        bankInfo: {
+          bankName,
+          accountNumber,
+          accountHolder,
+        },
+        changedAt: new Date(),
+      });
+    }
 
     return NextResponse.json({ result });
   } catch (error: any) {
