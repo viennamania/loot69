@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
@@ -64,6 +64,16 @@ export default function SearchSellerPage() {
     const [minRate, setMinRate] = useState('');
     const [maxRate, setMaxRate] = useState('');
     const [refreshIndex, setRefreshIndex] = useState(0);
+    const [summaryLoading, setSummaryLoading] = useState(false);
+    const [summary, setSummary] = useState<{ totalSellers: number; totalOrders: number; totalUsdt: number; totalKrw: number }>({
+        totalSellers: 0,
+        totalOrders: 0,
+        totalUsdt: 0,
+        totalKrw: 0,
+    });
+    const [totalEscrow, setTotalEscrow] = useState(0);
+    const [displayEscrow, setDisplayEscrow] = useState('0');
+    const escrowAnimRef = useRef<number | null>(null);
     const [buyerInfo, setBuyerInfo] = useState<{ nickname?: string; depositName?: string; receiveWallet?: string }>({});
     const [userLoading, setUserLoading] = useState(false);
 
@@ -109,6 +119,32 @@ export default function SearchSellerPage() {
 
                 if (!ignore) {
                     setSellers(aggregated);
+                    const totalEscrowBalance = aggregated.reduce(
+                        (sum, s) => sum + (Number(s.currentUsdtBalance) || 0),
+                        0,
+                    );
+                    setTotalEscrow(totalEscrowBalance);
+                    if (escrowAnimRef.current) {
+                        cancelAnimationFrame(escrowAnimRef.current);
+                        escrowAnimRef.current = null;
+                    }
+                    // animate escrow total
+                    const target = totalEscrowBalance;
+                    const start = Number(displayEscrow.replace(/,/g, '')) || 0;
+                    const duration = 700;
+                    const startTime = performance.now();
+                    const formatter = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const animate = (time: number) => {
+                        const progress = Math.min((time - startTime) / duration, 1);
+                        const value = start + (target - start) * progress;
+                        setDisplayEscrow(formatter.format(value));
+                        if (progress < 1) {
+                            escrowAnimRef.current = requestAnimationFrame(animate);
+                        } else {
+                            escrowAnimRef.current = null;
+                        }
+                    };
+                    escrowAnimRef.current = requestAnimationFrame(animate);
                 }
             } catch (err) {
                 if (!ignore && !(err instanceof DOMException)) {
@@ -127,6 +163,8 @@ export default function SearchSellerPage() {
             controller.abort();
         };
     }, [refreshIndex]);
+
+    // 자동 새로고침 제거 (수동 새로고침 버튼만 사용)
 
     useEffect(() => {
         let cancelled = false;
@@ -156,6 +194,38 @@ export default function SearchSellerPage() {
             cancelled = true;
         };
     }, [address]);
+
+    // 대시보드 요약 불러오기
+    useEffect(() => {
+        let ignore = false;
+        const fetchSummary = async () => {
+            setSummaryLoading(true);
+            try {
+                const res = await fetch('/api/user/getSellerDashboardSummary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ storecode }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!ignore && res.ok && data?.result) {
+                    setSummary({
+                        totalSellers: data.result.totalSellers ?? 0,
+                        totalOrders: data.result.totalOrders ?? 0,
+                        totalUsdt: data.result.totalUsdt ?? 0,
+                        totalKrw: data.result.totalKrw ?? 0,
+                    });
+                }
+            } catch (err) {
+                // ignore errors, keep previous summary
+            } finally {
+                if (!ignore) setSummaryLoading(false);
+            }
+        };
+        fetchSummary();
+        return () => {
+            ignore = true;
+        };
+    }, [refreshIndex]);
 
     const filteredSellers = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
@@ -261,6 +331,43 @@ export default function SearchSellerPage() {
                     >
                         홈으로
                     </Link>
+                </div>
+
+                {/* 요약 대시보드 */}
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-emerald-300/50 bg-gradient-to-br from-emerald-900/50 via-emerald-800/40 to-slate-900/60 p-4 shadow-lg">
+                        <p className="text-xs text-emerald-100/80">전체 판매자 수</p>
+                        <p className="mt-1 text-2xl font-bold text-white">
+                            {summaryLoading ? '...' : summary.totalSellers.toLocaleString('ko-KR')} 명
+                        </p>
+                        <p className="mt-1 text-[12px] text-emerald-100/70">
+                            전체 에스크로 USDT 총액
+                        </p>
+                        <p className="mt-1 font-mono text-3xl font-extrabold text-emerald-200">
+                            {displayEscrow} USDT
+                        </p>
+                        <p className="text-[11px] text-emerald-100/70">10초마다 자동 갱신</p>
+                    </div>
+                    <div className="rounded-2xl border border-emerald-300/30 bg-emerald-900/20 p-4 grid grid-cols-3 gap-3 text-center sm:text-left sm:grid-cols-3">
+                        <div>
+                            <p className="text-[11px] text-emerald-100/80">누적 주문</p>
+                            <p className="mt-1 text-xl font-bold text-white">
+                                {summaryLoading ? '...' : summary.totalOrders.toLocaleString('ko-KR')}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-[11px] text-emerald-100/80">누적 판매량 (USDT)</p>
+                            <p className="mt-1 text-lg font-bold text-white">
+                                {summaryLoading ? '...' : summary.totalUsdt.toFixed(2)}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-[11px] text-emerald-100/80">누적 금액 (KRW)</p>
+                            <p className="mt-1 text-lg font-bold text-white">
+                                {summaryLoading ? '...' : summary.totalKrw.toLocaleString('ko-KR')}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mt-6 rounded-2xl border border-slate-800/70 bg-slate-950/70 p-4">

@@ -2618,8 +2618,6 @@ export async function getAllSellersForBalanceInquiry(
     storecode: { $regex: String(storecode), $options: 'i' },
     walletAddress: { $exists: true, $ne: null },
     seller: { $exists: true, $ne: null },
-    'seller.status': 'confirmed',
-    'seller.enabled': true,
     'seller.escrowWalletAddress': { $exists: true, $ne: null },
   };
 
