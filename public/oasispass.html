@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko" data-lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OASIS PASS | Conditional USDT Settlement Infrastructure</title>
+  <meta name="description" content="Oasis Pass는 USDT 기반 조건부 정산 인프라 서비스입니다. 거래 중개나 원화 취급 없이 자동 정산을 제공합니다.">
+  <style>
+    :root {
+      --navy: #0f172a;
+      --deep: #0b2d45;
+      --cyan: #2dd4bf;
+      --aqua: #6ee7ff;
+      --sand: #f3f4f6;
+      --card: #0f1829;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: #1f2937;
+      --shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(45,212,191,0.08), transparent 30%),
+                  radial-gradient(circle at 90% 10%, rgba(110,231,255,0.08), transparent 30%),
+                  var(--navy);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      padding: 28px 20px 96px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--aqua));
+      display: grid;
+      place-items: center;
+      color: var(--navy);
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .lang-toggle button {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .lang-toggle button.active {
+      background: linear-gradient(135deg, var(--cyan), var(--aqua));
+      color: var(--navy);
+      box-shadow: 0 10px 30px rgba(45,212,191,0.4);
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      align-items: center;
+    }
+    .hero h1 {
+      font-size: clamp(34px, 5vw, 48px);
+      margin: 0 0 18px;
+      letter-spacing: 0.02em;
+    }
+    .hero p {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 22px;
+    }
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+      font-size: 13px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--cyan), var(--aqua));
+      color: var(--navy);
+      box-shadow: 0 14px 38px rgba(45,212,191,0.45);
+    }
+    .btn.secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    main {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      margin-top: -36px;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 28px 20px 80px;
+    }
+
+    section {
+      max-width: 1180px;
+      margin: 0 auto 64px;
+      padding: 32px;
+      background: rgba(13,20,36,0.75);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    section h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      letter-spacing: 0.01em;
+    }
+    section > p {
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 160px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      color: var(--aqua);
+      font-size: 17px;
+    }
+    .card p, .card li {
+      color: var(--muted);
+      margin: 0 0 6px;
+      font-size: 15px;
+    }
+    .card ul { padding-left: 18px; margin: 0; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .step {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+    }
+    .step .num {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan), var(--aqua));
+      display: grid;
+      place-items: center;
+      color: var(--navy);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .step p { margin: 0; color: var(--text); font-weight: 600; }
+    .step span { color: var(--muted); font-size: 14px; display: block; }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    footer {
+      max-width: 1180px;
+      margin: 0 auto 60px;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 0 20px;
+    }
+    footer .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .nav { flex-direction: column; align-items: flex-start; }
+      .cta-row { width: 100%; }
+      .btn { width: 100%; text-align: center; }
+      section { padding: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <div class="logo">OP</div>
+        <div>OASIS PASS</div>
+      </div>
+      <div class="lang-toggle" aria-label="Language selector">
+        <button type="button" data-set-lang="ko" class="active">한국어</button>
+        <button type="button" data-set-lang="en">English</button>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div>
+        <div class="badge-row">
+          <div class="badge" data-i18n="hero.badge1">USDT Conditional Settlement</div>
+          <div class="badge" data-i18n="hero.badge2">API First</div>
+          <div class="badge" data-i18n="hero.badge3">Audit Trail</div>
+        </div>
+        <h1 data-i18n="hero.title">조건부 USDT 정산을 위한 인프라</h1>
+        <p data-i18n="hero.lead">
+          외부 합의가 충족되면 자동으로 Release/Refund가 실행되는 B2B 정산 레이어.
+          거래 중개, 시세 제공, 원화 취급 없이 안전하게 정산을 완료합니다.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="#how" data-i18n="hero.ctaPrimary">동작 방식 보기</a>
+          <a class="btn secondary" href="mailto:contact@oasispass.io" data-i18n="hero.ctaSecondary">도입 문의</a>
+        </div>
+      </div>
+      <div class="card" style="min-height: 240px;">
+        <h3 data-i18n="hero.trustTitle">신뢰를 담은 보안·컴플라이언스</h3>
+        <ul>
+          <li data-i18n="hero.trust1">Chainalysis KYT 기반 트랜잭션 모니터링</li>
+          <li data-i18n="hero.trust2">서명·정산 로그 영구 보관</li>
+          <li data-i18n="hero.trust3">역할 기반 권한, 다중 승인 옵션</li>
+          <li data-i18n="hero.trust4">24/7 가시성 대시보드 제공</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2 data-i18n="about.title">Oasis Pass란?</h2>
+      <p data-i18n="about.body">
+        Oasis Pass는 기업 간 계약 정산을 위해 설계된 USDT 기반 조건부 정산 인프라입니다.
+        합의된 조건이 충족되면 자동으로 정산을 실행하며, 거래를 중개하거나 원화·법정통화를 취급하지 않습니다.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3 data-i18n="about.card1.title">Conditional Settlement</h3>
+          <p data-i18n="about.card1.desc">외부 합의에 따라 자동 Release/Refund 실행</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="about.card2.title">No Trade, No Fiat</h3>
+          <p data-i18n="about.card2.desc">거래·시세 제공·법정통화 취급 없이 정산만 수행</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="about.card3.title">Infrastructure Layer</h3>
+          <p data-i18n="about.card3.desc">API 중심 설계로 ERP·플랫폼과 쉽게 연동</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="about.card4.title">Audit Ready</h3>
+          <p data-i18n="about.card4.desc">모든 조건·승인·정산 기록을 증빙 가능 형태로 저장</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <h2 data-i18n="flow.title">How It Works</h2>
+      <p data-i18n="flow.body">사전 합의된 조건이 충족되면 자동으로 정산이 집행됩니다.</p>
+      <div class="flow">
+        <div class="step">
+          <div class="num">1</div>
+          <p data-i18n="flow.step1.title">Parties Agreement</p>
+          <span data-i18n="flow.step1.desc">서비스 외부에서 조건 확정</span>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <p data-i18n="flow.step2.title">USDT Escrow Lock</p>
+          <span data-i18n="flow.step2.desc">에스크로에 자금 잠금</span>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <p data-i18n="flow.step3.title">Condition Pending</p>
+          <span data-i18n="flow.step3.desc">합의 조건 충족 여부 대기</span>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <p data-i18n="flow.step4.title">Auto Settlement</p>
+          <span data-i18n="flow.step4.desc">조건 충족 시 Release/Refund 실행</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="scope.title">What We Do / Don’t</h2>
+      <div class="split">
+        <div class="card">
+          <h3 data-i18n="scope.do.title">We Do</h3>
+          <ul>
+            <li data-i18n="scope.do.1">USDT 에스크로 정산</li>
+            <li data-i18n="scope.do.2">조건부 자동 정산</li>
+            <li data-i18n="scope.do.3">B2B 정산 API 제공</li>
+            <li data-i18n="scope.do.4">정산 로그·증빙 제공</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 data-i18n="scope.dont.title">We Don’t</h3>
+          <ul>
+            <li data-i18n="scope.dont.1">거래 중개</li>
+            <li data-i18n="scope.dont.2">시세 제공</li>
+            <li data-i18n="scope.dont.3">원화·법정통화 취급</li>
+            <li data-i18n="scope.dont.4">투자·수익 권유</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="use.title">Use Cases</h2>
+      <div class="grid">
+        <div class="card">
+          <h3 data-i18n="use.1.title">Enterprise Settlement</h3>
+          <p data-i18n="use.1.desc">기업 간 계약 정산 및 마일스톤 기반 지급</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="use.2.title">Cross-border Contracts</h3>
+          <p data-i18n="use.2.desc">시차·국경을 초월한 디지털 정산</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="use.3.title">ERP Integration</h3>
+          <p data-i18n="use.3.desc">내부 회계·정산 시스템과 API 연동</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="use.4.title">Marketplace Escrow</h3>
+          <p data-i18n="use.4.desc">플랫폼 신뢰도를 높이는 안전 결제/정산</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="row">
+      <div data-i18n="footer.copy">© 2026 Oasis Pass. All rights reserved.</div>
+      <div data-i18n="footer.disclaimer">We operate settlement infrastructure only. We do not intermediate trades or handle fiat currency.</div>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        "hero.badge1": "USDT Conditional Settlement",
+        "hero.badge2": "API First",
+        "hero.badge3": "Audit Trail",
+        "hero.title": "Infrastructure for Conditional USDT Settlement",
+        "hero.lead": "When external agreements are met, Release/Refund is executed automatically. No brokerage, no pricing feed, no fiat handling—just trusted settlement.",
+        "hero.ctaPrimary": "See how it works",
+        "hero.ctaSecondary": "Contact sales",
+        "hero.trustTitle": "Security and Compliance for Trust",
+        "hero.trust1": "Chainalysis KYT transaction monitoring",
+        "hero.trust2": "Immutable signing & settlement logs",
+        "hero.trust3": "Role-based access with multi-approval options",
+        "hero.trust4": "24/7 visibility dashboard",
+
+        "about.title": "What is Oasis Pass?",
+        "about.body": "Oasis Pass is a conditional settlement infrastructure built on USDT for inter-company contracts. When agreed conditions are met, settlement executes automatically without brokering trades or handling fiat.",
+        "about.card1.title": "Conditional Settlement",
+        "about.card1.desc": "Auto Release/Refund based on external agreement",
+        "about.card2.title": "No Trade, No Fiat",
+        "about.card2.desc": "We do not broker trades, provide pricing, or touch fiat",
+        "about.card3.title": "Infrastructure Layer",
+        "about.card3.desc": "API-first design that plugs into ERP and platforms",
+        "about.card4.title": "Audit Ready",
+        "about.card4.desc": "Conditions, approvals, and settlements stored as evidence",
+
+        "flow.title": "How It Works",
+        "flow.body": "Once the pre-agreed condition is verified, settlement executes automatically.",
+        "flow.step1.title": "Parties Agreement",
+        "flow.step1.desc": "Conditions finalized outside the service",
+        "flow.step2.title": "USDT Escrow Lock",
+        "flow.step2.desc": "Funds locked in escrow",
+        "flow.step3.title": "Condition Pending",
+        "flow.step3.desc": "Awaiting proof of agreed conditions",
+        "flow.step4.title": "Auto Settlement",
+        "flow.step4.desc": "Release/Refund triggers on condition met",
+
+        "scope.title": "What We Do / Don’t",
+        "scope.do.title": "We Do",
+        "scope.do.1": "USDT escrow settlement",
+        "scope.do.2": "Conditional automated settlement",
+        "scope.do.3": "B2B settlement API",
+        "scope.do.4": "Settlement logs and evidence",
+        "scope.dont.title": "We Don’t",
+        "scope.dont.1": "Intermediate trades",
+        "scope.dont.2": "Provide price feeds",
+        "scope.dont.3": "Handle fiat currencies",
+        "scope.dont.4": "Solicit investment/returns",
+
+        "use.title": "Use Cases",
+        "use.1.title": "Enterprise Settlement",
+        "use.1.desc": "Milestone-based payouts for inter-company contracts",
+        "use.2.title": "Cross-border Contracts",
+        "use.2.desc": "Digital settlement across borders and time zones",
+        "use.3.title": "ERP Integration",
+        "use.3.desc": "API hookup to internal accounting/settlement systems",
+        "use.4.title": "Marketplace Escrow",
+        "use.4.desc": "Secure payments to raise platform trust",
+
+        "footer.copy": "© 2026 Oasis Pass. All rights reserved.",
+        "footer.disclaimer": "We operate settlement infrastructure only. We do not intermediate trades or handle fiat currency."
+      },
+      ko: {
+        "hero.badge1": "USDT 조건부 정산",
+        "hero.badge2": "API First",
+        "hero.badge3": "Audit Trail",
+        "hero.title": "조건부 USDT 정산을 위한 인프라",
+        "hero.lead": "외부 합의가 충족되면 자동으로 Release/Refund가 실행되는 B2B 정산 레이어. 거래 중개, 시세 제공, 원화 취급 없이 안전하게 정산을 완료합니다.",
+        "hero.ctaPrimary": "동작 방식 보기",
+        "hero.ctaSecondary": "도입 문의",
+        "hero.trustTitle": "신뢰를 담은 보안·컴플라이언스",
+        "hero.trust1": "Chainalysis KYT 기반 트랜잭션 모니터링",
+        "hero.trust2": "서명·정산 로그 영구 보관",
+        "hero.trust3": "역할 기반 권한, 다중 승인 옵션",
+        "hero.trust4": "24/7 가시성 대시보드 제공",
+
+        "about.title": "Oasis Pass란?",
+        "about.body": "Oasis Pass는 기업 간 계약 정산을 위해 설계된 USDT 기반 조건부 정산 인프라입니다. 합의된 조건이 충족되면 자동으로 정산을 실행하며, 거래를 중개하거나 원화·법정통화를 취급하지 않습니다.",
+        "about.card1.title": "Conditional Settlement",
+        "about.card1.desc": "외부 합의에 따라 자동 Release/Refund 실행",
+        "about.card2.title": "No Trade, No Fiat",
+        "about.card2.desc": "거래·시세 제공·법정통화 취급 없이 정산만 수행",
+        "about.card3.title": "Infrastructure Layer",
+        "about.card3.desc": "API 중심 설계로 ERP·플랫폼과 쉽게 연동",
+        "about.card4.title": "Audit Ready",
+        "about.card4.desc": "모든 조건·승인·정산 기록을 증빙 가능 형태로 저장",
+
+        "flow.title": "How It Works",
+        "flow.body": "사전 합의된 조건이 충족되면 자동으로 정산이 집행됩니다.",
+        "flow.step1.title": "Parties Agreement",
+        "flow.step1.desc": "서비스 외부에서 조건 확정",
+        "flow.step2.title": "USDT Escrow Lock",
+        "flow.step2.desc": "에스크로에 자금 잠금",
+        "flow.step3.title": "Condition Pending",
+        "flow.step3.desc": "합의 조건 충족 여부 대기",
+        "flow.step4.title": "Auto Settlement",
+        "flow.step4.desc": "조건 충족 시 Release/Refund 실행",
+
+        "scope.title": "What We Do / Don’t",
+        "scope.do.title": "We Do",
+        "scope.do.1": "USDT 에스크로 정산",
+        "scope.do.2": "조건부 자동 정산",
+        "scope.do.3": "B2B 정산 API 제공",
+        "scope.do.4": "정산 로그·증빙 제공",
+        "scope.dont.title": "We Don’t",
+        "scope.dont.1": "거래 중개",
+        "scope.dont.2": "시세 제공",
+        "scope.dont.3": "원화·법정통화 취급",
+        "scope.dont.4": "투자·수익 권유",
+
+        "use.title": "Use Cases",
+        "use.1.title": "Enterprise Settlement",
+        "use.1.desc": "기업 간 계약 정산 및 마일스톤 기반 지급",
+        "use.2.title": "Cross-border Contracts",
+        "use.2.desc": "시차·국경을 초월한 디지털 정산",
+        "use.3.title": "ERP Integration",
+        "use.3.desc": "내부 회계·정산 시스템과 API 연동",
+        "use.4.title": "Marketplace Escrow",
+        "use.4.desc": "플랫폼 신뢰도를 높이는 안전 결제/정산",
+
+        "footer.copy": "© 2026 Oasis Pass. All rights reserved.",
+        "footer.disclaimer": "Oasis Pass는 정산 인프라만 제공합니다. 거래를 중개하거나 원화 등 법정통화를 취급하지 않습니다."
+      }
+    };
+
+    const root = document.documentElement;
+    const buttons = document.querySelectorAll("[data-set-lang]");
+    const fields = document.querySelectorAll("[data-i18n]");
+
+    function setLanguage(lang) {
+      const dict = translations[lang];
+      if (!dict) return;
+      root.setAttribute("lang", lang);
+      root.setAttribute("data-lang", lang);
+      fields.forEach(node => {
+        const key = node.dataset.i18n;
+        if (dict[key]) node.textContent = dict[key];
+      });
+      buttons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.setLang === lang);
+      });
+      localStorage.setItem("oasispass-lang", lang);
+    }
+
+    buttons.forEach(btn => btn.addEventListener("click", () => setLanguage(btn.dataset.setLang)));
+
+    const saved = localStorage.getItem("oasispass-lang");
+    const browserLang = navigator.language?.startsWith("en") ? "en" : "ko";
+    setLanguage(saved || browserLang);
+  </script>
+</body>
+</html>
